@@ -1,0 +1,49 @@
+# Macro file for the initialization when running Qt
+#
+# Set verbosity levels
+/event/verbose 2
+/tracking/verbose 2
+/control/verbose 2
+/control/saveHistory
+/vis/verbose errors
+
+#
+# Create a scene handler and a viewer for the OGLSX driver
+/vis/open OGL
+#
+# Draw geometry:
+/vis/drawVolume
+#
+# Specify view angle:
+/vis/viewer/zoom 1.0
+/vis/viewer/set/viewpointThetaPhi 90 0 deg
+#
+# Coordinate axes:  x-axis:red,  y-axis:green,  z-axis:blue
+#/vis/scene/add/axes 0 0 0 100 mm
+#
+# Specify style (surface, wireframe, auxiliary edges,...)
+/vis/viewer/set/style wireframe
+#/vis/viewer/set/auxiliaryEdge true
+#/vis/viewer/set/lineSegmentsPerCircle 100
+#
+# Draw smooth trajectories at end of event, showing trajectory points
+# as markers 2 pixels wide:
+/tracking/storeTrajectory 1
+/vis/scene/add/trajectories smooth
+#/vis/modeling/trajectories/create/drawByCharge
+#/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+#/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+#
+# Draw hits at end of event:
+#/vis/scene/add/hits
+#
+# To superimpose all of the events from a given run:
+/vis/scene/endOfEventAction accumulate
+/vis/viewer/refresh
+#
+# to change the detector material use:
+# /Xe/detector/setMat GXe
+# /vis/viewer/rebuild 
+#
+# run macros with: /control/execute *file*.mac
+# for testing: /macros/beamOn_neutron.mac, /macros/beamOn_geantino.mac, /macros/beamOn_opticalphoton.mac

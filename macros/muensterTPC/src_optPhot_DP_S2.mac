@@ -1,0 +1,20 @@
+# switch on scintillation inside the TPC
+/Xe/detector/setLXeScintillation false
+
+/Xe/gun/type Volume
+/Xe/gun/shape Cylinder
+
+# only the active volume (z: 0<>3|x/y: -40<>40)
+/Xe/gun/halfz 1.5 mm
+/Xe/gun/radius 40 mm
+/Xe/gun/center 0 0 1.5 mm
+
+/Xe/gun/confine LXe GXe
+/Xe/gun/energy 6.98 eV
+/Xe/gun/particle opticalphoton
+
+# only for per PMT maps
+# /xe/gun/numberofparticles 2500
+
+# Tree Filling options
+/run/writeEmpty true

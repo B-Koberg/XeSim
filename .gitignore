@@ -1,3 +1,6 @@
+# Geant4
+*.root
+
 # Prerequisites
 *.d
 
