@@ -39,11 +39,11 @@ int main(int argc, char **argv) {
 	int iNbEventsToSimulate = 0;
     std::string hCommand;
 	std::string hPreInitMacroFilename, hDetectorMacroFilename, hRunMacroFilename;
-    std::string hDataFilename, hVRMLFilename, hExperiment;
+    std::string hDataFilename, hExperiment;
 	std::stringstream hStream;
     
 	if ( argc == 1 ) { bInteractive = true; }
-	while((c = getopt(argc,argv,"p:f:o:n:v:c:d:i")) != -1) {
+	while((c = getopt(argc,argv,"p:f:o:n:c:d:vi")) != -1) {
 		switch(c)	{
 			case 'p':
 				bPreInitMacroFile = true;
@@ -85,7 +85,6 @@ int main(int argc, char **argv) {
 				
 			case 'v':
 				bVisualize = true;
-                hVRMLFilename = optarg;
 				break;
 				
 			case 'i':
@@ -106,8 +105,7 @@ int main(int argc, char **argv) {
     }
     
     if (hDataFilename.empty()) hDataFilename = "events.root";
-    if (hVRMLFilename.empty()) hVRMLFilename = "XeSim.vrml";
-    
+
     // create the run manager
     G4RunManager *pRunManager = new G4RunManager;    
 
@@ -150,6 +148,14 @@ int main(int argc, char **argv) {
         //pUImanager->ApplyCommand("/control/execute macros/vis.mac");
     } else if (!bRunMacroFile) { usage(); }
 	
+    if (bVisualize) {
+        pUImanager->ApplyCommand("/vis/scene/create");
+        pUImanager->ApplyCommand("/vis/open VRML2FILE");
+        pUImanager->ApplyCommand("/vis/drawVolume");
+        pUImanager->ApplyCommand("/vis/viewer/set/viewpointThetaPhi 90 0 deg");
+        pUImanager->ApplyCommand("/vis/viewer/set/upVector 0 0 1");
+    }
+    
     // detector ruintime setup (e.g. detector messenger functions)
 	if(bDetectorMacroFile) {
 		hCommand = "/control/execute " + hDetectorMacroFilename;
@@ -182,7 +188,7 @@ int main(int argc, char **argv) {
 	}
   
 	// delete all created objects
-	if(bInteractive) delete pVisManager;
+	if(bVisualize) delete pVisManager;
 	delete pRunManager;
 	
 	return 0;	
