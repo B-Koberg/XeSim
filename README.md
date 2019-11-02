@@ -5,7 +5,7 @@
 
 You can find this package at https://github.com/l-althueser/XeSim and check out the most recent version with:
 
-    git clone https://<username>:<password>@github.com/l-althueser/XeSim.git
+    git clone https://github.com/l-althueser/XeSim.git
 
 Ensure ROOT (version 6) and GEANT4 (tested with G4.10.3.3) are properly setup.
 
