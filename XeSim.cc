@@ -10,6 +10,7 @@
 #include <G4VisExecutive.hh>
 #include <G4UIExecutive.hh>
 
+#include "templateDetectorConstruction.hh"
 #include "muensterTPCDetectorConstruction.hh"
 
 #include "XeSimPhysicsList.hh"
@@ -111,7 +112,11 @@ int main(int argc, char **argv) {
 
     // trigger detector construction
     int iNbPhotoDets = 0;
-    if (hExperiment == "muensterTPC") {
+    if (hExperiment == "template") {
+        templateDetectorConstruction *ptemplateDetectorConstruction = new templateDetectorConstruction();
+        iNbPhotoDets = ptemplateDetectorConstruction->GetGeometryParameter("NbPhotoDets");
+        pRunManager->SetUserInitialization(ptemplateDetectorConstruction);  
+    } else if (hExperiment == "muensterTPC") {
         muensterTPCDetectorConstruction *pmuensterTPCDetectorConstruction = new muensterTPCDetectorConstruction();
         iNbPhotoDets = pmuensterTPCDetectorConstruction->GetGeometryParameter("NbPhotoDets");
         pRunManager->SetUserInitialization(pmuensterTPCDetectorConstruction);
@@ -145,7 +150,7 @@ int main(int argc, char **argv) {
 	G4UIExecutive* ui = 0;
 	if (bInteractive) {	
         ui = new G4UIExecutive(argc, argv, "Qt"); 
-        //pUImanager->ApplyCommand("/control/execute macros/vis.mac");
+        pUImanager->ApplyCommand("/control/execute macros/interactive.mac");
     } else if (!bRunMacroFile) { usage(); }
 	
     if (bVisualize) {

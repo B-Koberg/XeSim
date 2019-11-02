@@ -18,6 +18,7 @@ public:
 public:
 	int m_iEventId;
 	vector<int> *m_pPhotoDetHits;
+    int m_iNbPhotoDetHits;
 	float m_fTotalEnergyDeposited;
 	int m_iNbSteps;
 	vector<int> *m_pTrackId;

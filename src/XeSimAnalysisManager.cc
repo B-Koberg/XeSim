@@ -78,6 +78,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     m_pTree->Branch("eventid", &m_pEventData->m_iEventId, "eventid/I");
     // photodethits:	total amount of PMT hits for a specific eventid and for each PMT
     m_pTree->Branch("photodethits", "vector<int>", &m_pEventData->m_pPhotoDetHits);
+    m_pTree->Branch("nphotodethits", &m_pEventData->m_iNbPhotoDetHits, "nphotodethits/I");
     // etot: Amount of energy, which is deopsited during this eventid/particle run.
     m_pTree->Branch("etot", &m_pEventData->m_fTotalEnergyDeposited, "etot/F");
     m_pTree->Branch("nsteps", &m_pEventData->m_iNbSteps, "nsteps/I");
@@ -226,6 +227,10 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
 
 		for(G4int i=0; i<iNbPhotoDetHits; i++)
 			(*(m_pEventData->m_pPhotoDetHits))[(*pPhotoDetHitsCollection)[i]->GetPhotoDetNb()]++;
+
+        m_pEventData->m_iNbPhotoDetHits = iNbPhotoDetHits;
+        //accumulate(m_pEventData->m_pPhotoDetHits->begin(),
+        //           m_pEventData->m_pPhotoDetHits->begin() + iNbPhotoDetHits, 0);
 
 	    // save only energy depositing events
 	    if(writeEmptyEvents) {

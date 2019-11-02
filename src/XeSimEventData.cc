@@ -3,7 +3,8 @@
 XeSimEventData::XeSimEventData() {
 	m_iEventId = 0;
 	m_pPhotoDetHits = new vector<int>;
-
+    m_iNbPhotoDetHits = 0;
+    
 	m_fTotalEnergyDeposited = 0.;
 	m_iNbSteps = 0;
 
@@ -50,7 +51,8 @@ XeSimEventData::~XeSimEventData() {
 void XeSimEventData::Clear() {
 	m_iEventId = 0;
 	m_pPhotoDetHits->clear();
-
+    m_iNbPhotoDetHits = 0;
+    
 	m_fTotalEnergyDeposited = 0.0;
 	m_iNbSteps = 0;
 
