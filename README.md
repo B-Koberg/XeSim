@@ -1,5 +1,7 @@
 # XeSim
- Geant4 simulations of xenon-based detectors
+Geant4 simulations of xenon-based detectors
+
+[![DOI](https://zenodo.org/badge/219137604.svg)](https://zenodo.org/badge/latestdoi/219137604)
 
 ## Installation instructions
 
