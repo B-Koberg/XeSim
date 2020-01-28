@@ -103,7 +103,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     // ed:	energy deposition of the current particle/trackid
     m_pTree->Branch("ed", "vector<float>", &m_pEventData->m_pEnergyDeposited);
     // time:	timestamp of the current particle/trackid
-    m_pTree->Branch("time", "vector<float>", &m_pEventData->m_pTime);
+    m_pTree->Branch("time", "vector<double>", &m_pEventData->m_pTime);
 
     // type_pri:	type of the primary event/main event
     m_pTree->Branch("type_pri", "vector<string>", &m_pEventData->m_pPrimaryParticleType);
