@@ -15,6 +15,7 @@
 
 #include "XeSimPrimaryGeneratorAction.hh"
 #include "XeSimAnalysisManager.hh"
+#include "XeSimAnalysisMessenger.hh"
 #include "XeSimEventData.hh"
 #include "XeSimLXeHit.hh"
 #include "XeSimPhotoDetHit.hh"
@@ -34,9 +35,14 @@ XeSimAnalysisManager::XeSimAnalysisManager(XeSimPrimaryGeneratorAction *pPrimary
 	m_pPrimaryGeneratorAction = pPrimaryGeneratorAction;
 	m_pEventData = new XeSimEventData();
 	writeEmptyEvents = kFALSE;
+    
+    m_pAnalysisMessenger = new XeSimAnalysisMessenger(this);
+    
+    m_PhotoDetHitsDetails = kFALSE;
 }
 
 XeSimAnalysisManager::~XeSimAnalysisManager(){
+    delete m_pAnalysisMessenger;
 }
 
 void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
@@ -113,6 +119,18 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     m_pTree->Branch("yp_pri", &m_pEventData->m_fPrimaryY, "yp_pri/F");
     m_pTree->Branch("zp_pri", &m_pEventData->m_fPrimaryZ, "zp_pri/F");
     m_pTree->Branch("vol_pri", &m_pEventData->m_fPrimaryVolume);
+    
+    // Array of PmtHits, indexed by PMT ID
+    if (m_PhotoDetHitsDetails == kTRUE) {
+      m_pTree->Branch("photodethitID", "vector<int>", &m_pEventData->m_pPhotoDetHitID);
+      m_pTree->Branch("photodethitTime", "vector<double>", &m_pEventData->m_pPhotoDetHitTime);
+      m_pTree->Branch("photodethitEnergy", "vector<float>", &m_pEventData->m_pPhotoDetHitEnergy);
+      m_pTree->Branch("photodethitTheta", "vector<float>",&m_pEventData->m_pPhotoDetHitTheta);
+      m_pTree->Branch("photodethitPhi", "vector<float>", &m_pEventData->m_pPhotoDetHitPhi);
+      m_pTree->Branch("photodethitXp", "vector<float>", &m_pEventData->m_pPhotoDetHitX);
+      m_pTree->Branch("photodethitYp", "vector<float>", &m_pEventData->m_pPhotoDetHitY);
+      m_pTree->Branch("photodethitZp", "vector<float>", &m_pEventData->m_pPhotoDetHitZ);
+    }
     
     m_pTree->SetMaxTreeSize(1000*Long64_t(2000000000)); //2TB
     m_pTree->AutoSave();
@@ -225,9 +243,33 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
 		m_pEventData->m_fTotalEnergyDeposited = fTotalEnergyDeposited;
 		m_pEventData->m_pPhotoDetHits->resize(m_iNbPhotoDets, 0);
 
+        // PhotoDet hits
 		for(G4int i=0; i<iNbPhotoDetHits; i++)
+        {
 			(*(m_pEventData->m_pPhotoDetHits))[(*pPhotoDetHitsCollection)[i]->GetPhotoDetNb()]++;
+            
+            if (m_PhotoDetHitsDetails) {
+                m_pEventData->m_pPhotoDetHitID->push_back((*pPhotoDetHitsCollection)[i]->GetPhotoDetNb());
+                m_pEventData->m_pPhotoDetHitTime->push_back((*pPhotoDetHitsCollection)[i]->GetTime() / second);
 
+                m_pEventData->m_pPhotoDetHitEnergy->push_back((*pPhotoDetHitsCollection)[i]->GetEnergy()/eV);
+                // G4cout <<  pEvent->GetEventID() << " - TIME " <<
+                // (*pPhotoDetHitsCollection)[i]->GetTime()/second << " - Energy " << (*pPhotoDetHitsCollection)[i]->GetEnergy()/eV << G4endl;
+
+                // m_pEventData->m_pTrackId->push_back((*pPhotoDetHitsCollection)[i]->GetTrackId());
+                m_pEventData->m_pPhotoDetHitX->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().x() / mm);
+                m_pEventData->m_pPhotoDetHitY->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().y() / mm);
+                m_pEventData->m_pPhotoDetHitZ->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().z() / mm);
+
+                G4ThreeVector direction =(*pPhotoDetHitsCollection)[i]->GetDirection();  // Normalized vector
+                m_pEventData->m_pPhotoDetHitTheta->push_back(std::acos(direction.z()));  // Direction.theta()
+                m_pEventData->m_pPhotoDetHitPhi->push_back(std::atan2(direction.y(), direction.x()));  // Direction.phi()
+                // m_pEventData->m_pPmtHitVolumeName->push_back((*pPhotoDetHitsCollection)[i]->GetVolumeName());
+
+                m_pEventData->m_pParticleType->push_back("opticalphoton");
+              }
+        }
+        
         m_pEventData->m_iNbPhotoDetHits = iNbPhotoDetHits;
         //accumulate(m_pEventData->m_pPhotoDetHits->begin(),
         //           m_pEventData->m_pPhotoDetHits->begin() + iNbPhotoDetHits, 0);

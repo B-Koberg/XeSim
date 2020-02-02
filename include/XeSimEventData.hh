@@ -17,8 +17,16 @@ public:
 
 public:
 	int m_iEventId;
-	vector<int> *m_pPhotoDetHits;
     int m_iNbPhotoDetHits;
+    vector<int> *m_pPhotoDetHits;
+    vector<int> *m_pPhotoDetHitID;
+    vector<double> *m_pPhotoDetHitTime;
+    vector<float> *m_pPhotoDetHitEnergy;
+    vector<float> *m_pPhotoDetHitTheta;
+    vector<float> *m_pPhotoDetHitPhi;
+    vector<float> *m_pPhotoDetHitX;
+    vector<float> *m_pPhotoDetHitY;
+    vector<float> *m_pPhotoDetHitZ;
 	float m_fTotalEnergyDeposited;
 	int m_iNbSteps;
 	vector<int> *m_pTrackId;

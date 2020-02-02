@@ -11,6 +11,7 @@
 #include <G4UIExecutive.hh>
 
 #include "templateDetectorConstruction.hh"
+#include "RefSetupDetectorConstruction.hh"
 #include "muensterTPCDetectorConstruction.hh"
 
 #include "XeSimPhysicsList.hh"
@@ -116,6 +117,10 @@ int main(int argc, char **argv) {
         templateDetectorConstruction *ptemplateDetectorConstruction = new templateDetectorConstruction();
         iNbPhotoDets = ptemplateDetectorConstruction->GetGeometryParameter("NbPhotoDets");
         pRunManager->SetUserInitialization(ptemplateDetectorConstruction);  
+    } else if (hExperiment == "RefSetup") {
+        RefSetupDetectorConstruction *pRefSetupDetectorConstruction = new RefSetupDetectorConstruction();
+        iNbPhotoDets = pRefSetupDetectorConstruction->GetGeometryParameter("NbPhotoDets");
+        pRunManager->SetUserInitialization(pRefSetupDetectorConstruction);  
     } else if (hExperiment == "muensterTPC") {
         muensterTPCDetectorConstruction *pmuensterTPCDetectorConstruction = new muensterTPCDetectorConstruction();
         iNbPhotoDets = pmuensterTPCDetectorConstruction->GetGeometryParameter("NbPhotoDets");

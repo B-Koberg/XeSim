@@ -16,6 +16,7 @@ class TTree;
 
 class XeSimEventData;
 class XeSimPrimaryGeneratorAction;
+class XeSimAnalysisMessenger;
 
 class XeSimAnalysisManager {
 public:
@@ -36,10 +37,14 @@ public:
   void SetVersionTag(const G4String &hVersionTag) { m_hVersionTag = hVersionTag; }
   void SetExperimentTag(const G4String &hExperimentTag) { m_hExperimentTag = hExperimentTag; }
 
+  void SetPhotoDetHitsDetails(G4bool details) { m_PhotoDetHitsDetails = details; }
+
   void AddMacroFile(const G4String &hMacroFile) { m_hMacroFiles.push_back(hMacroFile); }
 
 private:
     G4Timer *runTime;
+
+    XeSimAnalysisMessenger *m_pAnalysisMessenger;
 
 	G4int m_iLXeHitsCollectionID;
 	G4int m_iPhotoDetHitsCollectionID;
@@ -64,6 +69,7 @@ private:
 	XeSimEventData *m_pEventData;
 	
 	G4bool writeEmptyEvents;
+    G4bool m_PhotoDetHitsDetails;
 };
 
 #endif

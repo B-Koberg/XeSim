@@ -2,8 +2,17 @@
 
 XeSimEventData::XeSimEventData() {
 	m_iEventId = 0;
-	m_pPhotoDetHits = new vector<int>;
-    m_iNbPhotoDetHits = 0;
+	m_iNbPhotoDetHits = 0;
+    m_pPhotoDetHits = new vector<int>;
+    m_pPhotoDetHitID = new vector<int>;
+	m_pPhotoDetHitTime = new vector<double>;
+	m_pPhotoDetHitEnergy = new vector<float>;
+	m_pPhotoDetHitTheta = new vector<float>;
+	m_pPhotoDetHitPhi = new vector<float>;
+	//m_pPhotoDetHitVolumeName = new vector<string>;
+	m_pPhotoDetHitX = new vector<float>;
+	m_pPhotoDetHitY = new vector<float>;
+	m_pPhotoDetHitZ = new vector<float>;
     
 	m_fTotalEnergyDeposited = 0.;
 	m_iNbSteps = 0;
@@ -32,6 +41,15 @@ XeSimEventData::XeSimEventData() {
 
 XeSimEventData::~XeSimEventData() {
 	delete m_pPhotoDetHits;
+    delete m_pPhotoDetHitID;
+    delete m_pPhotoDetHitTime;
+    delete m_pPhotoDetHitEnergy;
+    delete m_pPhotoDetHitTheta;
+    delete m_pPhotoDetHitPhi;
+    delete m_pPhotoDetHitX;
+    delete m_pPhotoDetHitY;
+    delete m_pPhotoDetHitZ;
+    
 	delete m_pTrackId;
 	delete m_pParentId;
 	delete m_pParticleType;
@@ -50,8 +68,16 @@ XeSimEventData::~XeSimEventData() {
 
 void XeSimEventData::Clear() {
 	m_iEventId = 0;
-	m_pPhotoDetHits->clear();
     m_iNbPhotoDetHits = 0;
+    m_pPhotoDetHits->clear();
+    m_pPhotoDetHitID->clear();
+    m_pPhotoDetHitTime->clear();
+    m_pPhotoDetHitEnergy->clear();
+    m_pPhotoDetHitTheta->clear();
+    m_pPhotoDetHitPhi->clear();
+    m_pPhotoDetHitX->clear();
+    m_pPhotoDetHitY->clear();
+    m_pPhotoDetHitZ->clear();
     
 	m_fTotalEnergyDeposited = 0.0;
 	m_iNbSteps = 0;
