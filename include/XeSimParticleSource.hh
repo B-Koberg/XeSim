@@ -26,7 +26,10 @@ public:
 	void SetPosDisType(G4String hSourcePosType) { m_hSourcePosType = hSourcePosType; }
 	void SetPosDisShape(G4String hShape) { m_hShape = hShape; }
 	void SetCenterCoords(G4ThreeVector hCenterCoords) { m_hCenterCoords = hCenterCoords; }
-	void SetHalfZ(G4double dHalfz) { m_dHalfz = dHalfz; }
+	
+    void SetHalfX(G4double dHalfx) { m_dHalfx = dHalfx; }
+    void SetHalfY(G4double dHalfy) { m_dHalfy = dHalfy; }
+    void SetHalfZ(G4double dHalfz) { m_dHalfz = dHalfz; }
 	void SetRadius(G4double dRadius) { m_dRadius = dRadius; }
 
 	void SetAngDistType(G4String hAngDistType) { m_hAngDistType = hAngDistType; }
@@ -62,6 +65,8 @@ private:
 	G4String m_hSourcePosType;
 	G4String m_hShape;
 	G4ThreeVector m_hCenterCoords;
+    G4double m_dHalfx;
+    G4double m_dHalfy;
 	G4double m_dHalfz;
 	G4double m_dRadius;
 	G4bool m_bConfine;

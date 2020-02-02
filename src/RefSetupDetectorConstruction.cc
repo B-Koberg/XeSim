@@ -187,7 +187,7 @@ void RefSetupDetectorConstruction::DefineMaterials() {
   SS304LSteel->AddElement(Si, 0.01);
 
   G4double pdSteelPhotonMomentum[] = {6.91*eV, 6.98*eV, 7.05*eV};
-  G4double pdSteelReflectivity[]   = {0.15,    0.2,     0.15};
+  G4double pdSteelReflectivity[]   = {0.05, 0.05, 0.05}; //{0.15,    0.2,     0.15};
   G4MaterialPropertiesTable *pSteelPropertiesTable = new G4MaterialPropertiesTable();
 
   pSteelPropertiesTable->AddProperty("REFLECTIVITY", pdSteelPhotonMomentum, pdSteelReflectivity, iNbEntries);
@@ -418,17 +418,17 @@ void RefSetupDetectorConstruction::ConstructDetector() {
   G4SubtractionSolid* pPTFESampleHole = new G4SubtractionSolid("PTFESample", pPTFESample, pHoleTubs,
                                                            rmHole, G4ThreeVector(GetGeometryParameter("PTFESampleHalfX")+0.01, 0., 0.));                                                        
   
-  G4Tubs *pPhotonTubs = new G4Tubs("PhotonTubs", 0., 3., 
+  G4Tubs *pPhotonTubs = new G4Tubs("PhotonTubs", 0., 1., 
                                    0.1, 0.*deg, 360.*deg);                                    
   G4SubtractionSolid* pPTFESampleHoles = new G4SubtractionSolid("PTFESample with source", pPTFESampleHole, pPhotonTubs,
-                                                           rmHole, G4ThreeVector(-GetGeometryParameter("PTFESampleHalfX")-0.0001+2.*GetGeometryParameter("PTFESampleCutHalfX"), 0., 0.));                                                        
+                                                           rmHole, G4ThreeVector(0.1-GetGeometryParameter("PTFESampleHalfX")-0.00001+2.*GetGeometryParameter("PTFESampleCutHalfX"), 0., 0.));                                                        
   
   m_pPTFELogicalVolume = new G4LogicalVolume(pPTFESampleHoles, GXePTFE, "PTFEVolume", 0, 0, 0);
   m_pPTFEPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(GetGeometryParameter("CenterFlangeToPTFESamples"), 0., GetGeometryParameter("PTFEHolderHalfZ")), m_pPTFELogicalVolume,
                                               "PTFEHolderBox", m_pVacuumLogicalVolume, false, 0);
  
   m_pPhotonsLogicalVolume = new G4LogicalVolume(pPhotonTubs, Vacuum, "PhotonVolume", 0, 0, 0);
-  m_pPhotonsPhysicalVolume = new G4PVPlacement(rmHole, G4ThreeVector(GetGeometryParameter("CenterFlangeToPTFESamples"), 0., GetGeometryParameter("PTFEHolderHalfZ")), m_pPhotonsLogicalVolume,
+  m_pPhotonsPhysicalVolume = new G4PVPlacement(rmHole, G4ThreeVector(0.1+GetGeometryParameter("CenterFlangeToPTFESamples"), 0., GetGeometryParameter("PTFEHolderHalfZ")), m_pPhotonsLogicalVolume,
                                               "PhotonSource", m_pVacuumLogicalVolume, false, 0);
  
   // optical border surface

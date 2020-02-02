@@ -1,9 +1,10 @@
 /Xe/gun/type Volume
-/Xe/gun/shape Cylinder
+/Xe/gun/shape Box
 
-/Xe/gun/halfz 6 mm
-/Xe/gun/radius 3 mm
-/Xe/gun/center 6 0 3 mm
+/Xe/gun/halfx 1 mm
+/Xe/gun/halfy 3 mm
+/Xe/gun/halfz 3 mm
+/Xe/gun/center 6.25 0 4.5 mm
 
 /Xe/gun/confine PhotonSource
 /Xe/gun/energy 6.98 eV

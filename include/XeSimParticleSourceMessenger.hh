@@ -37,6 +37,8 @@ private:
   G4UIcmdWithAString         *m_pTypeCmd;
   G4UIcmdWithAString         *m_pShapeCmd;
   G4UIcmdWith3VectorAndUnit  *m_pCenterCmd;
+  G4UIcmdWithADoubleAndUnit  *m_pHalfxCmd;
+  G4UIcmdWithADoubleAndUnit  *m_pHalfyCmd;
   G4UIcmdWithADoubleAndUnit  *m_pHalfzCmd;
   G4UIcmdWithADoubleAndUnit  *m_pRadiusCmd;
   G4UIcmdWithAString         *m_pConfineCmd;         

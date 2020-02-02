@@ -109,7 +109,7 @@ XeSimParticleSourceMessenger::XeSimParticleSourceMessenger(XeSimParticleSource *
 	m_pShapeCmd->SetGuidance("Sets source shape type.");
 	m_pShapeCmd->SetParameterName("Shape", true, true);
 	m_pShapeCmd->SetDefaultValue("NULL");
-	m_pShapeCmd->SetCandidates("Sphere Cylinder");
+	m_pShapeCmd->SetCandidates("Sphere Cylinder Box");
 
 	// center coordinates
 	m_pCenterCmd = new G4UIcmdWith3VectorAndUnit("/Xe/gun/center", this);
@@ -117,6 +117,20 @@ XeSimParticleSourceMessenger::XeSimParticleSourceMessenger(XeSimParticleSource *
 	m_pCenterCmd->SetParameterName("X", "Y", "Z", true, true);
 	m_pCenterCmd->SetDefaultUnit("cm");
 	m_pCenterCmd->SetUnitCandidates("nm mum mm cm m km");
+
+    // half x of source(if source shape is Box)
+    m_pHalfxCmd = new G4UIcmdWithADoubleAndUnit("/Xe/gun/halfx", this);
+    m_pHalfxCmd->SetGuidance("Set x half length of source.");
+    m_pHalfxCmd->SetParameterName("Halfx", true, true);
+    m_pHalfxCmd->SetDefaultUnit("cm");
+    m_pHalfxCmd->SetUnitCandidates("nm mum mm cm m km");
+
+    // half y of source (if source shape is Box)
+    m_pHalfyCmd = new G4UIcmdWithADoubleAndUnit("/Xe/gun/halfy", this);
+    m_pHalfyCmd->SetGuidance("Set y half length of source.");
+    m_pHalfyCmd->SetParameterName("Halfy", true, true);
+    m_pHalfyCmd->SetDefaultUnit("cm");
+    m_pHalfyCmd->SetUnitCandidates("nm mum mm cm m km");
 
 	// half height of source
 	m_pHalfzCmd = new G4UIcmdWithADoubleAndUnit("/Xe/gun/halfz", this);
@@ -181,6 +195,8 @@ XeSimParticleSourceMessenger::~XeSimParticleSourceMessenger()
 	delete m_pTypeCmd;
 	delete m_pShapeCmd;
 	delete m_pCenterCmd;
+    delete m_pHalfxCmd;
+    delete m_pHalfyCmd;
 	delete m_pHalfzCmd;
 	delete m_pRadiusCmd;
 	delete m_pConfineCmd;
@@ -209,6 +225,12 @@ XeSimParticleSourceMessenger::SetNewValue(G4UIcommand * command, G4String newVal
 
 	else if(command == m_pCenterCmd)
 		m_pParticleSource->SetCenterCoords(m_pCenterCmd->GetNew3VectorValue(newValues));
+
+    else if (command == m_pHalfxCmd)
+        m_pParticleSource->SetHalfX(m_pHalfxCmd->GetNewDoubleValue(newValues));
+
+    else if (command == m_pHalfyCmd)
+        m_pParticleSource->SetHalfY(m_pHalfyCmd->GetNewDoubleValue(newValues));
 
 	else if(command == m_pHalfzCmd)
 		m_pParticleSource->SetHalfZ(m_pHalfzCmd->GetNewDoubleValue(newValues));

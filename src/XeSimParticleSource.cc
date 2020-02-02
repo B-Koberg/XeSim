@@ -38,7 +38,9 @@ XeSimParticleSource::XeSimParticleSource()
 
 	m_hSourcePosType = "Volume";
 	m_hShape = "NULL";
-	m_dHalfz = 0.;
+	m_dHalfy = 0.;
+    m_dHalfx = 0.;
+    m_dHalfz = 0.;
 	m_dRadius = 0.;
 	m_hCenterCoords = hZero;
 	m_bConfine = false;
@@ -280,6 +282,12 @@ XeSimParticleSource::GeneratePointsInVolume()
 			z = (z * 2. * m_dHalfz) - m_dHalfz;
 		}
 	}
+
+    else if (m_hShape == "Box") {
+        x = 2 * (G4UniformRand() - 0.5) * m_dHalfx;
+        y = 2 * (G4UniformRand() - 0.5) * m_dHalfy;
+        z = 2 * (G4UniformRand() - 0.5) * m_dHalfz;
+    }
 
 	else
 		G4cout << "Error: Volume Shape Does Not Exist" << G4endl;
