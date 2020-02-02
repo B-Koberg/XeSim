@@ -20,7 +20,7 @@ XeSimEventData::XeSimEventData() {
 	m_pEnergyDeposited = new vector<float>;
 	m_pKineticEnergy = new vector<float>;
     
-	m_pTime = new vector<float>;
+	m_pTime = new vector<double>;
 
 	m_pPrimaryParticleType = new vector<string>;
 	m_fPrimaryEnergy = 0.;

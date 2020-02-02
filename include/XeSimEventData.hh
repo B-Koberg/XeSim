@@ -32,7 +32,7 @@ public:
 	vector<float> *m_pZ;
 	vector<float> *m_pEnergyDeposited;
 	vector<float> *m_pKineticEnergy;
-	vector<float> *m_pTime;
+	vector<double> *m_pTime;
 	vector<string> *m_pPrimaryParticleType;
 	float m_fPrimaryEnergy;
 	float m_fPrimaryX;
