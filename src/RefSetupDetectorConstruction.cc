@@ -285,7 +285,8 @@ void RefSetupDetectorConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["CenterToPMTCathode"] = 69.25*mm;
     
     // closer to PMT, screw holes for PTFE sample holder
-    m_hGeometryParameters["CenterFlangeToPTFESamples"] = 6.25*mm;
+    m_hGeometryParameters["CenterFlangeToCenterSS"] = 6.25*mm;
+    m_hGeometryParameters["CenterFlangeToPTFESamples"] = 16.25*mm;
     
     m_hGeometryParameters["HolderFlangeRadius"] = 35.00*mm;
     m_hGeometryParameters["HolderFlangeHeight"] = 12.00*mm;
@@ -364,8 +365,8 @@ void RefSetupDetectorConstruction::ConstructDetector() {
   m_pMainVacuumChamberFlangeLogicalVolume->SetSensitiveDetector(pLXeSD);
   
   // PMT screen
-  G4Tubs *pPMTScreenTubs = new G4Tubs("PMTScreenTubs", GetGeometryParameter("CenterToPMTCathode"), 
-                                             GetGeometryParameter("CenterToPMTCathode")+2.00*mm, 
+  G4Tubs *pPMTScreenTubs = new G4Tubs("PMTScreenTubs", GetGeometryParameter("CenterToPMTSlit"), 
+                                             GetGeometryParameter("CenterToPMTSlit")+2.00*mm, 
                                              0.5*GetGeometryParameter("PMTScreenHeight"), 
                                              0.*deg, 320.*deg);
   G4RotationMatrix *rm = new G4RotationMatrix;
@@ -398,7 +399,7 @@ void RefSetupDetectorConstruction::ConstructDetector() {
   G4SubtractionSolid* pPTFEHolderBox = new G4SubtractionSolid("PTFEHolderBox", pPTFEHolderOuterBox, pPTFEHolderInnerBox);                                                   
                                                      
   m_pPTFEHolderLogicalVolume = new G4LogicalVolume(pPTFEHolderBox, SS316LSteel, "PTFEHolderFlangeVolume", 0, 0, 0);
-  m_pPTFEHolderPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(GetGeometryParameter("CenterFlangeToPTFESamples"), 0., GetGeometryParameter("PTFEHolderHalfZ")), m_pPTFEHolderLogicalVolume,
+  m_pPTFEHolderPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(GetGeometryParameter("CenterFlangeToCenterSS"), 0., GetGeometryParameter("PTFEHolderHalfZ")), m_pPTFEHolderLogicalVolume,
                                               "PTFEHolderBox", m_pVacuumLogicalVolume, false, 0);
  
   G4Box *pPTFEBox = new G4Box("PTFEBox", GetGeometryParameter("PTFESampleHalfX"), 
@@ -418,7 +419,7 @@ void RefSetupDetectorConstruction::ConstructDetector() {
   G4SubtractionSolid* pPTFESampleHole = new G4SubtractionSolid("PTFESample", pPTFESample, pHoleTubs,
                                                            rmHole, G4ThreeVector(GetGeometryParameter("PTFESampleHalfX")+0.01, 0., 0.));                                                        
   
-  G4Tubs *pPhotonTubs = new G4Tubs("PhotonTubs", 0., 1., 
+  G4Tubs *pPhotonTubs = new G4Tubs("PhotonTubs", 0., 3., 
                                    0.1, 0.*deg, 360.*deg);                                    
   G4SubtractionSolid* pPTFESampleHoles = new G4SubtractionSolid("PTFESample with source", pPTFESampleHole, pPhotonTubs,
                                                            rmHole, G4ThreeVector(0.1-GetGeometryParameter("PTFESampleHalfX")-0.00001+2.*GetGeometryParameter("PTFESampleCutHalfX"), 0., 0.));                                                        
