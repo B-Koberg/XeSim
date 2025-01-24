@@ -49,10 +49,10 @@ XeSimPhysicsList::XeSimPhysicsList(): G4VModularPhysicsList() {
   m_pMessenger = new XeSimPhysicsMessenger(this);
 
   RegisterPhysics(OpticalPhysicsModel = new G4OpticalPhysics(VerboseLevel));
-  ((G4OpticalPhysics *)OpticalPhysicsModel)->SetMaxNumPhotonsPerStep(1000);
-  ((G4OpticalPhysics *)OpticalPhysicsModel)->SetMaxBetaChangePerStep(10);
-  ((G4OpticalPhysics *)OpticalPhysicsModel)->SetTrackSecondariesFirst(kCerenkov, true);
-  ((G4OpticalPhysics *)OpticalPhysicsModel)->Configure(kCerenkov, false);
+  //((G4OpticalPhysics *)OpticalPhysicsModel)->SetMaxNumPhotonsPerStep(1000);
+  //((G4OpticalPhysics *)OpticalPhysicsModel)->SetMaxBetaChangePerStep(10);
+  //((G4OpticalPhysics *)OpticalPhysicsModel)->SetTrackSecondariesFirst(kCerenkov, true);
+  //((G4OpticalPhysics *)OpticalPhysicsModel)->Configure(kCerenkov, false);
 
   // Hadron Elastic scattering
   RegisterPhysics(new G4HadronElasticPhysicsHP(VerboseLevel));
@@ -91,8 +91,9 @@ XeSimPhysicsList::XeSimPhysicsList(): G4VModularPhysicsList() {
 }
 
 void XeSimPhysicsList::SetCerenkov(G4bool useCerenkov) {
-  ((G4OpticalPhysics *)OpticalPhysicsModel)->Configure(kCerenkov, useCerenkov);
-    G4cout << "XeSimPhysicsList::SetCerenkov(): " << useCerenkov << G4endl;  
+  //((G4OpticalPhysics *)OpticalPhysicsModel)->Configure(kCerenkov, useCerenkov);
+  //  G4cout << "XeSimPhysicsList::SetCerenkov(): " << useCerenkov << G4endl;  
+  G4cout << "XeSimPhysicsList::SetCerenkov(): Not configured!" << G4endl;
 }
 
 void XeSimPhysicsList::SetEMlowEnergyModel(G4String name) {

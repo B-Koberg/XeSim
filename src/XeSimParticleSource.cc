@@ -185,7 +185,7 @@ XeSimParticleSource::ConfineSourceToVolume(G4String hVolumeList)
 		G4String hRequiredVolumeName = *pIt;
 		G4bool bMatch = false;
 
-		if(bMatch = (hRequiredVolumeName.last('*') != std::string::npos))
+		if(bMatch = (hRequiredVolumeName.rfind('*') != std::string::npos))
 			hRequiredVolumeName = hRequiredVolumeName.strip(G4String::trailing, '*');
 
 		G4bool bFoundOne = false;

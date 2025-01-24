@@ -9,6 +9,7 @@
 #include <G4Cons.hh>
 #include <G4UnionSolid.hh>
 #include <G4IntersectionSolid.hh>
+#include "G4LogicalBorderSurface.hh"
 #include <G4SubtractionSolid.hh>
 #include <G4LogicalVolume.hh>
 #include <G4PVPlacement.hh>
@@ -178,17 +179,17 @@ void muensterTPCDetectorConstruction::DefineMaterials() {
 		
   G4MaterialPropertiesTable *pLXePropertiesTable = new G4MaterialPropertiesTable();
 	
-  pLXePropertiesTable->AddProperty("FASTCOMPONENT", pdLXePhotonMomentum, pdLXeScintillation, iNbEntries);
-  pLXePropertiesTable->AddProperty("SLOWCOMPONENT", pdLXePhotonMomentum, pdLXeScintillation, iNbEntries);
+  pLXePropertiesTable->AddProperty("SCINTILLATIONCOMPONENT1", pdLXePhotonMomentum, pdLXeScintillation, iNbEntries);
+  pLXePropertiesTable->AddProperty("SCINTILLATIONCOMPONENT2", pdLXePhotonMomentum, pdLXeScintillation, iNbEntries);
   pLXePropertiesTable->AddProperty("RINDEX", pdLXePhotonMomentum, pdLXeRefractiveIndex, iNbEntries);
   pLXePropertiesTable->AddProperty("ABSLENGTH", pdLXePhotonMomentum, pdLXeAbsorbtionLength, iNbEntries);
   pLXePropertiesTable->AddProperty("RAYLEIGH", pdLXePhotonMomentum, pdLXeScatteringLength, iNbEntries);
 	
   pLXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0./(21.6*eV));
   pLXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
-  pLXePropertiesTable->AddConstProperty("FASTTIMECONSTANT", 3.*ns);
-  pLXePropertiesTable->AddConstProperty("SLOWTIMECONSTANT", 27.*ns);
-  pLXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);//ratio btw fast time constant and slow time constant
+  pLXePropertiesTable->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 3.*ns);
+  pLXePropertiesTable->AddConstProperty("SCINTILLATIONTIMECONSTANT2", 27.*ns);
+  pLXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD1", 1.0);//ratio btw fast time constant and slow time constant
 	
   LXe->SetMaterialPropertiesTable(pLXePropertiesTable);
 
@@ -204,17 +205,17 @@ void muensterTPCDetectorConstruction::DefineMaterials() {
 
   G4MaterialPropertiesTable *pGXePropertiesTable = new G4MaterialPropertiesTable();
 
-  pGXePropertiesTable->AddProperty("FASTCOMPONENT", pdGXePhotonMomentum, pdGXeScintillation, iNbEntries);
-  pGXePropertiesTable->AddProperty("SLOWCOMPONENT", pdGXePhotonMomentum, pdGXeScintillation, iNbEntries);
+  pGXePropertiesTable->AddProperty("SCINTILLATIONCOMPONENT1", pdGXePhotonMomentum, pdGXeScintillation, iNbEntries);
+  pGXePropertiesTable->AddProperty("SCINTILLATIONCOMPONENT2", pdGXePhotonMomentum, pdGXeScintillation, iNbEntries);
   pGXePropertiesTable->AddProperty("RINDEX", pdGXePhotonMomentum, pdGXeRefractiveIndex, iNbEntries);
   pGXePropertiesTable->AddProperty("ABSLENGTH", pdGXePhotonMomentum, pdGXeAbsorbtionLength, iNbEntries);
   pGXePropertiesTable->AddProperty("RAYLEIGH", pdGXePhotonMomentum, pdGXeScatteringLength, iNbEntries);
 
   pGXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0./(21.6*eV));
   pGXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
-  pGXePropertiesTable->AddConstProperty("FASTTIMECONSTANT", 3.*ns);
-  pGXePropertiesTable->AddConstProperty("SLOWTIMECONSTANT", 27.*ns);
-  pGXePropertiesTable->AddConstProperty("YIELDRATIO", 1.0);
+  pGXePropertiesTable->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 3.*ns);
+  pGXePropertiesTable->AddConstProperty("SCINTILLATIONTIMECONSTANT2", 27.*ns);
+  pGXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD1", 1.0);
 
   GXe->SetMaterialPropertiesTable(pGXePropertiesTable);	
 

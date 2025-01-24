@@ -282,7 +282,7 @@ XeSimParticleSourceMessenger::SetNewValue(G4UIcommand * command, G4String newVal
 			m_iAtomicMass = StoI(next());
 			G4String sQ = next();
 
-			if(sQ.isNull())
+			if(sQ.empty())
 			{
 				m_iIonCharge = m_iAtomicNumber;
 			}
@@ -290,7 +290,7 @@ XeSimParticleSourceMessenger::SetNewValue(G4UIcommand * command, G4String newVal
 			{
 				m_iIonCharge = StoI(sQ);
 				sQ = next();
-				if(sQ.isNull())
+				if(sQ.empty())
 				{
 					m_dIonExciteEnergy = 0.0;
 				}
