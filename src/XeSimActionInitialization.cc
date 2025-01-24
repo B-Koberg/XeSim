@@ -10,11 +10,11 @@
 #include "XeSimRunAction.hh"
 #include "XeSimEventAction.hh"
 
-XeSimActionInitialization::XeSimActionInitialization (int NbEventsToSimulate, int NbPhotoDets,
+XeSimActionInitialization::XeSimActionInitialization(XeSimAnalysisManager *pNewAnalysisManager, int NbEventsToSimulate, int NbPhotoDets,
 std::string NewDatafileName, std::string ExperimentTag, XeSimPrimaryGeneratorAction *pNewPrimaryGeneratorAction) {	
 	pPrimaryGeneratorAction = pNewPrimaryGeneratorAction;
   
-	pAnalysisManager = new XeSimAnalysisManager(pPrimaryGeneratorAction);
+	pAnalysisManager = pNewAnalysisManager;
     pAnalysisManager->SetNbEventsToSimulate(NbEventsToSimulate);
 	pAnalysisManager->SetDataFilename(NewDatafileName);
     pAnalysisManager->SetExperimentTag(ExperimentTag);

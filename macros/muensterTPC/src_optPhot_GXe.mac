@@ -28,3 +28,5 @@
 
 # Tree Filling options
 /run/writeEmpty true
+
+/analysis/settings/setPhotoDetdetails true

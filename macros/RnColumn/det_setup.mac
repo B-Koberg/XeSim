@@ -7,6 +7,4 @@
 /Xe/detector/setLXeRayScatterLength 30 cm
 /Xe/detector/setLXeRefractionIndex 1.63
 
-/Xe/detector/setNbTopPmts 4
-/Xe/detector/setNbBottomPmts 4
 /Xe/detector/setSeparationPlateMaterial LXePTFE

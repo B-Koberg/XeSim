@@ -12,7 +12,7 @@
 class XeSimActionInitialization : public G4VUserActionInitialization
 {
   public:
-  	XeSimActionInitialization(int, int, std::string, std::string, XeSimPrimaryGeneratorAction*);
+  	XeSimActionInitialization(XeSimAnalysisManager*, int, int, std::string, std::string, XeSimPrimaryGeneratorAction*);
     virtual ~XeSimActionInitialization();
 
     virtual void BuildForMaster() const;

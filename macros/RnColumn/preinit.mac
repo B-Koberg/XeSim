@@ -7,4 +7,9 @@
 /run/physics/setHadronicModel QGSP_BERT_HP
 /run/physics/setCerenkov false
 
+/Xe/detector/setLXeLevel 100 mm
+
+/Xe/detector/setNbTopPmts 4
+/Xe/detector/setNbBottomPmts 4
+
 /run/initialize

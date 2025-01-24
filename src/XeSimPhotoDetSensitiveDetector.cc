@@ -49,6 +49,8 @@ G4bool XeSimPhotoDetSensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHis
         pHit->SetTrackId(pTrack->GetTrackID());
         
 		m_pPhotoDetHitsCollection->insert(pHit);
+
+		//G4cout << "PhotoDetHit: " << pHit->GetPhotoDetNb() << " " << pHit->GetTime() << " " << pHit->GetEnergy() << " " << pHit->GetPosition() << G4endl;
         
 		return true;
 	}

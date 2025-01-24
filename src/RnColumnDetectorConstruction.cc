@@ -49,10 +49,10 @@ map<G4String, G4double> RnColumnDetectorConstruction::m_hGeometryParameters;
 
 RnColumnDetectorConstruction::RnColumnDetectorConstruction() {
     // needs to be set for the AnalysisManager
-    m_hGeometryParameters["NbPhotoDets"] = 1;
+    m_hGeometryParameters["NbPhotoDets"] = 10;
     m_pDetectorMessenger = new RnColumnDetectorMessenger(this);
 
-    pLXeLevel = 100.0;
+    pLXeLevel = 100.0*mm;
     m_iNbTopPmts = 0;
     m_iNbBottomPmts = 0;
 }
@@ -721,10 +721,20 @@ void RnColumnDetectorConstruction::ConstructReboiler() {
 
 void RnColumnDetectorConstruction::SetNbTopPmts(G4int iNbTopPmts) {
   m_iNbTopPmts = iNbTopPmts;
+  if (GetGeometryParameter("NbPhotoDets") < m_iNbTopPmts+m_iNbBottomPmts) {
+    G4cout << "!!!!! Error from DetectorConstruction::SetNbTopPmts : "
+           << "NbPhotoDets < NbTopPmts + NbBottomPmts" << G4endl;
+    exit(-1);
+  }
 }
 
 void RnColumnDetectorConstruction::SetNbBottomPmts(G4int iNbBottomPmts) {
   m_iNbBottomPmts = iNbBottomPmts;
+  if (GetGeometryParameter("NbPhotoDets") < m_iNbTopPmts+m_iNbBottomPmts) {
+    G4cout << "!!!!! Error from DetectorConstruction::SetNbBottomPmts : "
+           << "NbPhotoDets < NbTopPmts + NbBottomPmts" << G4endl;
+    exit(-1);
+  }
 }
 
 void RnColumnDetectorConstruction::SetSeparationPlateMaterial(const G4String& name) {

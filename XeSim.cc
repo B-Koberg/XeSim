@@ -136,11 +136,13 @@ int main(int argc, char **argv) {
     if (iNbPhotoDets == 0) { 
         G4cout << "NbPhotoDets not defined in the DetectorConstruction!" << G4endl; usage();
     }
-    
+
     // create the primary generator action
 	XeSimPrimaryGeneratorAction *pPrimaryGeneratorAction = new XeSimPrimaryGeneratorAction();
-	pRunManager->SetUserInitialization(new XeSimActionInitialization(iNbEventsToSimulate, iNbPhotoDets,
-        hDataFilename, hExperiment, pPrimaryGeneratorAction));
+	XeSimAnalysisManager* pAnalysisManager = new XeSimAnalysisManager(pPrimaryGeneratorAction);
+
+	pRunManager->SetUserInitialization(new XeSimActionInitialization(pAnalysisManager, iNbEventsToSimulate, 
+		iNbPhotoDets, hDataFilename, hExperiment, pPrimaryGeneratorAction));
 
     // Visualization Manager
     G4VisManager *pVisManager = new G4VisExecutive;
@@ -152,6 +154,7 @@ int main(int argc, char **argv) {
 
     if(bPreInitMacroFile) {
 		hCommand = "/control/execute " + hPreInitMacroFilename;
+		pAnalysisManager->AddMacroFile(hPreInitMacroFilename);
 		pUImanager->ApplyCommand(hCommand);
 	}
 	
@@ -174,12 +177,14 @@ int main(int argc, char **argv) {
     // detector ruintime setup (e.g. detector messenger functions)
 	if(bDetectorMacroFile) {
 		hCommand = "/control/execute " + hDetectorMacroFilename;
+		pAnalysisManager->AddMacroFile(hDetectorMacroFilename);
 		pUImanager->ApplyCommand(hCommand);
 	}
 
 	// run event source setup
 	if(bRunMacroFile) {
 		hCommand = "/control/execute " + hRunMacroFilename;
+		pAnalysisManager->AddMacroFile(hRunMacroFilename);
 		pUImanager->ApplyCommand(hCommand);
 	}
 		
