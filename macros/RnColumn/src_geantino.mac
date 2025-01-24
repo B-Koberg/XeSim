@@ -1,6 +1,6 @@
 /tracking/verbose 1
 
 /Xe/gun/particle geantino
-/Xe/gun/position 0 0 2000 mm
+/Xe/gun/position 0 0 0 mm
 /Xe/gun/direction 0 0 -1
 

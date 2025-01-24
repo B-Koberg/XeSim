@@ -109,7 +109,7 @@ XeSimParticleSourceMessenger::XeSimParticleSourceMessenger(XeSimParticleSource *
 	m_pShapeCmd->SetGuidance("Sets source shape type.");
 	m_pShapeCmd->SetParameterName("Shape", true, true);
 	m_pShapeCmd->SetDefaultValue("NULL");
-	m_pShapeCmd->SetCandidates("Sphere Cylinder Box");
+	m_pShapeCmd->SetCandidates("Sphere Cylinder Box BoxGaussYZ");
 
 	// center coordinates
 	m_pCenterCmd = new G4UIcmdWith3VectorAndUnit("/Xe/gun/center", this);

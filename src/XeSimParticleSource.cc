@@ -288,6 +288,13 @@ XeSimParticleSource::GeneratePointsInVolume()
         y = 2 * (G4UniformRand() - 0.5) * m_dHalfy;
         z = 2 * (G4UniformRand() - 0.5) * m_dHalfz;
     }
+    
+    else if (m_hShape == "BoxGaussYZ") {
+        x = 2 * (G4UniformRand() - 0.5) * m_dHalfx;
+		// G4RandGauss::shoot(mean, sigma) which is scaled and moved to (0,0)
+        y = 2 * (G4RandGauss::shoot(0.5, 0.08) - 0.5) * m_dHalfy;
+        z = 2 * (G4RandGauss::shoot(0.5, 0.1) - 0.5) * m_dHalfz;
+    }
 
 	else
 		G4cout << "Error: Volume Shape Does Not Exist" << G4endl;

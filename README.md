@@ -26,6 +26,11 @@ You can run the code with the following command
 
 where `-d`, `-p`, `-f` and `-n` arguments are required for the simulation to run without errors. The optional parameters `-v` and `-i` trigger the visualization and interactive modes.
 
+Available detectors:
+* "template": a simple detector with a volume and a single PMT
+* "muensterTPC": a version of the TPC in the XENON/LowRad setup at the University of Münster
+* some smaller detectors
+
 ### template detector
 **interactive**
 ```

@@ -41,38 +41,39 @@ using std::max;
 
 #include "XeSimLXeSensitiveDetector.hh"
 #include "XeSimPhotoDetSensitiveDetector.hh"
-#include "RefSetupDetectorConstruction.hh"
+#include "RnColumnDetectorConstruction.hh"
 //#include "templateDetectorMessenger.hh"
 
-map<G4String, G4double> RefSetupDetectorConstruction::m_hGeometryParameters;
+map<G4String, G4double> RnColumnDetectorConstruction::m_hGeometryParameters;
 
-RefSetupDetectorConstruction::RefSetupDetectorConstruction() {
+RnColumnDetectorConstruction::RnColumnDetectorConstruction() {
     // needs to be set for the AnalysisManager
     m_hGeometryParameters["NbPhotoDets"] = 1;
     //m_pDetectorMessenger = new templateDetectorMessenger(this);
 }
 
-RefSetupDetectorConstruction::~RefSetupDetectorConstruction() {
+RnColumnDetectorConstruction::~RnColumnDetectorConstruction() {
   //delete m_pDetectorMessenger;
 }
 
-G4VPhysicalVolume* RefSetupDetectorConstruction::Construct() {
+G4VPhysicalVolume* RnColumnDetectorConstruction::Construct() {
     DefineMaterials();
     
     DefineGeometryParameters();
     
     ConstructLaboratory();
     
-    ConstructDetector();
+    ConstructReboiler();
+    ConstructPMTs();
     
     return m_pLabPhysicalVolume;
 }
 
-G4double RefSetupDetectorConstruction::GetGeometryParameter(const char *szParameter) {
+G4double RnColumnDetectorConstruction::GetGeometryParameter(const char *szParameter) {
   return m_hGeometryParameters[szParameter];
 }
 
-void RefSetupDetectorConstruction::DefineMaterials() {
+void RnColumnDetectorConstruction::DefineMaterials() {
   G4Element *Xe = new G4Element("Xenon",     "Xe", 54., 131.293*g/mole);
   G4Element *H  = new G4Element("Hydrogen",  "H",  1.,  1.0079*g/mole);
   G4Element *C  = new G4Element("Carbon",    "C",  6.,  12.011*g/mole);
@@ -161,6 +162,21 @@ void RefSetupDetectorConstruction::DefineMaterials() {
 
   GXe->SetMaterialPropertiesTable(pGXePropertiesTable);
   
+  //------------------------------------- cirlex ---------------------------------
+  G4Material *Cirlex = new G4Material("Cirlex", 1.43*g/cm3, 4, kStateSolid); //PMT base material
+  Cirlex->AddElement(C, 22);
+  Cirlex->AddElement(H, 10);
+  Cirlex->AddElement(N, 2);
+  Cirlex->AddElement(O, 5);
+
+  G4double pdCirlexPhotonMomentum[]  = {6.91*eV, 6.98*eV, 7.05*eV};
+  G4double pdCirlexReflectivity[]   = {0.5,    0.5,     0.5};
+
+  G4MaterialPropertiesTable *pCirlexPropertiesTable = new G4MaterialPropertiesTable();
+
+  pCirlexPropertiesTable->AddProperty("REFLECTIVITY", pdCirlexPhotonMomentum, pdCirlexReflectivity, iNbEntries);
+  Cirlex->SetMaterialPropertiesTable(pCirlexPropertiesTable);
+
   //----------------------------------- quartz ------------------------------------
   // ref: http://www.sciner.com/Opticsland/FS.htm
   G4Material *Quartz = new G4Material("Quartz", 2.201*g/cm3, 2, kStateSolid, 168.15*kelvin, 1.5*atmosphere);
@@ -282,66 +298,229 @@ void RefSetupDetectorConstruction::DefineMaterials() {
   GXePTFE->SetMaterialPropertiesTable(pGXePTFEPropertiesTable);
 }
 
-void RefSetupDetectorConstruction::DefineGeometryParameters() {
-    m_hGeometryParameters["MainVacuumChamberOuterRadius"] = 330.00*mm;
-    m_hGeometryParameters["MainVacuumChamberInnerRadius"] = 325.00*mm;
-    m_hGeometryParameters["MainVacuumChamberHalfZ"] = 150.00*mm;
-    m_hGeometryParameters["MainVacuumChamberFlangeHalfZ"] = 2.50*mm;
-    
-    m_hGeometryParameters["CenterToPMTSlit"] = 40.50*mm;
-    m_hGeometryParameters["CenterToPMTCathode"] = 69.25*mm;
-    
-    // closer to PMT, screw holes for PTFE sample holder
-    m_hGeometryParameters["CenterFlangeToCenterSS"] = 6.25*mm;
-    m_hGeometryParameters["CenterFlangeToPTFESamples"] = 16.25*mm;
-    
-    m_hGeometryParameters["HolderFlangeRadius"] = 35.00*mm;
-    m_hGeometryParameters["HolderFlangeHeight"] = 12.00*mm;
-    m_hGeometryParameters["HolderFlangeSampleHoleRadius"] = 1.50*mm;
-    m_hGeometryParameters["HolderFlangeSampleHoleHeight"] = 5.00*mm;
-    m_hGeometryParameters["HolderFlangeSampleHole1X"] = 0.00*mm;
-    m_hGeometryParameters["HolderFlangeSampleHole1Y"] = 0.00*mm;
-    m_hGeometryParameters["HolderFlangeSampleHole2X"] = 0.00*mm;
-    m_hGeometryParameters["HolderFlangeSampleHole2Y"] = -9.00*mm;
-    m_hGeometryParameters["HolderFlangeSampleHole3X"] = 0.00*mm;
-    m_hGeometryParameters["HolderFlangeSampleHole3Y"] = 9.00*mm;
-    m_hGeometryParameters["HolderFlangeSampleHole4X"] = -6.25*mm;
-    m_hGeometryParameters["HolderFlangeSampleHole4Y"] = 8.00*mm;
-    m_hGeometryParameters["HolderFlangeSampleHole5X"] = -6.25*mm;
-    m_hGeometryParameters["HolderFlangeSampleHole5Y"] = 8.00*mm;
-    m_hGeometryParameters["HolderFlangeQuartzTubeInnerRadius"] = 19.50*mm;
-    m_hGeometryParameters["HolderFlangeQuartzTubeOuterRadius"] = 21.50*mm;
-    // Visible height, add 2*recess for total height
-    m_hGeometryParameters["HolderFlangeQuartzTubeHeight"] = 43.00*mm;
-    m_hGeometryParameters["HolderFlangeQuartzTubeRecessHeight"] = 5.00*mm;
-    // seen from the collimator clockwise
-    m_hGeometryParameters["HolderFlangeRodRadius"] = 30.00*mm;
-    m_hGeometryParameters["HolderFlangeRodHoleRadius"] = 3.25*mm;
-    m_hGeometryParameters["HolderFlangeRod1Angle"] = 10;
-    m_hGeometryParameters["HolderFlangeRod2Angle"] = 130;
-    m_hGeometryParameters["HolderFlangeRod3Angle"] = 250;
-    
-    m_hGeometryParameters["PTFEHolderHalfX"] = 0.5*50.00*mm;
-    m_hGeometryParameters["PTFEHolderHalfY"] = 0.5*27.00*mm;
-    m_hGeometryParameters["PTFEHolderHalfZ"] = 0.5*9.00*mm;
-    
-    // PTFE samples for reflectivity
-    m_hGeometryParameters["PTFESampleReflectivityThickness"] = 3.00*mm;
-    m_hGeometryParameters["PTFESampleReflectivityWidth"] = 25.00*mm;
-    m_hGeometryParameters["PTFESampleReflectivityHeight"] = 30.00*mm;
+void RnColumnDetectorConstruction::DefineGeometryParameters() {
+  m_hGeometryParameters["MainVacuumChamberOuterRadius"] = 330.00*mm;
+  m_hGeometryParameters["MainVacuumChamberInnerRadius"] = 325.00*mm;
+  m_hGeometryParameters["MainVacuumChamberHalfZ"] = 400.00*mm;
+  m_hGeometryParameters["MainVacuumChamberFlangeHalfZ"] = 2.50*mm;
+  
+  // Reboiler: CF400 vessel with flanges
+  m_hGeometryParameters["ReboilerTubeOuterRadius"] = 0.5 * 400.00*mm;
+  m_hGeometryParameters["ReboilerTubeInnerRadius"] = 0.5 * 395.00*mm;
+  m_hGeometryParameters["ReboilerTubeHalfZ"] = 150.00*mm;
+  m_hGeometryParameters["ReboilerTopFlangeOuterRadius"] = 0.5 * 470.00*mm;
+  m_hGeometryParameters["ReboilerTopFlangeHalfZ"] = 0.5 * 28.00*mm;
+  m_hGeometryParameters["ReboilerBottomFlangeOuterRadius"] = 0.5 * 470.00*mm;
+  m_hGeometryParameters["ReboilerBottomFlangeHalfZ"] = 0.5 * 28.00*mm;
 
-    // PTFE samples for transmission studies with 6mm holes and U-shape
-    m_hGeometryParameters["PTFESampleTransmissionHalfZ"] = 0.5*7.00*mm;
-    m_hGeometryParameters["PTFESampleTransmissionHalfX"] = 0.5*10.00*mm;
-    m_hGeometryParameters["PTFESampleTransmissionCutHalfX"] = 0.5*5.00*mm;
-    m_hGeometryParameters["PTFESampleTransmissionHalfY"] = 0.5*25.00*mm;
-    m_hGeometryParameters["PTFESampleTransmissionCutHalfY"] = 0.5*10.00*mm;
-    m_hGeometryParameters["PTFESampleTransmissionHoleHalfX"] = 0.5*4.00*mm;
-    
-    m_hGeometryParameters["PMTScreenHeight"] = 100.00*mm;
+  // Xenon volumes
+  m_hGeometryParameters["LXeHalfZ"] = GetGeometryParameter("ReboilerTubeHalfZ");
+  m_hGeometryParameters["LXeOuterRadius"] = GetGeometryParameter("ReboilerTubeOuterRadius");
+  m_hGeometryParameters["GXeHalfZ"] = GetGeometryParameter("ReboilerTubeHalfZ")/4.;
+  m_hGeometryParameters["GXeOuterRadius"] = GetGeometryParameter("LXeOuterRadius");
+
+  m_hGeometryParameters["PmtWidth"]                 = 25.4*mm;
+  m_hGeometryParameters["PmtSpacing"]               = 2.0*mm;
+  m_hGeometryParameters["PmtWindowWidth"]           = 25.00*mm;
+  m_hGeometryParameters["PmtWindowThickness"]       = 1.50*mm;
+  m_hGeometryParameters["PmtCasingWidth"]           = 25.40*mm;
+  m_hGeometryParameters["PmtCasingHeight"]          = 27.00*mm;
+  m_hGeometryParameters["PmtCasingThickness"]       = 0.50*mm;
+  m_hGeometryParameters["PmtPhotoCathodeWidth"]     = 22.00*mm;
+  m_hGeometryParameters["PmtPhotoCathodeThickness"] = 0.50*mm;
+  m_hGeometryParameters["PmtBaseThickness"]         = 1.50*mm;
+  m_hGeometryParameters["PmtToPmtBase"]             = 3.00*mm;
+
 }
 
-void RefSetupDetectorConstruction::ConstructLaboratory() {
+void RnColumnDetectorConstruction::ConstructPMTs() {
+  const G4double dPmtWindowWidth = GetGeometryParameter("PmtWindowWidth");
+  const G4double dPmtWindowThickness = GetGeometryParameter("PmtWindowThickness");
+
+  const G4double dPmtCasingWidth = GetGeometryParameter("PmtCasingWidth");
+  const G4double dPmtCasingHeight = GetGeometryParameter("PmtCasingHeight");
+  const G4double dPmtCasingThickness = GetGeometryParameter("PmtCasingThickness");
+
+  const G4double dPmtPhotoCathodeWidth = GetGeometryParameter("PmtPhotoCathodeWidth");
+  const G4double dPmtPhotoCathodeThickness = GetGeometryParameter("PmtPhotoCathodeThickness");
+
+  const G4double dPmtToPmtBase= GetGeometryParameter("PmtToPmtBase");
+  const G4double dPmtBaseThickness = GetGeometryParameter("PmtBaseThickness");
+
+  const G4double dSpaceBelowTopPMTHeight= GetGeometryParameter("SpaceBelowTopPMTHeight");
+
+  G4Material *Quartz = G4Material::GetMaterial("Quartz"); //for the window
+  G4Material *SS304LSteel = G4Material::GetMaterial("SS304LSteel"); //for the frames
+  G4Material *Vacuum = G4Material::GetMaterial("Vacuum");
+  G4Material *Aluminium = G4Material::GetMaterial("PhotoCathodeAluminium"); //for the photocathode
+  G4Material *Cirlex = G4Material::GetMaterial("Cirlex"); //for the base
+  G4Material *GXe = G4Material::GetMaterial("GXe");
+  G4Material *PTFE = G4Material::GetMaterial("LXePTFE");
+
+  // PMT window made of quartz
+  // Sits on front face of PMT casing (not inside)
+  const G4double dPmtWindowHalfX = 0.5*dPmtWindowWidth;
+  const G4double dPmtWindowHalfZ = 0.5*dPmtWindowThickness;
+
+  G4Box *pPmtWindowBox = new G4Box("PmtWindowBox", dPmtWindowHalfX, dPmtWindowHalfX, dPmtWindowHalfZ);
+  m_pPmtWindowLogicalVolume = new G4LogicalVolume(pPmtWindowBox, Quartz, "PmtWindowLogicalVolume", 0, 0, 0);
+
+  // Main PMT body, called casing
+  // Filled with vacuum and the photocathode is on the front inside this casing
+  const G4double dPmtCasingHalfX = 0.5*dPmtCasingWidth;
+  const G4double dPmtCasingHalfZ = 0.5*dPmtCasingHeight;
+
+  G4Box *pPmtCasingBox = new G4Box("PmtCasingBox", dPmtCasingHalfZ, dPmtCasingHalfZ, dPmtCasingHalfX);
+  m_pPmtCasingLogicalVolume = new G4LogicalVolume(pPmtCasingBox, SS304LSteel, "PmtCasingLogicalVolume", 0, 0, 0);
+
+  // PMT interior -- vacuum filled space inside the casing
+  const G4double dPmtInteriorHalfX = dPmtCasingHalfX-dPmtCasingThickness;
+  const G4double dPmtInteriorHalfZ = dPmtCasingHalfZ-dPmtCasingThickness;
+
+  G4Box *pPmtInteriorBox = new G4Box("PmtInteriorBox", dPmtInteriorHalfZ, dPmtInteriorHalfZ, dPmtInteriorHalfX);
+  m_pPmtInteriorLogicalVolume = new G4LogicalVolume(pPmtInteriorBox, Vacuum, "PmtInteriorLogicalVolume", 0, 0, 0);
+
+  // PMT photocathode sits on the front face of the interior/casing
+  const G4double dPmtPhotoCathodeHalfX = 0.5*dPmtPhotoCathodeWidth;
+  const G4double dPmtPhotoCathodeHalfZ = 0.5*dPmtPhotoCathodeThickness;
+  const G4double dPmtPhotoCathodeOffsetZ = dPmtCasingHalfZ-dPmtPhotoCathodeHalfZ;
+
+  G4Box *pPmtPhotoCathodeBox = new G4Box("PmtPhotoCathodeBox", dPmtPhotoCathodeHalfX, dPmtPhotoCathodeHalfX, dPmtPhotoCathodeHalfZ);
+  m_pPmtPhotoCathodeLogicalVolume = new G4LogicalVolume(pPmtPhotoCathodeBox, Aluminium, "PmtPhotoCathodeLogicalVolume", 0, 0, 0);
+
+  // PMT base with a small offset to the bottom of the casing
+  // Electronics are not simulated which make up the offset
+  const G4double dPmtBaseHalfX = dPmtCasingHalfX;
+  const G4double dPmtBaseHalfZ = 0.5*dPmtBaseThickness;
+
+  G4Box *pPmtBaseBox = new G4Box("PmtBaseBox", dPmtBaseHalfX, dPmtBaseHalfX, dPmtBaseHalfZ);
+  m_pPmtBaseLogicalVolume = new G4LogicalVolume(pPmtBaseBox, Cirlex, "PmtBaseLogicalVolume", 0, 0, 0);
+
+  // Rotate along Z to along X
+  G4RotationMatrix *pPmtZYRotation = new G4RotationMatrix();
+  pPmtZYRotation->rotateY(90.*deg);
+
+  // Place the vacuum volume inside the casing
+  // Placement relative to the casing
+  m_pPmtInteriorPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.),
+						   m_pPmtInteriorLogicalVolume, "PmtInterior", m_pPmtCasingLogicalVolume, false, 0);
+
+  // Place the photocathode inside the casing
+  // Placement relative to the casing
+  m_pPmtPhotoCathodePhysicalVolume = new G4PVPlacement(pPmtZYRotation, G4ThreeVector(-dPmtPhotoCathodeOffsetZ, 0., 0),
+						       m_pPmtPhotoCathodeLogicalVolume, "PmtPhotoCathode", m_pPmtCasingLogicalVolume, false, 0);
+
+  // Make the absolute placements of the PMT parts in the detector volume
+  // Place PMTs in a circular pattern facing the center of the LXe volume
+  G4int iNbTopPmts = 4;
+  G4int iNbBottomPmts = 4;
+  
+  // Radius of the central reboiler to the PMT window face
+  G4double dPmtRadius = 100.00*mm;
+
+  const G4double dPmtBaseOffsetZ =(dPmtCasingHeight-dPmtWindowThickness-dPmtToPmtBase-dPmtBaseHalfZ);
+  const G4double dPmtCasingOffsetZ = (dPmtBaseOffsetZ+dPmtToPmtBase+dPmtBaseHalfZ+dPmtCasingHalfZ);
+  const G4double dPmtWindowOffsetZ = dPmtCasingOffsetZ+dPmtCasingHalfZ+dPmtWindowHalfZ;
+
+  G4int PmtNb = 0;
+  G4double dPmtAngle = 0;
+  G4double dPmtOffsetZ = 0;
+  G4double dDistanceTopBottom = 40.0*mm;
+
+  G4double PTFESeparatorToBottomFlange = 20.00*mm+2*dPmtCasingHalfX-GetGeometryParameter("ReboilerTubeHalfZ");
+
+  for (G4int i = 0; i < iNbTopPmts+iNbBottomPmts; i++) {
+    if (i < iNbTopPmts) {
+      PmtNb = i;
+      dPmtOffsetZ = PTFESeparatorToBottomFlange+0.5*dDistanceTopBottom;
+      dPmtAngle = 2.0*CLHEP::pi/iNbTopPmts;
+    } else {
+      PmtNb = i - iNbTopPmts;
+      dPmtOffsetZ = PTFESeparatorToBottomFlange-0.5*dDistanceTopBottom;
+      dPmtAngle = 2.0*CLHEP::pi/iNbBottomPmts;
+    }
+
+    G4double dPmtX = dPmtRadius*cos(PmtNb*dPmtAngle);
+    G4double dPmtY = dPmtRadius*sin(PmtNb*dPmtAngle);
+    G4ThreeVector hPmtPosition = G4ThreeVector(dPmtX, dPmtY, dPmtOffsetZ);
+
+    // First rotate the PMTs to face the center of the LXe volume
+    G4RotationMatrix *pPmtCasingRotation = new G4RotationMatrix();
+    pPmtCasingRotation->rotateZ(-PmtNb*dPmtAngle);
+    G4RotationMatrix *pPmtBaseRotation = new G4RotationMatrix();
+    pPmtBaseRotation->rotateZ(-PmtNb*dPmtAngle);
+    pPmtBaseRotation->rotateY(90.*deg);
+
+    G4double dPmtBaseX = (dPmtRadius+dPmtBaseOffsetZ)*cos(PmtNb*dPmtAngle);
+    G4double dPmtBaseY = (dPmtRadius+dPmtBaseOffsetZ)*sin(PmtNb*dPmtAngle);
+    G4ThreeVector hPmtBasePosition = G4ThreeVector(dPmtBaseX, dPmtBaseY, dPmtOffsetZ);
+
+    G4double dPmtWindowX = (dPmtRadius-dPmtCasingHalfX-dPmtWindowThickness)*cos(PmtNb*dPmtAngle);
+    G4double dPmtWindowY = (dPmtRadius-dPmtCasingHalfX-dPmtWindowThickness)*sin(PmtNb*dPmtAngle);
+    G4ThreeVector hPmtWindowPosition = G4ThreeVector(dPmtWindowX, dPmtWindowY, dPmtOffsetZ);
+
+    m_hPmtWindowPhysicalVolumes.push_back(new G4PVPlacement(pPmtBaseRotation, hPmtWindowPosition, m_pPmtWindowLogicalVolume, "PmtWindow", m_pLXeLogicalVolume, false, i));
+    m_hPmtCasingPhysicalVolumes.push_back(new G4PVPlacement(pPmtCasingRotation, hPmtPosition, m_pPmtCasingLogicalVolume, "PmtCasing", m_pLXeLogicalVolume, false, i));
+    m_hPmtBasePhysicalVolumes.push_back(new G4PVPlacement(pPmtBaseRotation, hPmtBasePosition, m_pPmtBaseLogicalVolume, "PmtBase", m_pLXeLogicalVolume, false, i));
+  }
+
+  // Add a PTFE plate between the top and bottom PMTs
+  const G4double dPTFEPMTSeparationTubsRadius = dPmtRadius+dPmtBaseOffsetZ+15*mm;
+  const G4double dPTFETopPMTHolderHalfZ = 0.5*3*mm;
+  G4Tubs *pPTFEPMTSeparationTubs = new G4Tubs("PTFEPmtSeparationTubs", 0, dPTFEPMTSeparationTubsRadius, dPTFETopPMTHolderHalfZ, 0.*deg, 360.*deg);
+  m_pPTFEPMTSeparationLogicalVolume = new G4LogicalVolume(pPTFEPMTSeparationTubs, PTFE, "PTFEPmtSeparationLogicalVolume", 0, 0, 0);
+  m_pPTFEPMTSeparationPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, PTFESeparatorToBottomFlange), m_pPTFEPMTSeparationLogicalVolume, "PTFEPmtSeparation", m_pLXeLogicalVolume, false, 0);
+
+  //------------------------------- pmt sensitivity -------------------------------
+  G4SDManager *pSDManager = G4SDManager::GetSDMpointer();
+
+  XeSimPhotoDetSensitiveDetector *pPmtSD = new XeSimPhotoDetSensitiveDetector("RnColumn/PmtSD");
+  pSDManager->AddNewDetector(pPmtSD);
+  m_pPmtPhotoCathodeLogicalVolume->SetSensitiveDetector(pPmtSD);
+
+  //================================== optical surface =================================	
+	G4OpticalSurface *pSS304LSteelOpticalSurface = new G4OpticalSurface("SS304LSteelOpticalSurface",
+		unified, polished, dielectric_metal);
+        pSS304LSteelOpticalSurface->SetMaterialPropertiesTable(SS304LSteel->GetMaterialPropertiesTable());
+
+	stringstream hStream;
+	for(G4int iPmtNb=0; iPmtNb<iNbTopPmts+iNbBottomPmts; iPmtNb++)
+	{
+		hStream.str("PmtCasingLogicalBorderSurfacePmt");
+		hStream << iPmtNb;
+		new G4LogicalBorderSurface(hStream.str(),
+ 		   m_pLXePhysicalVolume, m_hPmtCasingPhysicalVolumes[iPmtNb], pSS304LSteelOpticalSurface);
+		   //m_pGXePhysicalVolume, m_hPmtCasingPhysicalVolumes[iPmtNb], pSS304LSteelOpticalSurface);
+	}
+
+  //---------------------------------- attributes ---------------------------------
+  G4Colour hPmtWindowColor(0.4,0.804, 0.666,0.75);  //102 205 170 aquamarine
+  G4VisAttributes *pPmtWindowVisAtt = new G4VisAttributes(hPmtWindowColor);
+  pPmtWindowVisAtt->SetVisibility(true);
+  m_pPmtWindowLogicalVolume->SetVisAttributes(pPmtWindowVisAtt);
+
+  G4Colour hPmtCasingColor(0.623, 0.713, 0.804,0.75); //159 182 205 slate gray
+  G4VisAttributes *pPmtCasingVisAtt = new G4VisAttributes(hPmtCasingColor);
+  pPmtCasingVisAtt->SetVisibility(true);
+  m_pPmtCasingLogicalVolume->SetVisAttributes(pPmtCasingVisAtt);
+
+  G4VisAttributes *pPmtInteriorVisAtt = new G4VisAttributes();
+  pPmtInteriorVisAtt->SetVisibility(true);
+  m_pPmtInteriorLogicalVolume->SetVisAttributes(pPmtInteriorVisAtt);	
+
+  G4Colour hPmtPhotoCathodeColor(1., 0.725, 0.059,1.0); //255 185 15 gold
+  G4VisAttributes *pPmtPhotoCathodeVisAtt = new G4VisAttributes(hPmtPhotoCathodeColor);
+  pPmtPhotoCathodeVisAtt->SetVisibility(true);
+  m_pPmtPhotoCathodeLogicalVolume->SetVisAttributes(pPmtPhotoCathodeVisAtt);
+
+  G4Colour hPmtBaseColor(1., 0.204, 0.702,0.75); //255;52;179 pink
+  G4VisAttributes *pPmtBaseVisAtt = new G4VisAttributes(hPmtBaseColor);
+  pPmtBaseVisAtt->SetVisibility(true);
+  m_pPmtBaseLogicalVolume->SetVisAttributes(pPmtBaseVisAtt);
+
+}
+
+void RnColumnDetectorConstruction::ConstructLaboratory() {
   const G4double dLabHalfX = 1.5*m;
   const G4double dLabHalfY = 1.5*m;
   const G4double dLabHalfZ = 1.5*m;
@@ -360,7 +539,7 @@ void RefSetupDetectorConstruction::ConstructLaboratory() {
   m_pLabPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(), m_pLabLogicalVolume, "Lab", 0, false, 0);
 }
 
-void RefSetupDetectorConstruction::ConstructDetector() {
+void RnColumnDetectorConstruction::ConstructReboiler() {
   G4SDManager *pSDManager = G4SDManager::GetSDMpointer();
   
   G4Material *Vacuum = G4Material::GetMaterial("Vacuum");
@@ -371,13 +550,19 @@ void RefSetupDetectorConstruction::ConstructDetector() {
   G4Material *GXePTFE = G4Material::GetMaterial("GXePTFE");
   G4Material *PhotoDetAluminium = G4Material::GetMaterial("PhotoCathodeAluminium");
   
+  // At this point, the lab volume is the mother volume for the detector components
+  // Since the lab volume is filled with air, the first thing is to build a vacuum chamber
+
   // Main vacuum chamber
+  // We first fill the air volume with a vacuum volume and then place the vacuum chamber inside the vacuum volume
+  // The vacuum volume is 0.01mm larger than the vacuum chamber to avoid overlaps
   G4Tubs *pVacuumTubs = new G4Tubs("VacuumTubs", 0., GetGeometryParameter("MainVacuumChamberOuterRadius")-0.01, 
-                                              GetGeometryParameter("MainVacuumChamberHalfZ")+0.01, 0.*deg, 360.*deg);
+                                                     GetGeometryParameter("MainVacuumChamberHalfZ")+0.01, 0.*deg, 360.*deg);
   m_pVacuumLogicalVolume = new G4LogicalVolume(pVacuumTubs, Vacuum, "VacuumVolume", 0, 0, 0);
   m_pVacuumPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), m_pVacuumLogicalVolume,
                                               "Vacuum", m_pLabLogicalVolume, false, 0);
   
+  // Make the steel tube for the vacuum chamber
   G4Tubs *pMainVacuumChamberTubs = new G4Tubs("MainVacuumChamberTubs", GetGeometryParameter("MainVacuumChamberInnerRadius"), 
                                              GetGeometryParameter("MainVacuumChamberOuterRadius"), 
                                              GetGeometryParameter("MainVacuumChamberHalfZ"), 
@@ -386,160 +571,62 @@ void RefSetupDetectorConstruction::ConstructDetector() {
   m_pMainVacuumChamberPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), m_pMainVacuumChamberLogicalVolume, 
                                             "MainVacuumChamberCylinder", m_pVacuumLogicalVolume, false, 0);
   
+  // Define the flanges
   G4Tubs *pMainVacuumChamberFlangeTubs = new G4Tubs("MainVacuumChamberFlangeTubs", 0., GetGeometryParameter("MainVacuumChamberOuterRadius"), 
                                               GetGeometryParameter("MainVacuumChamberFlangeHalfZ"), 0.*deg, 360.*deg);
   
   m_pMainVacuumChamberFlangeLogicalVolume = new G4LogicalVolume(pMainVacuumChamberFlangeTubs, SS316LSteel, "MainVacuumChamberFlangeVolume", 0, 0, 0);
+  
+  // Use two physicak volumes for the top and bottom flanges
   m_pMainVacuumChamberFlangeTopPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., GetGeometryParameter("MainVacuumChamberHalfZ")+GetGeometryParameter("MainVacuumChamberFlangeHalfZ")), m_pMainVacuumChamberFlangeLogicalVolume,
                                               "MainVacuumChamberFlangeTop", m_pVacuumLogicalVolume, false, 0);
   m_pMainVacuumChamberFlangeBottomPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -GetGeometryParameter("MainVacuumChamberHalfZ")-GetGeometryParameter("MainVacuumChamberFlangeHalfZ")), m_pMainVacuumChamberFlangeLogicalVolume,
                                               "MainVacuumChamberFlangeBottom", m_pVacuumLogicalVolume, false, 0);
   
+  // Generate a liquid xenon volume for the LXe vessel
+  // Make the volume a bit smaller than the Reboiler vessel to avoid overlaps
+  G4Tubs *pLXeTubs = new G4Tubs("LXeTubs", 0., GetGeometryParameter("LXeOuterRadius")-0.01, 
+                                               GetGeometryParameter("LXeHalfZ")-0.01, 0.*deg, 360.*deg);
+
+  m_pLXeLogicalVolume = new G4LogicalVolume(pLXeTubs, LXe, "LXeVolume", 0, 0, 0);
+  m_pLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -GetGeometryParameter("ReboilerTubeHalfZ")), m_pLXeLogicalVolume, 
+                                           "LXe", m_pVacuumLogicalVolume, false, 0);
+
   XeSimLXeSensitiveDetector *pLXeSD = new XeSimLXeSensitiveDetector("RefSetup/LXeSD");
   pSDManager->AddNewDetector(pLXeSD);
-  m_pMainVacuumChamberFlangeLogicalVolume->SetSensitiveDetector(pLXeSD);
+  m_pLXeLogicalVolume->SetSensitiveDetector(pLXeSD);
   
-  // PMT screen
-  G4Tubs *pPMTScreenTubs = new G4Tubs("PMTScreenTubs", GetGeometryParameter("CenterToPMTSlit"), 
-                                             GetGeometryParameter("CenterToPMTSlit")+2.00*mm, 
-                                             0.5*GetGeometryParameter("PMTScreenHeight"), 
-                                             0.*deg, 320.*deg);
-  G4RotationMatrix *rm = new G4RotationMatrix;
-  rm->rotateZ(-20*deg);
+  // Generate a gaseous xenon volume in the top of the liquid xenon
+  G4Tubs *pGXeTubs = new G4Tubs("GXeTubs", 0., GetGeometryParameter("GXeOuterRadius")-0.01, 
+                                               GetGeometryParameter("GXeHalfZ")-0.01, 0.*deg, 360.*deg);
+
+  m_pGXeLogicalVolume = new G4LogicalVolume(pGXeTubs, GXe, "GXeVolume", 0, 0, 0);
+  m_pGXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., GetGeometryParameter("ReboilerTubeHalfZ")-GetGeometryParameter("GXeHalfZ")), m_pGXeLogicalVolume, 
+                                           "GXe", m_pLXeLogicalVolume, false, 0);
+
+  // Make the reboiler vessel
+  G4Tubs *pReboilerTubeTubs = new G4Tubs("ReboilerTubeTubs", GetGeometryParameter("ReboilerTubeInnerRadius"), 
+                                             GetGeometryParameter("ReboilerTubeOuterRadius"), 
+                                             GetGeometryParameter("ReboilerTubeHalfZ"), 0.*deg, 360.*deg);
+
+  m_pReboilerTubeLogicalVolume = new G4LogicalVolume(pReboilerTubeTubs, SS316LSteel, "ReboilerTubeVolume", 0, 0, 0);
+  m_pReboilerTubePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), m_pReboilerTubeLogicalVolume, 
+                                            "ReboilerTube", m_pLXeLogicalVolume, false, 0);
+
+  // Top and bottom flanges of the reboiler
+  G4Tubs *pReboilerTopFlangeTubs = new G4Tubs("ReboilerTopFlangeTubs", 0., GetGeometryParameter("ReboilerTopFlangeOuterRadius"), 
+                                               GetGeometryParameter("ReboilerTopFlangeHalfZ"), 0.*deg, 360.*deg);
   
-  m_pPMTScreenLogicalVolume = new G4LogicalVolume(pPMTScreenTubs, PhotoDetAluminium, "PMTScreenVolume", 0, 0, 0);
-  m_pPMTScreenPhysicalVolume = new G4PVPlacement(rm, G4ThreeVector(0., 0., 0.), m_pPMTScreenLogicalVolume, 
-                                            "PMTScreen", m_pVacuumLogicalVolume, false, 0);
-  
-  XeSimPhotoDetSensitiveDetector *pPmtSD = new XeSimPhotoDetSensitiveDetector("RefSetup/PhotoDetSD");
-  pSDManager->AddNewDetector(pPmtSD);
-  m_pPMTScreenLogicalVolume->SetSensitiveDetector(pPmtSD);  
-  
-  // Top and bottom flanges
-  G4Tubs *pSampleHolderFlangeTubs = new G4Tubs("SampleHolderFlangeFlangeTubs", 0., GetGeometryParameter("HolderFlangeRadius"), 
-                                               0.5*GetGeometryParameter("HolderFlangeHeight"), 0.*deg, 360.*deg);
-  G4Tubs *pSampleHolderFlangeRecessTubs = new G4Tubs("SampleHolderFlangeRecessTubs", GetGeometryParameter("HolderFlangeQuartzTubeInnerRadius"), GetGeometryParameter("HolderFlangeQuartzTubeOuterRadius"), 
-                                                     0.5*GetGeometryParameter("HolderFlangeQuartzTubeRecessHeight"), 0.*deg, 360.*deg);
-  G4SubtractionSolid* pSampleHolderFlange = new G4SubtractionSolid("_pSampleHolderFlange", pSampleHolderFlangeTubs, pSampleHolderFlangeRecessTubs,
-                                                                   0, G4ThreeVector(0, 0., 0.5*(GetGeometryParameter("HolderFlangeHeight")-GetGeometryParameter("HolderFlangeQuartzTubeRecessHeight"))+0.01));
+  m_pReboilerTopFlangeLogicalVolume = new G4LogicalVolume(pReboilerTopFlangeTubs, SS316LSteel, "ReboilerTopFlangeVolume", 0, 0, 0);
+  m_pReboilerTopFlangePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., GetGeometryParameter("ReboilerTopFlangeHalfZ")), m_pReboilerTopFlangeLogicalVolume,
+                                              "ReboilerTopFlange", m_pVacuumLogicalVolume, false, 0);
 
-  m_pSampleHolderFlangeBottomLogicalVolume = new G4LogicalVolume(pSampleHolderFlange, SS316LSteel, "SampleHolderFlangeBottomVolume", 0, 0, 0);
-  m_pSampleHolderFlangeBottomPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -0.5*GetGeometryParameter("HolderFlangeHeight")), m_pSampleHolderFlangeBottomLogicalVolume,
-                                                                "SampleHolderFlangeBottom", m_pVacuumLogicalVolume, false, 0);
+  m_pReboilerBottomFlangeLogicalVolume = new G4LogicalVolume(pReboilerTopFlangeTubs, SS316LSteel, "ReboilerBottomFlangeVolume", 0, 0, 0);
+  m_pReboilerBottomFlangePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -2*GetGeometryParameter("ReboilerTubeHalfZ")-GetGeometryParameter("ReboilerTopFlangeHalfZ")), m_pReboilerBottomFlangeLogicalVolume,
+                                              "ReboilerBottomFlange", m_pVacuumLogicalVolume, false, 0);
 
-  G4RotationMatrix *rmFlange = new G4RotationMatrix;
-  rmFlange->rotateY(180*deg);
-  m_pSampleHolderFlangeTopLogicalVolume = new G4LogicalVolume(pSampleHolderFlange, SS316LSteel, "SampleHolderFlangeTopVolume", 0, 0, 0);
-  m_pSampleHolderFlangeTopPhysicalVolume = new G4PVPlacement(rmFlange, G4ThreeVector(0., 0., 0.5*GetGeometryParameter("HolderFlangeHeight")+GetGeometryParameter("HolderFlangeQuartzTubeHeight")), 
-                                                             m_pSampleHolderFlangeTopLogicalVolume, "SampleHolderFlangeTop", m_pVacuumLogicalVolume, false, 0);
 
-  // Quartz tube
-  G4Tubs *pSampleHolderFlangeQuartzTubs = new G4Tubs("SampleHolderFlangeQuartzTubs", GetGeometryParameter("HolderFlangeQuartzTubeInnerRadius"), GetGeometryParameter("HolderFlangeQuartzTubeOuterRadius"), 
-                                                     0.5*(GetGeometryParameter("HolderFlangeQuartzTubeHeight")+2*GetGeometryParameter("HolderFlangeQuartzTubeRecessHeight")), 0.*deg, 360.*deg);
 
-  m_pSampleHolderFlangeQuartzTubsLogicalVolume = new G4LogicalVolume(pSampleHolderFlangeQuartzTubs, Quartz, "SampleHolderFlangeQuartzTubsVolume", 0, 0, 0);
-  m_pSampleHolderFlangeQuartzTubsPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.5*(GetGeometryParameter("HolderFlangeQuartzTubeHeight"))), m_pSampleHolderFlangeQuartzTubsLogicalVolume,
-                                                                    "SampleHolderFlangeQuartzTubs", m_pVacuumLogicalVolume, false, 0);
-
-  // Collimator
-  G4Tubs *pCollimatorTubs = new G4Tubs("CollimatorTubs", 0., 1., 0.5*40, 0.*deg, 360.*deg);
-  G4RotationMatrix *rmCollimator = new G4RotationMatrix;
-  rmCollimator->rotateY(90*deg);
-
-  m_pCollimatorTubsLogicalVolume = new G4LogicalVolume(pCollimatorTubs, Vacuum, "CollimatorTubsVolume", 0, 0, 0);
-  m_pCollimatorTubsPhysicalVolume = new G4PVPlacement(rmCollimator, G4ThreeVector(0.5*40+50, 0., 0.5*GetGeometryParameter("HolderFlangeQuartzTubeHeight")), m_pCollimatorTubsLogicalVolume,
-                                                      "CollimatorTubs", m_pVacuumLogicalVolume, false, 0);
-
-  G4Tubs *pPhotonTubs = new G4Tubs("PhotonTubs", 0., 1., 0.1, 0.*deg, 360.*deg);
-
-  m_pPhotonsLogicalVolume = new G4LogicalVolume(pPhotonTubs, Vacuum, "PhotonVolume", 0, 0, 0);
-  m_pPhotonsPhysicalVolume = new G4PVPlacement(rmCollimator, G4ThreeVector(50-0.1, 0., 0.5*GetGeometryParameter("HolderFlangeQuartzTubeHeight")), m_pPhotonsLogicalVolume,
-                                               "PhotonSource", m_pVacuumLogicalVolume, false, 0);
-
-  // PTFE sample
-  G4Box *pPTFEBox = new G4Box("PTFEBox", 0.5*GetGeometryParameter("PTFESampleReflectivityThickness"), 
-                                         0.5*GetGeometryParameter("PTFESampleReflectivityWidth"), 
-                                         0.5*GetGeometryParameter("PTFESampleReflectivityHeight"));
-
-  G4RotationMatrix *rmPTFE = new G4RotationMatrix;
-  rmPTFE->rotateZ(60*deg);
-  m_pPTFELogicalVolume = new G4LogicalVolume(pPTFEBox, GXePTFE, "PTFEVolume", 0, 0, 0);
-  m_pPTFEPhysicalVolume = new G4PVPlacement(rmPTFE, G4ThreeVector(-0.5*GetGeometryParameter("PTFESampleReflectivityThickness"), 0., 0.5*GetGeometryParameter("PTFESampleReflectivityHeight")), m_pPTFELogicalVolume,
-                                            "PTFEHolderBox", m_pVacuumLogicalVolume, false, 0);
-
-  // PTFE samples for transmission studies with 6mm holes and U-shape
-  // Sample (plain) 2020 style
-  // G4Box *pPTFEBox = new G4Box("PTFEBox", GetGeometryParameter("PTFESampleTransmissionHalfX"), 
-  //                                        GetGeometryParameter("PTFESampleTransmissionHalfY"), 
-  //                                        GetGeometryParameter("PTFESampleTransmissionHalfZ"));
-                                         
-  // G4Box *pPTFECutBox = new G4Box("PTFECutBox", GetGeometryParameter("PTFESampleTransmissionCutHalfX")+0.01, 
-  //                                              GetGeometryParameter("PTFESampleTransmissionCutHalfY"), 
-  //                                              GetGeometryParameter("PTFESampleTransmissionHalfZ")+0.01);
-  // G4SubtractionSolid* pPTFESample = new G4SubtractionSolid("_PTFESample", pPTFEBox, pPTFECutBox,
-  //                                                          0, G4ThreeVector(GetGeometryParameter("PTFESampleTransmissionCutHalfX"), 0., 0.));
-                                                           
-  // G4Tubs *pHoleTubs = new G4Tubs("HoleTubs", 0., 3., GetGeometryParameter("PTFESampleTransmissionHoleHalfX"), 0.*deg, 360.*deg);                                    
-  // G4RotationMatrix *rmHole = new G4RotationMatrix;
-  // rmHole->rotateY(90*deg);
-  // G4SubtractionSolid* pPTFESampleHole = new G4SubtractionSolid("PTFESample", pPTFESample, pHoleTubs,
-  //                                                          rmHole, G4ThreeVector(-GetGeometryParameter("PTFESampleTransmissionHoleHalfX")+0.01, 0., 0.));                                                        
-  
-  // G4Tubs *pPhotonTubs = new G4Tubs("PhotonTubs", 0., 3., 0.1, 0.*deg, 360.*deg);                                    
-  // G4SubtractionSolid* pPTFESampleHoles = new G4SubtractionSolid("PTFESample with source", pPTFESampleHole, pPhotonTubs,
-  //                                                          rmHole, G4ThreeVector(0.1-GetGeometryParameter("PTFESampleTransmissionHalfX")-0.00001, 0., 0.));                                                        
-  
-  // m_pPTFELogicalVolume = new G4LogicalVolume(pPTFESampleHoles, GXePTFE, "PTFEVolume", 0, 0, 0);
-  // m_pPTFEPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., GetGeometryParameter("PTFESampleTransmissionHalfZ")), m_pPTFELogicalVolume,
-  //                                             "PTFEHolderBox", m_pVacuumLogicalVolume, false, 0);
- 
-  // m_pPhotonsLogicalVolume = new G4LogicalVolume(pPhotonTubs, Vacuum, "PhotonVolume", 0, 0, 0);
-  // m_pPhotonsPhysicalVolume = new G4PVPlacement(rmHole, G4ThreeVector(0.1-GetGeometryParameter("PTFESampleTransmissionHalfX"), 0., GetGeometryParameter("PTFESampleTransmissionHalfZ")), m_pPhotonsLogicalVolume,
-  //                                             "PhotonSource", m_pVacuumLogicalVolume, false, 0); 
- 
-  // Sample (Holder) 2018 style
-  //G4Box *pPTFEHolderOuterBox = new G4Box("PTFEHolderOuterBox", GetGeometryParameter("PTFEHolderHalfX"), 
-  //                                                   GetGeometryParameter("PTFEHolderHalfY"), 
-  //                                                   GetGeometryParameter("PTFEHolderHalfZ"));
-  //G4Box *pPTFEHolderInnerBox = new G4Box("PTFEHolderInnerBox", GetGeometryParameter("PTFEHolderHalfX")+0.01, 
-  //                                                             GetGeometryParameter("PTFEHolderHalfY")-1., 
-  //                                                             GetGeometryParameter("PTFEHolderHalfZ")-1.);                                           
-  //G4SubtractionSolid* pPTFEHolderBox = new G4SubtractionSolid("PTFEHolderBox", pPTFEHolderOuterBox, pPTFEHolderInnerBox);                                                   
-  //                                                   
-  //m_pPTFEHolderLogicalVolume = new G4LogicalVolume(pPTFEHolderBox, SS316LSteel, "PTFEHolderFlangeVolume", 0, 0, 0);
-  //m_pPTFEHolderPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(GetGeometryParameter("CenterFlangeToCenterSS"), 0., GetGeometryParameter("PTFEHolderHalfZ")), m_pPTFEHolderLogicalVolume,
-  //                                            "PTFEHolderBox", m_pVacuumLogicalVolume, false, 0);
-  //
-  //G4Box *pPTFEBox = new G4Box("PTFEBox", GetGeometryParameter("PTFESampleHalfX"), 
-  //                                       GetGeometryParameter("PTFESampleHalfY"), 
-  //                                       GetGeometryParameter("PTFESampleHalfZ"));
-  //                                       
-  //G4Box *pPTFECutBox = new G4Box("PTFECutBox", GetGeometryParameter("PTFESampleCutHalfX")+0.01, 
-  //                                             GetGeometryParameter("PTFESampleCutHalfY"), 
-  //                                             GetGeometryParameter("PTFESampleHalfZ")+0.01);
-  //G4SubtractionSolid* pPTFESample = new G4SubtractionSolid("_PTFESample", pPTFEBox, pPTFECutBox,
-  //                                                         0, G4ThreeVector(-GetGeometryParameter("PTFESampleCutHalfX"), 0., 0.));
-  //                                                         
-  //G4Tubs *pHoleTubs = new G4Tubs("HoleTubs", 0., 3., 
-  //                               GetGeometryParameter("PTFESampleHoleHalfX"), 0.*deg, 360.*deg);                                    
-  //G4RotationMatrix *rmHole = new G4RotationMatrix;
-  //rmHole->rotateY(90*deg);
-  //G4SubtractionSolid* pPTFESampleHole = new G4SubtractionSolid("PTFESample", pPTFESample, pHoleTubs,
-  //                                                         rmHole, G4ThreeVector(GetGeometryParameter("PTFESampleHalfX")+0.01, 0., 0.));                                                        
-  //
-  //G4Tubs *pPhotonTubs = new G4Tubs("PhotonTubs", 0., 3., 
-  //                                 0.1, 0.*deg, 360.*deg);                                    
-  //G4SubtractionSolid* pPTFESampleHoles = new G4SubtractionSolid("PTFESample with source", pPTFESampleHole, pPhotonTubs,
-  //                                                         rmHole, G4ThreeVector(0.1-GetGeometryParameter("PTFESampleHalfX")-0.00001+2.*GetGeometryParameter("PTFESampleCutHalfX"), 0., 0.));                                                        
-  //
-  //m_pPTFELogicalVolume = new G4LogicalVolume(pPTFESampleHoles, GXePTFE, "PTFEVolume", 0, 0, 0);
-  //m_pPTFEPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(GetGeometryParameter("CenterFlangeToPTFESamples"), 0., GetGeometryParameter("PTFEHolderHalfZ")), m_pPTFELogicalVolume,
-  //                                            "PTFEHolderBox", m_pVacuumLogicalVolume, false, 0);
-  //
-  //m_pPhotonsLogicalVolume = new G4LogicalVolume(pPhotonTubs, Vacuum, "PhotonVolume", 0, 0, 0);
-  //m_pPhotonsPhysicalVolume = new G4PVPlacement(rmHole, G4ThreeVector(0.1+GetGeometryParameter("CenterFlangeToPTFESamples"), 0., GetGeometryParameter("PTFEHolderHalfZ")), m_pPhotonsLogicalVolume,
-  //                                            "PhotonSource", m_pVacuumLogicalVolume, false, 0);
- 
   // optical border surface
   G4double dSigmaAlpha = 0.1;
   
@@ -552,23 +639,14 @@ void RefSetupDetectorConstruction::ConstructDetector() {
   pPTFEOpticalSurface->SetMaterialPropertiesTable(GXePTFE->GetMaterialPropertiesTable());
   pSS316LSteelOpticalSurface->SetMaterialPropertiesTable(SS316LSteel->GetMaterialPropertiesTable());
   
-  new G4LogicalBorderSurface("VacuumPTFELogicalBorderSurface",
-		m_pVacuumPhysicalVolume, m_pPTFEPhysicalVolume, pPTFEOpticalSurface);
-        
-  //new G4LogicalBorderSurface("PhotonsPTFELogicalBorderSurface",
-	//	m_pPhotonsPhysicalVolume, m_pPTFEPhysicalVolume, pPTFEOpticalSurface);
-
-  // Add Quartz surface
-  // m_pSampleHolderFlangeQuartzTubsLogicalVolume
-
-  new G4LogicalBorderSurface("VacuumSSLogicalBorderSurface",
-  		m_pVacuumPhysicalVolume, m_pSampleHolderFlangeBottomPhysicalVolume, pSS316LSteelOpticalSurface);
-
-  new G4LogicalBorderSurface("VacuumSSLogicalBorderSurface",
-  		m_pVacuumPhysicalVolume, m_pSampleHolderFlangeTopPhysicalVolume, pSS316LSteelOpticalSurface);
+  new G4LogicalBorderSurface("LXeReboilerTubeSurface",
+    m_pLXePhysicalVolume, m_pReboilerTubePhysicalVolume, pSS316LSteelOpticalSurface);
   
-  new G4LogicalBorderSurface("VacuumPTFELogicalBorderSurface",
-		m_pVacuumPhysicalVolume, m_pPTFEHolderPhysicalVolume, pSS316LSteelOpticalSurface);
+  new G4LogicalBorderSurface("LXeReboilerTopFlangeSurface",
+    m_pLXePhysicalVolume, m_pReboilerTopFlangePhysicalVolume, pSS316LSteelOpticalSurface);
+
+  new G4LogicalBorderSurface("LXeReboilerBottomFlangeSurface",
+    m_pLXePhysicalVolume, m_pReboilerBottomFlangePhysicalVolume, pSS316LSteelOpticalSurface);
   
   // VI attributes
   G4Colour hPTFEColor(1., 0., 1., 1.);
@@ -579,35 +657,33 @@ void RefSetupDetectorConstruction::ConstructDetector() {
   G4Colour hMCColor(0.0,0.0,1.0,0.25);
   G4Colour hPhotonsColor(0.0,1.0,1.0,0.25);
 
-  G4VisAttributes *pPhotonsVisAtt = new G4VisAttributes(hPhotonsColor);
-  pPhotonsVisAtt->SetVisibility(true);
-  m_pCollimatorTubsLogicalVolume->SetVisAttributes(pPhotonsVisAtt);
-  m_pPhotonsLogicalVolume->SetVisAttributes(pPhotonsVisAtt);
+  G4Colour hLXeColor(0.0,0.0,1.0,0.25); //blue
+  G4Colour hGXeColor(0.0,1.0,1.0,0.25); //cyan
+
+  G4VisAttributes *pLXeVisAtt = new G4VisAttributes(hLXeColor);
+  pLXeVisAtt->SetVisibility(true);
+  m_pLXeLogicalVolume->SetVisAttributes(pLXeVisAtt);
+	
+  G4VisAttributes *pGXeVisAtt = new G4VisAttributes(hGXeColor);
+  pGXeVisAtt->SetVisibility(true);
+  m_pGXeLogicalVolume->SetVisAttributes(pGXeVisAtt);
   
-  G4VisAttributes *pPTFEVisAtt = new G4VisAttributes(hPTFEColor);
-  pPTFEVisAtt->SetVisibility(true);
-  m_pPTFELogicalVolume->SetVisAttributes(pPTFEVisAtt);
-  
+  G4VisAttributes *pVacuumVisAtt = new G4VisAttributes(hMCColor);
+  pVacuumVisAtt->SetVisibility(false);
+  m_pVacuumLogicalVolume->SetVisAttributes(pVacuumVisAtt);
+
   G4VisAttributes *pMCVisAtt = new G4VisAttributes(hMCColor);
-  pMCVisAtt->SetVisibility(false);
-  m_pVacuumLogicalVolume->SetVisAttributes(pMCVisAtt);
+  pMCVisAtt->SetVisibility(true);
   m_pMainVacuumChamberLogicalVolume->SetVisAttributes(pMCVisAtt);
   m_pMainVacuumChamberFlangeLogicalVolume->SetVisAttributes(pMCVisAtt);
   
-  //G4VisAttributes *pSSVisAtt = new G4VisAttributes(hSSColor);
-  //pSSVisAtt->SetVisibility(true);
-  //m_pPTFEHolderLogicalVolume->SetVisAttributes(pSSVisAtt);
-  
-  G4VisAttributes *pQuartzTubsVisAtt = new G4VisAttributes(hQuartzColor);
-  pQuartzTubsVisAtt->SetVisibility(true);
-  m_pSampleHolderFlangeQuartzTubsLogicalVolume->SetVisAttributes(pQuartzTubsVisAtt);
-
   G4VisAttributes *pSSFlangeVisAtt = new G4VisAttributes(hSSFlangeColor);
   pSSFlangeVisAtt->SetVisibility(true);
-  m_pSampleHolderFlangeBottomLogicalVolume->SetVisAttributes(pSSFlangeVisAtt);
-  m_pSampleHolderFlangeTopLogicalVolume->SetVisAttributes(pSSFlangeVisAtt);
+  m_pReboilerTubeLogicalVolume->SetVisAttributes(pSSFlangeVisAtt);
+  m_pReboilerTopFlangeLogicalVolume->SetVisAttributes(pSSFlangeVisAtt);
+  m_pReboilerBottomFlangeLogicalVolume->SetVisAttributes(pSSFlangeVisAtt);
   
-  G4VisAttributes *pPMTVisAtt = new G4VisAttributes(hPMTColor);
-  pPMTVisAtt->SetVisibility(true);
-  m_pPMTScreenLogicalVolume->SetVisAttributes(pPMTVisAtt);
+  //G4VisAttributes *pPMTVisAtt = new G4VisAttributes(hPMTColor);
+  //pPMTVisAtt->SetVisibility(true);
+  //m_pPMTScreenLogicalVolume->SetVisAttributes(pPMTVisAtt);
 }

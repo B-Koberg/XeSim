@@ -13,6 +13,7 @@
 #include "templateDetectorConstruction.hh"
 #include "RefSetupDetectorConstruction.hh"
 #include "muensterTPCDetectorConstruction.hh"
+#include "RnColumnDetectorConstruction.hh"
 
 #include "XeSimPhysicsList.hh"
 #include "XeSimPrimaryGeneratorAction.hh"
@@ -125,7 +126,11 @@ int main(int argc, char **argv) {
         muensterTPCDetectorConstruction *pmuensterTPCDetectorConstruction = new muensterTPCDetectorConstruction();
         iNbPhotoDets = pmuensterTPCDetectorConstruction->GetGeometryParameter("NbPhotoDets");
         pRunManager->SetUserInitialization(pmuensterTPCDetectorConstruction);
-    }
+    } else if (hExperiment == "RnColumn") {
+		RnColumnDetectorConstruction *pRnColumnDetectorConstruction = new RnColumnDetectorConstruction();
+		iNbPhotoDets = pRnColumnDetectorConstruction->GetGeometryParameter("NbPhotoDets");
+		pRunManager->SetUserInitialization(pRnColumnDetectorConstruction);
+	}
 	pRunManager->SetUserInitialization(new XeSimPhysicsList);
 
     if (iNbPhotoDets == 0) { 

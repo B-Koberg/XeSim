@@ -52,14 +52,22 @@ private:
     G4LogicalVolume *m_pPMTScreenLogicalVolume;
     G4VPhysicalVolume *m_pPMTScreenPhysicalVolume;
     
-    G4LogicalVolume *m_pSampleHolderFlangeLogicalVolume;
-    G4VPhysicalVolume *m_pSampleHolderFlangePhysicalVolume;
+    G4LogicalVolume *m_pSampleHolderFlangeBottomLogicalVolume;
+    G4VPhysicalVolume *m_pSampleHolderFlangeBottomPhysicalVolume;
+    G4LogicalVolume *m_pSampleHolderFlangeTopLogicalVolume;
+    G4VPhysicalVolume *m_pSampleHolderFlangeTopPhysicalVolume;
+
+    G4LogicalVolume *m_pSampleHolderFlangeQuartzTubsLogicalVolume;
+    G4VPhysicalVolume *m_pSampleHolderFlangeQuartzTubsPhysicalVolume;
     
     G4LogicalVolume *m_pPTFEHolderLogicalVolume;
     G4VPhysicalVolume *m_pPTFEHolderPhysicalVolume;
     
     G4LogicalVolume *m_pPTFELogicalVolume;
     G4VPhysicalVolume *m_pPTFEPhysicalVolume;
+    
+    G4LogicalVolume *m_pCollimatorTubsLogicalVolume;
+    G4VPhysicalVolume *m_pCollimatorTubsPhysicalVolume;
     
     G4LogicalVolume *m_pPhotonsLogicalVolume;
     G4VPhysicalVolume *m_pPhotonsPhysicalVolume;

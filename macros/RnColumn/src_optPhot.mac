@@ -1,0 +1,17 @@
+/Xe/gun/type Volume
+/Xe/gun/shape Cylinder
+
+# LXe volume
+/Xe/gun/halfz 300 mm
+/Xe/gun/radius 500 mm
+/Xe/gun/center 0 0 0 mm
+
+# LXe or GXe or both
+/Xe/gun/confine LXe
+/Xe/gun/energy 6.98 eV
+/Xe/gun/particle opticalphoton
+
+# Tree Filling options
+/run/writeEmpty true
+
+/analysis/settings/setPhotoDetdetails true
