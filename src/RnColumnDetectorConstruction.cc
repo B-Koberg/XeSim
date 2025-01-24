@@ -316,7 +316,7 @@ void RnColumnDetectorConstruction::DefineGeometryParameters() {
 
   // Xenon volumes
   m_hGeometryParameters["LXeHalfZ"] = GetGeometryParameter("ReboilerTubeHalfZ");
-  m_hGeometryParameters["LXeOuterRadius"] = GetGeometryParameter("ReboilerTubeOuterRadius");
+  m_hGeometryParameters["LXeOuterRadius"] = GetGeometryParameter("ReboilerTubeInnerRadius");
   m_hGeometryParameters["GXeHalfZ"] = GetGeometryParameter("ReboilerTubeHalfZ")/4.;
   m_hGeometryParameters["GXeOuterRadius"] = GetGeometryParameter("LXeOuterRadius");
 
@@ -583,27 +583,6 @@ void RnColumnDetectorConstruction::ConstructReboiler() {
                                               "MainVacuumChamberFlangeTop", m_pVacuumLogicalVolume, false, 0);
   m_pMainVacuumChamberFlangeBottomPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -GetGeometryParameter("MainVacuumChamberHalfZ")-GetGeometryParameter("MainVacuumChamberFlangeHalfZ")), m_pMainVacuumChamberFlangeLogicalVolume,
                                               "MainVacuumChamberFlangeBottom", m_pVacuumLogicalVolume, false, 0);
-  
-  // Generate a liquid xenon volume for the LXe vessel
-  // Make the volume a bit smaller than the Reboiler vessel to avoid overlaps
-  G4Tubs *pLXeTubs = new G4Tubs("LXeTubs", 0., GetGeometryParameter("LXeOuterRadius")-0.01, 
-                                               GetGeometryParameter("LXeHalfZ")-0.01, 0.*deg, 360.*deg);
-
-  m_pLXeLogicalVolume = new G4LogicalVolume(pLXeTubs, LXe, "LXeVolume", 0, 0, 0);
-  m_pLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -GetGeometryParameter("ReboilerTubeHalfZ")), m_pLXeLogicalVolume, 
-                                           "LXe", m_pVacuumLogicalVolume, false, 0);
-
-  XeSimLXeSensitiveDetector *pLXeSD = new XeSimLXeSensitiveDetector("RefSetup/LXeSD");
-  pSDManager->AddNewDetector(pLXeSD);
-  m_pLXeLogicalVolume->SetSensitiveDetector(pLXeSD);
-  
-  // Generate a gaseous xenon volume in the top of the liquid xenon
-  G4Tubs *pGXeTubs = new G4Tubs("GXeTubs", 0., GetGeometryParameter("GXeOuterRadius")-0.01, 
-                                               GetGeometryParameter("GXeHalfZ")-0.01, 0.*deg, 360.*deg);
-
-  m_pGXeLogicalVolume = new G4LogicalVolume(pGXeTubs, GXe, "GXeVolume", 0, 0, 0);
-  m_pGXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., GetGeometryParameter("ReboilerTubeHalfZ")-GetGeometryParameter("GXeHalfZ")), m_pGXeLogicalVolume, 
-                                           "GXe", m_pLXeLogicalVolume, false, 0);
 
   // Make the reboiler vessel
   G4Tubs *pReboilerTubeTubs = new G4Tubs("ReboilerTubeTubs", GetGeometryParameter("ReboilerTubeInnerRadius"), 
@@ -611,8 +590,8 @@ void RnColumnDetectorConstruction::ConstructReboiler() {
                                              GetGeometryParameter("ReboilerTubeHalfZ"), 0.*deg, 360.*deg);
 
   m_pReboilerTubeLogicalVolume = new G4LogicalVolume(pReboilerTubeTubs, SS316LSteel, "ReboilerTubeVolume", 0, 0, 0);
-  m_pReboilerTubePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), m_pReboilerTubeLogicalVolume, 
-                                            "ReboilerTube", m_pLXeLogicalVolume, false, 0);
+  m_pReboilerTubePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -GetGeometryParameter("ReboilerTubeHalfZ")), m_pReboilerTubeLogicalVolume, 
+                                            "ReboilerTube", m_pVacuumLogicalVolume, false, 0);
 
   // Top and bottom flanges of the reboiler
   G4Tubs *pReboilerTopFlangeTubs = new G4Tubs("ReboilerTopFlangeTubs", 0., GetGeometryParameter("ReboilerTopFlangeOuterRadius"), 
@@ -626,7 +605,30 @@ void RnColumnDetectorConstruction::ConstructReboiler() {
   m_pReboilerBottomFlangePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -2*GetGeometryParameter("ReboilerTubeHalfZ")-GetGeometryParameter("ReboilerTopFlangeHalfZ")), m_pReboilerBottomFlangeLogicalVolume,
                                               "ReboilerBottomFlange", m_pVacuumLogicalVolume, false, 0);
 
+  // Generate a liquid xenon volume for the LXe vessel
+  // Make the volume a bit smaller than the Reboiler vessel to avoid overlaps
+  G4Tubs *pLXeTubs = new G4Tubs("LXeTubs", 0., GetGeometryParameter("LXeOuterRadius")+0.01, 
+                                               GetGeometryParameter("LXeHalfZ")-0.01, 0.*deg, 360.*deg);
 
+  m_pLXeLogicalVolume = new G4LogicalVolume(pLXeTubs, LXe, "LXeVolume", 0, 0, 0);
+  m_pLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -GetGeometryParameter("ReboilerTubeHalfZ")), m_pLXeLogicalVolume, 
+                                           "LXe", m_pVacuumLogicalVolume, false, 0);
+
+  XeSimLXeSensitiveDetector *pLXeSD = new XeSimLXeSensitiveDetector("RefSetup/LXeSD");
+  pSDManager->AddNewDetector(pLXeSD);
+  m_pLXeLogicalVolume->SetSensitiveDetector(pLXeSD);
+  
+  // Generate a gaseous xenon volume in the top of the liquid xenon
+  G4Tubs *pGXeTubs = new G4Tubs("GXeTubs", 0., GetGeometryParameter("GXeOuterRadius")+0.01, 
+                                               GetGeometryParameter("GXeHalfZ")-0.01, 0.*deg, 360.*deg);
+
+  m_pGXeLogicalVolume = new G4LogicalVolume(pGXeTubs, GXe, "GXeVolume", 0, 0, 0);
+  m_pGXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., GetGeometryParameter("ReboilerTubeHalfZ")-GetGeometryParameter("GXeHalfZ")), m_pGXeLogicalVolume, 
+                                           "GXe", m_pLXeLogicalVolume, false, 0);
+
+  //XeSimLXeSensitiveDetector *pGXeSD = new XeSimLXeSensitiveDetector("RefSetup/GXeSD");
+  //pSDManager->AddNewDetector(pGXeSD);
+  //m_pGXeLogicalVolume->SetSensitiveDetector(pGXeSD);
 
   // optical border surface
   G4double dSigmaAlpha = 0.1;
@@ -648,6 +650,15 @@ void RnColumnDetectorConstruction::ConstructReboiler() {
 
   new G4LogicalBorderSurface("LXeReboilerBottomFlangeSurface",
     m_pLXePhysicalVolume, m_pReboilerBottomFlangePhysicalVolume, pSS316LSteelOpticalSurface);
+
+    new G4LogicalBorderSurface("LXeReboilerTubeSurface",
+    m_pGXePhysicalVolume, m_pReboilerTubePhysicalVolume, pSS316LSteelOpticalSurface);
+  
+  new G4LogicalBorderSurface("LXeReboilerTopFlangeSurface",
+    m_pGXePhysicalVolume, m_pReboilerTopFlangePhysicalVolume, pSS316LSteelOpticalSurface);
+
+  new G4LogicalBorderSurface("LXeReboilerBottomFlangeSurface",
+    m_pGXePhysicalVolume, m_pReboilerBottomFlangePhysicalVolume, pSS316LSteelOpticalSurface);
   
   // VI attributes
   G4Colour hPTFEColor(1., 0., 1., 1.);
