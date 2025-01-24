@@ -43,14 +43,18 @@ using std::max;
 #include "XeSimLXeSensitiveDetector.hh"
 #include "XeSimPhotoDetSensitiveDetector.hh"
 #include "RnColumnDetectorConstruction.hh"
-//#include "templateDetectorMessenger.hh"
+#include "RnColumnDetectorMessenger.hh"
 
 map<G4String, G4double> RnColumnDetectorConstruction::m_hGeometryParameters;
 
 RnColumnDetectorConstruction::RnColumnDetectorConstruction() {
     // needs to be set for the AnalysisManager
     m_hGeometryParameters["NbPhotoDets"] = 1;
-    //m_pDetectorMessenger = new templateDetectorMessenger(this);
+    m_pDetectorMessenger = new RnColumnDetectorMessenger(this);
+
+    pLXeLevel = 100.0;
+    m_iNbTopPmts = 0;
+    m_iNbBottomPmts = 0;
 }
 
 RnColumnDetectorConstruction::~RnColumnDetectorConstruction() {
@@ -204,7 +208,7 @@ void RnColumnDetectorConstruction::DefineMaterials() {
   SS304LSteel->AddElement(Si, 0.01);
 
   G4double pdSteelPhotonMomentum[] = {6.91*eV, 6.98*eV, 7.05*eV};
-  G4double pdSteelReflectivity[]   = {0, 0, 0}; //{0.15,    0.2,     0.15};
+  G4double pdSteelReflectivity[]   = {0.15,    0.2,     0.15};
   G4MaterialPropertiesTable *pSteelPropertiesTable = new G4MaterialPropertiesTable();
 
   pSteelPropertiesTable->AddProperty("REFLECTIVITY", pdSteelPhotonMomentum, pdSteelReflectivity, iNbEntries);
@@ -244,6 +248,13 @@ void RnColumnDetectorConstruction::DefineMaterials() {
   pPhotoCathodePropertiesTable->AddProperty("ABSLENGTH", pdPhotoCathodePhotonMomentum, pdPhotoCathodeAbsorbtionLength, iNbEntries);
 
   PhotoCathodeAluminium->SetMaterialPropertiesTable(pPhotoCathodePropertiesTable);
+
+  //==== Torlon ====
+  G4Material *Torlon = new G4Material("Torlon", 1.41 * g / cm3, 4, kStateSolid);
+  Torlon->AddElement(N, 0.07862);
+  Torlon->AddElement(C, 0.70784);
+  Torlon->AddElement(O, 0.17960);
+  Torlon->AddElement(H, 0.03394);
 
   //------------------------------------ PTFE -----------------------------------
   G4Material* PTFE = new G4Material("LXePTFE", 2.2*g/cm3, 2, kStateSolid);
@@ -300,6 +311,14 @@ void RnColumnDetectorConstruction::DefineMaterials() {
 }
 
 void RnColumnDetectorConstruction::DefineGeometryParameters() {
+  // Shrinkage coefficients (i.e., multiply warm dimensions by these factors to get cold dimensions)
+  // For pillars and walls:
+  m_hGeometryParameters["PTFE_ShrinkageZ"] = 0.014; //1,4 %
+  // For PMT holders and reflector plates:
+  m_hGeometryParameters["PTFE_ShrinkageR"] = 0.011; //1,1 %
+  // For electrode frame holders:
+  m_hGeometryParameters["Torlon_ShrinkageZ"] = 0.005; //0,5 %
+
   m_hGeometryParameters["MainVacuumChamberOuterRadius"] = 330.00*mm;
   m_hGeometryParameters["MainVacuumChamberInnerRadius"] = 325.00*mm;
   m_hGeometryParameters["MainVacuumChamberHalfZ"] = 400.00*mm;
@@ -317,7 +336,7 @@ void RnColumnDetectorConstruction::DefineGeometryParameters() {
   // Xenon volumes
   m_hGeometryParameters["LXeHalfZ"] = GetGeometryParameter("ReboilerTubeHalfZ");
   m_hGeometryParameters["LXeOuterRadius"] = GetGeometryParameter("ReboilerTubeInnerRadius");
-  m_hGeometryParameters["GXeHalfZ"] = GetGeometryParameter("ReboilerTubeHalfZ")/4.;
+  m_hGeometryParameters["GXeHalfZ"] = 0.5*(2*GetGeometryParameter("ReboilerTubeHalfZ")-pLXeLevel);
   m_hGeometryParameters["GXeOuterRadius"] = GetGeometryParameter("LXeOuterRadius");
 
   m_hGeometryParameters["PmtWidth"]                 = 25.4*mm;
@@ -413,8 +432,8 @@ void RnColumnDetectorConstruction::ConstructPMTs() {
 
   // Make the absolute placements of the PMT parts in the detector volume
   // Place PMTs in a circular pattern facing the center of the LXe volume
-  G4int iNbTopPmts = 4;
-  G4int iNbBottomPmts = 4;
+  G4int iNbTopPmts = m_iNbTopPmts;
+  G4int iNbBottomPmts = m_iNbBottomPmts;
   
   // Radius of the central reboiler to the PMT window face
   G4double dPmtRadius = 100.00*mm;
@@ -698,4 +717,240 @@ void RnColumnDetectorConstruction::ConstructReboiler() {
   //G4VisAttributes *pPMTVisAtt = new G4VisAttributes(hPMTColor);
   //pPMTVisAtt->SetVisibility(true);
   //m_pPMTScreenLogicalVolume->SetVisAttributes(pPMTVisAtt);
+}
+
+void RnColumnDetectorConstruction::SetNbTopPmts(G4int iNbTopPmts) {
+  m_iNbTopPmts = iNbTopPmts;
+}
+
+void RnColumnDetectorConstruction::SetNbBottomPmts(G4int iNbBottomPmts) {
+  m_iNbBottomPmts = iNbBottomPmts;
+}
+
+void RnColumnDetectorConstruction::SetSeparationPlateMaterial(const G4String& name) {
+  	// search the material by its name
+  G4Material* mat = G4Material::GetMaterial(name, false);
+  G4Material *pLXeMaterial = G4Material::GetMaterial(G4String("LXe"));
+
+  // create the material by its name
+  if(!mat) { mat = G4NistManager::Instance()->FindOrBuildMaterial(name); }
+
+  if(mat && mat != pLXeMaterial) {
+		m_pPTFEPMTSeparationLogicalVolume->SetMaterial(mat);
+    UpdateGeometry();
+		G4cout << "----> New SeparationPlate material " << mat->GetName() << G4endl;
+  }
+
+  if(!mat) {
+    G4cout << "----> WARNING from DetectorConstruction::SetSeparationPlateMaterial : "
+           << name << " not found" << G4endl;  
+  } 
+}
+
+//******************************************************************/
+// SetLXeLevel
+//******************************************************************/
+void RnColumnDetectorConstruction::SetLXeLevel(G4double dlevel) {
+	G4cout << "----> Setting LXe level to " << dlevel/cm << " cm" << G4endl;
+	G4cout << "----> default: 0 mm | no LXe: X mm | no GXe: -Y mm" << G4endl;
+
+  pLXeLevel = dlevel;
+}
+
+//******************************************************************/
+// SetLXeAbsorbtionLength
+//******************************************************************/
+void RnColumnDetectorConstruction::SetLXeAbsorbtionLength(G4double dAbsorbtionLength) {
+  G4Material *pLXeMaterial = G4Material::GetMaterial(G4String("LXe"));
+
+  if(pLXeMaterial)
+    {
+      G4cout << "----> Setting LXe absorbtion length to " << dAbsorbtionLength/cm << " cm" << G4endl;
+
+      G4MaterialPropertiesTable *pLXePropertiesTable = pLXeMaterial->GetMaterialPropertiesTable();
+			
+      G4double LXe_PP[] = {6.91*eV, 6.98*eV, 7.05*eV};
+      G4double LXe_ABSL[] = {dAbsorbtionLength, dAbsorbtionLength, dAbsorbtionLength};
+      pLXePropertiesTable->RemoveProperty("ABSLENGTH");
+      pLXePropertiesTable->AddProperty("ABSLENGTH", LXe_PP, LXe_ABSL, 3);
+    }
+  else
+    {
+      G4cout << "ls!> LXe materials not found!" << G4endl;
+      exit(-1);
+    }
+}
+
+void RnColumnDetectorConstruction::SetGXeAbsorbtionLength(G4double dAbsorbtionLength)
+{
+  G4Material *pGXeMaterial = G4Material::GetMaterial(G4String("GXe"));
+  
+  if(pGXeMaterial)
+    {
+      G4cout << "----> Setting GXe absorbtion length to " << dAbsorbtionLength/m << " m" << G4endl;
+    
+      G4MaterialPropertiesTable *pGXePropertiesTable = pGXeMaterial->GetMaterialPropertiesTable();
+    
+      const G4int iNbEntries = 3;
+    
+      G4double GXe_PP[iNbEntries] = {6.91*eV, 6.98*eV, 7.05*eV};
+      G4double GXe_ABSL[iNbEntries] = {dAbsorbtionLength, dAbsorbtionLength, dAbsorbtionLength};
+      pGXePropertiesTable->RemoveProperty("ABSLENGTH");
+      pGXePropertiesTable->AddProperty("ABSLENGTH", GXe_PP, GXe_ABSL, iNbEntries);
+    }
+  else
+    {
+      G4cout << "ls!> GXe materials not found!" << G4endl;
+      exit(-1);
+    }
+}
+
+//******************************************************************/
+// SetLXeRayScatterLength
+//******************************************************************/
+void RnColumnDetectorConstruction::SetLXeRayScatterLength(G4double dRayScatterLength) {
+  G4Material *pLXeMaterial = G4Material::GetMaterial(G4String("LXe"));
+  
+  if(pLXeMaterial)
+    {
+      
+      G4cout << "----> Setting LXe scattering length to " << dRayScatterLength/cm << " cm" << G4endl;
+      
+      G4MaterialPropertiesTable *pLXePropertiesTable = pLXeMaterial->GetMaterialPropertiesTable();
+              
+      G4double LXe_PP[] = {6.91*eV, 6.98*eV, 7.05*eV};
+      G4double LXe_SCAT[] = {dRayScatterLength, dRayScatterLength, dRayScatterLength};
+      pLXePropertiesTable->RemoveProperty("RAYLEIGH");
+      pLXePropertiesTable->AddProperty("RAYLEIGH", LXe_PP, LXe_SCAT, 3);
+ 
+    }
+  else
+    {
+      G4cout << "ls!> LXe materials not found!" << G4endl;
+      exit(-1);
+    }
+
+}
+
+void RnColumnDetectorConstruction::SetLXeRefractionIndex(G4double dRefractionIndex)
+{
+  G4Material *pLXeMaterial = G4Material::GetMaterial(G4String("LXe"));
+  
+  if(pLXeMaterial)
+    {
+      G4cout << "----> Setting LXe refraction index to " << dRefractionIndex << G4endl;
+    
+      G4MaterialPropertiesTable *pLXePropertiesTable = pLXeMaterial->GetMaterialPropertiesTable();
+	
+      const G4int iNbEntries = 3;
+    
+      G4double LXe_PP[iNbEntries] = {6.91*eV, 6.98*eV, 7.05*eV};
+      G4double LXe_RI[iNbEntries] = {dRefractionIndex, dRefractionIndex, dRefractionIndex};
+      pLXePropertiesTable->RemoveProperty("RINDEX");
+	  pLXePropertiesTable->AddProperty("RINDEX", LXe_PP, LXe_RI, iNbEntries);
+    }
+  else
+    {
+      G4cout << "ls!> LXe materials not found!" << G4endl;
+      exit(-1);
+    }
+}
+
+//******************************************************************/
+// SetTeflonReflectivity
+//******************************************************************/
+void RnColumnDetectorConstruction::SetTeflonReflectivity(G4double dReflectivity) {
+  G4Material *pTeflonMaterial = G4Material::GetMaterial(G4String("LXePTFE"));
+
+  if(pTeflonMaterial)
+    {
+      G4cout << "----> Setting PTFE reflectivity to " << dReflectivity << G4endl;
+
+      G4MaterialPropertiesTable *pTeflonPropertiesTable = pTeflonMaterial->GetMaterialPropertiesTable();
+		
+      G4double teflon_PP[] = { 6.91 * eV, 6.98 * eV, 7.05 * eV };
+      G4double teflon_REFL[] = {dReflectivity, dReflectivity, dReflectivity};
+      pTeflonPropertiesTable->RemoveProperty("REFLECTIVITY");
+      pTeflonPropertiesTable->AddProperty("REFLECTIVITY", teflon_PP, teflon_REFL, 3);
+    }
+  else
+    {
+      G4cout << "!!!!> PTFE material not found!" << G4endl;
+      exit(-1);
+    }
+}
+
+void RnColumnDetectorConstruction::SetGXeTeflonReflectivity(G4double dGXeReflectivity)
+{
+  G4Material *pGXeTeflonMaterial = G4Material::GetMaterial(G4String("GXePTFE"));
+  
+  if(pGXeTeflonMaterial)
+    {
+      G4cout << "----> Setting GXe PTFE reflectivity to " << dGXeReflectivity << G4endl;
+    
+      G4MaterialPropertiesTable *pGXeTeflonPropertiesTable = pGXeTeflonMaterial->GetMaterialPropertiesTable();
+    
+      const G4int iNbEntries = 3;
+    
+      G4double teflon_PP[iNbEntries] = { 6.91 * eV, 6.98 * eV, 7.05 * eV };
+      G4double teflon_REFL[iNbEntries] = {dGXeReflectivity, dGXeReflectivity, dGXeReflectivity};
+      pGXeTeflonPropertiesTable->RemoveProperty("REFLECTIVITY");
+      pGXeTeflonPropertiesTable->AddProperty("REFLECTIVITY", teflon_PP, teflon_REFL, iNbEntries);
+      //pTeflonPropertiesTable->DumpTable();
+   }
+  else
+    {
+      G4cout << "ls!> PTFE material not found!" << G4endl;
+      exit(-1);
+    }
+}
+
+//******************************************************************/
+// SetSS304LSteelReflectivity
+//******************************************************************/
+void RnColumnDetectorConstruction::SetSSteelReflectivity(G4double dSteelReflectivity) {
+  G4Material *pSS304Material = G4Material::GetMaterial(G4String("SS304LSteel"));
+  G4Material *pSS316Material = G4Material::GetMaterial(G4String("SS316LSteel"));
+
+  if(pSS304Material)
+    {
+      G4cout << "----> Setting SS304LSteel reflectivity to " << dSteelReflectivity << G4endl;
+
+      G4MaterialPropertiesTable *pSteelPropertiesTable = pSS304Material->GetMaterialPropertiesTable();
+		
+      G4double Steel_PP[] = { 6.91 * eV, 6.98 * eV, 7.05 * eV };
+      G4double Steel_REFL[] = {dSteelReflectivity, dSteelReflectivity, dSteelReflectivity};
+      pSteelPropertiesTable->RemoveProperty("REFLECTIVITY");
+      pSteelPropertiesTable->AddProperty("REFLECTIVITY", Steel_PP, Steel_REFL, 3);
+    }
+  else
+    {
+      G4cout << "!!!!> SS304LSteel material not found!" << G4endl;
+      exit(-1);
+    }
+
+  if (pSS316Material)
+    {
+      G4cout << "----> Setting SS316LSteel reflectivity to " << dSteelReflectivity << G4endl;
+
+      G4MaterialPropertiesTable *pSteelPropertiesTable = pSS316Material->GetMaterialPropertiesTable();
+    
+      G4double Steel_PP[] = { 6.91 * eV, 6.98 * eV, 7.05 * eV };
+      G4double Steel_REFL[] = {dSteelReflectivity, dSteelReflectivity, dSteelReflectivity};
+      pSteelPropertiesTable->RemoveProperty("REFLECTIVITY");
+      pSteelPropertiesTable->AddProperty("REFLECTIVITY", Steel_PP, Steel_REFL, 3);
+    }
+  else
+    {
+      G4cout << "!!!!> SS316LSteel material not found!" << G4endl;
+      exit(-1);
+    }
+}
+
+
+//******************************************************************/
+// UpdateGeometry
+//******************************************************************/
+void RnColumnDetectorConstruction::UpdateGeometry() {
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
 }

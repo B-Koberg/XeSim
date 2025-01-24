@@ -13,7 +13,7 @@ class G4LogicalVolume;
 class G4VPhysicalVolume;
 class G4Material;
 class G4UserLimits;
-//class templateDetectorMessenger;
+class RnColumnDetectorMessenger;
 
 #include <G4VUserDetectorConstruction.hh>
 #include <G4ThreeVector.hh>
@@ -26,17 +26,35 @@ public:
 
 	G4VPhysicalVolume* Construct();
 
+    void SetNbTopPmts(G4int iNbTopPmts);
+    void SetNbBottomPmts(G4int iNbBottomPmts);
+
+    void SetTeflonReflectivity(G4double dReflectivity);
+	void SetGXeTeflonReflectivity(G4double dGXeReflectivity);
+    void SetSeparationPlateMaterial(const G4String&);
+	void SetSSteelReflectivity(G4double dReflectivity);
+	void SetLXeLevel(G4double dlevel);
+	void SetLXeAbsorbtionLength(G4double dAbsorbtionLength);
+	void SetGXeAbsorbtionLength(G4double dAbsorbtionLength);
+	void SetLXeRayScatterLength(G4double dRayScatterLength);
+	void SetLXeRefractionIndex(G4double dRefractionIndex);
+
 	static G4double GetGeometryParameter(const char *szParameter);
 
 private:
 	void DefineMaterials();
 	void DefineGeometryParameters();
+    void UpdateGeometry();
 
 	void ConstructLaboratory();
 	void ConstructReboiler();
     void ConstructPMTs();
     
 private:
+    G4double pLXeLevel;
+    G4int m_iNbTopPmts;
+    G4int m_iNbBottomPmts;
+
 	G4LogicalVolume *m_pLabLogicalVolume;
 	G4VPhysicalVolume *m_pLabPhysicalVolume;
 
@@ -82,7 +100,7 @@ private:
     
 	static map<G4String, G4double> m_hGeometryParameters;
 	
-	//templateDetectorMessenger *m_pDetectorMessenger;
+    RnColumnDetectorMessenger *m_pDetectorMessenger;
 };
 
 #endif
