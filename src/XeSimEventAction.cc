@@ -24,7 +24,7 @@ void XeSimEventAction::BeginOfEventAction(const G4Event *pEvent) {
 		starttimeunix = mktime ( time_now ); // for UTC time use "timegm"
 	}
 	
-	if ( (pEvent->GetEventID() % 1000 == 0) || (pEvent->GetEventID() % (m_iNbEventsToSimulate/5) == 0) ) {
+	if ( (pEvent->GetEventID() % 10000 == 0) || (pEvent->GetEventID() % (m_iNbEventsToSimulate/5) == 0) ) {
 		time_un = time(0);
 		time_now = localtime(&time_un);
 		currtime.str(std::string());
@@ -38,7 +38,8 @@ void XeSimEventAction::BeginOfEventAction(const G4Event *pEvent) {
 			time_end = localtime(&endtimeunix);
 			strftime(endtime, sizeof(endtime), "%Y-%m-%d %H-%M-%S", time_end);
 			G4cout 	<< "\r" << currtime.str() << " || Event " << pEvent->GetEventID()
-							<< " / " << m_iNbEventsToSimulate << " || E/s " << pEvent->GetEventID()/currtimeunix 
+							<< " / " << m_iNbEventsToSimulate << " (" << (pEvent->GetEventID()*100)/m_iNbEventsToSimulate << "%)"
+							<< " || E/s " << pEvent->GetEventID()/currtimeunix 
 							<< " || ETA: " << endtime << " " << std::flush;
 		}
 		else if (pEvent->GetEventID() == 0) {
