@@ -67,7 +67,7 @@ G4bool XeSimLXeSensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory 
 	pHit->SetTime(pTrack->GetGlobalTime());
 
 	m_pLXeHitsCollection->insert(pHit);
-
+	
 	return true;
 }
 

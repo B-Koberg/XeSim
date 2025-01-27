@@ -246,8 +246,6 @@ XeSimParticleSource::GeneratePointsInVolume()
 	G4ThreeVector RandPos;
 	G4double x = 0., y = 0., z = 0.;
 
-	//	G4cout << "SHAPE " << m_hShape << G4endl;
-
 	if(m_hSourcePosType != "Volume" && m_iVerbosityLevel >= 1)
 		G4cout << "Error SourcePosType not Volume" << G4endl;
 

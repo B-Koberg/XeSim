@@ -7,7 +7,10 @@
 /Xe/detector/setMat GXe
 
 # switch on scintillation inside the TPC
-/Xe/detector/setLXeScintillation true
+/Xe/detector/setLXeScintillation flase
+
+/Xe/gun/type Volume
+/Xe/gun/shape Cylinder
 
 # only the active volume (z: -2<>-169|x/y: -40<>40)
 /Xe/gun/halfz 84 mm

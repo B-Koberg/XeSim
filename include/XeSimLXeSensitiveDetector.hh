@@ -5,8 +5,6 @@
 
 #include "XeSimLXeHit.hh"
 
-using std::map;
-
 class G4Step;
 class G4HCofThisEvent;
 
@@ -22,7 +20,7 @@ public:
 private:
 	XeSimLXeHitsCollection* m_pLXeHitsCollection;
 
-	map<int,G4String> m_hParticleTypes;
+	std::map<int,G4String> m_hParticleTypes;
 };
 
 #endif

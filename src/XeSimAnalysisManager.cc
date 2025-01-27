@@ -22,7 +22,7 @@
 
 XeSimAnalysisManager::XeSimAnalysisManager(XeSimPrimaryGeneratorAction *pPrimaryGeneratorAction) {
   runTime = new G4Timer();
-    
+  
   m_iLXeHitsCollectionID = -1;
   m_iPhotoDetHitsCollectionID = -1;
 
@@ -31,13 +31,13 @@ XeSimAnalysisManager::XeSimAnalysisManager(XeSimPrimaryGeneratorAction *pPrimary
   m_hExperimentTag = "XeSim";
   m_hMacroFiles.clear();
   m_iNbPhotoDets = 0;
-    
+  
   m_pPrimaryGeneratorAction = pPrimaryGeneratorAction;
   m_pEventData = new XeSimEventData();
   writeEmptyEvents = kFALSE;
-    
+  
   m_pAnalysisMessenger = new XeSimAnalysisMessenger(this);
-    
+  
   m_PhotoDetHitsDetails = kFALSE;
 }
 
@@ -65,7 +65,11 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
          it != m_hMacroFiles.end(); ++it) {
       G4String macrofile = *it;
       G4String datafilename = macrofile.substr(macrofile.find_last_of("/\\") + 1);
-      TNamed *MacroFiles = new TNamed(datafilename.c_str(), macrofile.c_str());
+      std::ifstream fs(macrofile);
+      std::string datafilecontent((std::istreambuf_iterator<char>(fs)),
+                                   std::istreambuf_iterator<char>());
+      TNamed *MacroFiles = new TNamed(datafilename.c_str(),
+                                      "# " + macrofile + "\n\n" + datafilecontent);
       MacroFiles->Write();
     }
     
@@ -132,8 +136,8 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       m_pTree->Branch("photodethitZp", "vector<float>", &m_pEventData->m_pPhotoDetHitZ);
     }
     
-    m_pTree->SetMaxTreeSize(1000*Long64_t(2000000000)); //2TB
-    m_pTree->AutoSave();
+    //m_pTree->SetMaxTreeSize(1000*Long64_t(2000000000)); //2TB
+    //m_pTree->AutoSave();
 
     // Write the number of events in the output file
     m_iNbEventsToSimulate = pRun->GetNumberOfEventToBeProcessed();
@@ -243,7 +247,7 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
     m_pEventData->m_fTotalEnergyDeposited = fTotalEnergyDeposited;
     m_pEventData->m_pPhotoDetHits->resize(m_iNbPhotoDets, 0);
 
-        // PhotoDet hits
+    // PhotoDet hits
     for(G4int i=0; i<iNbPhotoDetHits; i++)
         {
       (*(m_pEventData->m_pPhotoDetHits))[(*pPhotoDetHitsCollection)[i]->GetPhotoDetNb()]++;
@@ -276,18 +280,19 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
 
       // save only energy depositing events
       if(writeEmptyEvents) {
-      m_pTree->Fill(); // write all events to the tree
+        m_pTree->Fill(); // write all events to the tree
       } else {
         if(fTotalEnergyDeposited > 0. || iNbPhotoDetHits > 0) m_pTree->Fill(); 
             // only events with some activity are written to the tree
       }
 
     // auto save functionality to avoid data loss/ROOT can recover aborted simulations
-    if ( pEvent->GetEventID() % 10000 == 0)
+    if ( pEvent->GetEventID() % 10000 == 0) {
       m_pTree->AutoSave();
+    }
 
     m_pEventData->Clear();
-        m_pTreeFile->cd();
+    m_pTreeFile->cd();
   }
 }
 

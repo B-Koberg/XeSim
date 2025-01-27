@@ -25,13 +25,13 @@ public:
     void SetVolumeName(const G4String &hVolumeName) { m_pVolumeName = hVolumeName; }
     void SetEnergy(G4double dEnergy) { m_dEnergy = dEnergy; }
   
-	G4ThreeVector GetPosition() { return m_hPosition; }
+	G4ThreeVector GetPosition() const { return m_hPosition; }
     G4ThreeVector GetDirection() const { return m_hDirection; }
-	G4double GetTime() { return m_dTime; }
-	G4int GetPhotoDetNb() { return m_iPhotoDetNb; }
+	G4double GetTime() const { return m_dTime; }
+	G4int GetPhotoDetNb() const { return m_iPhotoDetNb; }
     G4int GetTrackId() const { return m_iTrackId; }
     const G4String &GetVolumeName() const { return m_pVolumeName; }
-    G4double GetEnergy() { return m_dEnergy; }
+    G4double GetEnergy() const { return m_dEnergy; }
   
 private:
   G4ThreeVector m_hPosition;

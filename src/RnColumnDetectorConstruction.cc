@@ -58,7 +58,7 @@ RnColumnDetectorConstruction::RnColumnDetectorConstruction() {
 }
 
 RnColumnDetectorConstruction::~RnColumnDetectorConstruction() {
-  //delete m_pDetectorMessenger;
+  delete m_pDetectorMessenger;
 }
 
 G4VPhysicalVolume* RnColumnDetectorConstruction::Construct() {
@@ -513,6 +513,14 @@ void RnColumnDetectorConstruction::ConstructPMTs() {
 		   //m_pGXePhysicalVolume, m_hPmtCasingPhysicalVolumes[iPmtNb], pSS304LSteelOpticalSurface);
 	}
 
+  G4OpticalSurface *pPTFEOpticalSurface = new G4OpticalSurface("PTFEOpticalSurface", 
+		unified, ground, dielectric_dielectric, 0.1);
+		
+  pPTFEOpticalSurface->SetMaterialPropertiesTable(PTFE->GetMaterialPropertiesTable());
+
+  new G4LogicalBorderSurface("SeparatorTubeSurface",
+    m_pLXePhysicalVolume, m_pPTFEPMTSeparationPhysicalVolume, pPTFEOpticalSurface);
+
   //---------------------------------- attributes ---------------------------------
   G4Colour hPmtWindowColor(0.4,0.804, 0.666,0.75);  //102 205 170 aquamarine
   G4VisAttributes *pPmtWindowVisAtt = new G4VisAttributes(hPmtWindowColor);
@@ -653,12 +661,8 @@ void RnColumnDetectorConstruction::ConstructReboiler() {
   G4double dSigmaAlpha = 0.1;
   
   G4OpticalSurface *pSS316LSteelOpticalSurface = new G4OpticalSurface("SS316LSteelOpticalSurface",
-		unified, polished, dielectric_metal, 0.);
-		
-  G4OpticalSurface *pPTFEOpticalSurface = new G4OpticalSurface("PTFEOpticalSurface", 
-		unified, ground, dielectric_dielectric, dSigmaAlpha);
-		
-  pPTFEOpticalSurface->SetMaterialPropertiesTable(GXePTFE->GetMaterialPropertiesTable());
+		unified, polished, dielectric_metal, 0.1);
+	
   pSS316LSteelOpticalSurface->SetMaterialPropertiesTable(SS316LSteel->GetMaterialPropertiesTable());
   
   new G4LogicalBorderSurface("LXeReboilerTubeSurface",
@@ -748,6 +752,30 @@ void RnColumnDetectorConstruction::SetSeparationPlateMaterial(const G4String& na
   if(mat && mat != pLXeMaterial) {
 		m_pPTFEPMTSeparationLogicalVolume->SetMaterial(mat);
     UpdateGeometry();
+
+    if (name == "LXePTFE" || name == "GXePTFE") {
+      G4OpticalSurface *pOpticalSurface = new G4OpticalSurface("OpticalSurface", 
+        unified, ground, dielectric_dielectric, 0.1);
+        
+      pOpticalSurface->SetMaterialPropertiesTable(mat->GetMaterialPropertiesTable());
+
+      new G4LogicalBorderSurface("SeparatorTubeSurface",
+        m_pLXePhysicalVolume, m_pPTFEPMTSeparationPhysicalVolume, pOpticalSurface);
+    }
+    else if (name == "SS316LSteel") {
+      G4OpticalSurface *pOpticalSurface = new G4OpticalSurface("OpticalSurface", 
+        unified, ground, dielectric_dielectric, 0.1);
+        
+      pOpticalSurface->SetMaterialPropertiesTable(mat->GetMaterialPropertiesTable());
+
+      new G4LogicalBorderSurface("SeparatorTubeSurface",
+        m_pLXePhysicalVolume, m_pPTFEPMTSeparationPhysicalVolume, pOpticalSurface);
+    }
+    else {
+      G4cout << "----> WARNING from DetectorConstruction::SetSeparationPlateMaterial : "
+             << name << " not supported" << G4endl;
+    }
+
 		G4cout << "----> New SeparationPlate material " << mat->GetName() << G4endl;
   }
 

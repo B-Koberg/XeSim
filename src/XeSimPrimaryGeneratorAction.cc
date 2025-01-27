@@ -22,6 +22,7 @@ XeSimPrimaryGeneratorAction::XeSimPrimaryGeneratorAction()
 
 XeSimPrimaryGeneratorAction::~XeSimPrimaryGeneratorAction()
 {
+	delete m_pMessenger;
 	delete m_pParticleSource;
 }
 

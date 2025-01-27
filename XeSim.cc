@@ -208,6 +208,7 @@ int main(int argc, char **argv) {
 	}
   
 	// delete all created objects
+	delete pAnalysisManager;
 	if(bVisualize) delete pVisManager;
 	delete pRunManager;
 	
@@ -215,7 +216,16 @@ int main(int argc, char **argv) {
 }
 
 void usage() {
-  exit(0);
+	G4cout << "Usage: XeSim [-p preinit_macro] [-c detector_macro] [-f run_macro] [-o output_file] [-n number_of_events] [-v] [-i] -d experiment" << G4endl;
+	G4cout << "  -p preinit_macro: Preinit macro file" << G4endl;
+	G4cout << "  -c detector_macro: Detector setup macro file" << G4endl;
+	G4cout << "  -f run_macro: Run macro file" << G4endl;
+	G4cout << "  -o output_file: Output file" << G4endl;
+	G4cout << "  -n number_of_events: Number of events to simulate" << G4endl;
+	G4cout << "  -v: Visualize" << G4endl;
+	G4cout << "  -i: Interactive" << G4endl;
+	G4cout << "  -d experiment: Experiment to run" << G4endl;
+	exit(1);
 }
 
 inline bool fileexists (const std::string& name) {
