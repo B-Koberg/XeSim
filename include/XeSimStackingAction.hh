@@ -3,8 +3,10 @@
 
 #include <globals.hh>
 #include <G4UserStackingAction.hh>
+#include <XeSimStackingActionMessenger.hh>
 
 class XeSimAnalysisManager;
+class XeSimStackingActionMessenger;
 
 class XeSimStackingAction: public G4UserStackingAction {
 public:
@@ -14,9 +16,18 @@ public:
 	virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack);
 	virtual void NewStage();
 	virtual void PrepareNewEvent();
+	XeSimStackingActionMessenger *theMessenger;
+
+	inline void SetPostponeFlag(G4bool val) { PostponeFlag = val; };
+	inline void SetMaxLifeTime(G4double val) { MaxLifeTime = val; };
+	inline void SetKillPostponedNucleus(G4String val) { KillPostponedNucleusName = val; };
 
 private:
 	XeSimAnalysisManager *m_pAnalysisManager;
+	G4bool PostponeFlag;
+	G4double MaxLifeTime;
+	G4String KillPostponedNucleusName = "None";
+
 };
 
 #endif

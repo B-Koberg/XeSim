@@ -39,6 +39,10 @@ XeSimAnalysisManager::XeSimAnalysisManager(XeSimPrimaryGeneratorAction *pPrimary
   m_pAnalysisMessenger = new XeSimAnalysisMessenger(this);
   
   m_PhotoDetHitsDetails = kFALSE;
+
+  m_pNeutronActivation = kFALSE;
+  m_pRecordOnlyEventID = kFALSE;
+  m_pRecordOnlyActiveVolume = kFALSE;
 }
 
 XeSimAnalysisManager::~XeSimAnalysisManager(){
@@ -86,56 +90,88 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     //          different situations, it means, every particle created by 'beamOn' starts a 
     //          detector event.
     m_pTree->Branch("eventid", &m_pEventData->m_iEventId, "eventid/I");
-    // photodethits:	total amount of PMT hits for a specific eventid and for each PMT
-    m_pTree->Branch("photodethits", "vector<int>", &m_pEventData->m_pPhotoDetHits);
-    m_pTree->Branch("nphotodethits", &m_pEventData->m_iNbPhotoDetHits, "nphotodethits/I");
-    // etot: Amount of energy, which is deopsited during this eventid/particle run.
-    m_pTree->Branch("etot", &m_pEventData->m_fTotalEnergyDeposited, "etot/F");
-    m_pTree->Branch("nsteps", &m_pEventData->m_iNbSteps, "nsteps/I");
 
-    // trackid:	ID of the current event in the event track. All listed events are
-    //			generated within the main eventid. (e.g. emitted gammas)
-    m_pTree->Branch("trackid", "vector<int>", &m_pEventData->m_pTrackId);
-    // type:	type of the particles in the event track
-    m_pTree->Branch("type", "vector<string>", &m_pEventData->m_pParticleType);
-    // parentid:	trackid of the parent track event
-    m_pTree->Branch("parentid", "vector<int>", &m_pEventData->m_pParentId);
-    // parenttype:	parenttype of the parent track event
-    m_pTree->Branch("parenttype", "vector<string>", &m_pEventData->m_pParentType);
-    // creaproc:	name of the creation process of the track particle/trackid
-    m_pTree->Branch("creaproc", "vector<string>", &m_pEventData->m_pCreatorProcess);
-    // edproc:	name of the energy deposition process of the track particle/trackid
-    m_pTree->Branch("edproc", "vector<string>", &m_pEventData->m_pDepositingProcess);
-    // Positions of the current particle/trackid
-    m_pTree->Branch("xp", "vector<float>", &m_pEventData->m_pX);
-    m_pTree->Branch("yp", "vector<float>", &m_pEventData->m_pY);
-    m_pTree->Branch("zp", "vector<float>", &m_pEventData->m_pZ);
-    // ed:	energy deposition of the current particle/trackid
-    m_pTree->Branch("ed", "vector<float>", &m_pEventData->m_pEnergyDeposited);
-    // time:	timestamp of the current particle/trackid
-    m_pTree->Branch("time", "vector<double>", &m_pEventData->m_pTime);
+    if (!m_pRecordOnlyEventID) {
+      // photodethits:	total amount of PMT hits for a specific eventid and for each PMT
+      m_pTree->Branch("photodethits", "vector<int>", &m_pEventData->m_pPhotoDetHits);
+      m_pTree->Branch("nphotodethits", &m_pEventData->m_iNbPhotoDetHits, "nphotodethits/I");
+      // etot: Amount of energy, which is deopsited during this eventid/particle run.
+      m_pTree->Branch("etot", &m_pEventData->m_fTotalEnergyDeposited, "etot/F");
+      m_pTree->Branch("nsteps", &m_pEventData->m_iNbSteps, "nsteps/I");
 
-    // type_pri:	type of the primary event/main event
-    m_pTree->Branch("type_pri", "vector<string>", &m_pEventData->m_pPrimaryParticleType);
-    // Energy and positions of the current particle/trackid
-    m_pTree->Branch("e_pri", &m_pEventData->m_fPrimaryEnergy, "e_pri/F");
-    m_pTree->Branch("xp_pri", &m_pEventData->m_fPrimaryX, "xp_pri/F");
-    m_pTree->Branch("yp_pri", &m_pEventData->m_fPrimaryY, "yp_pri/F");
-    m_pTree->Branch("zp_pri", &m_pEventData->m_fPrimaryZ, "zp_pri/F");
-    m_pTree->Branch("vol_pri", &m_pEventData->m_fPrimaryVolume);
-    
-    // Array of PmtHits, indexed by PMT ID
-    if (m_PhotoDetHitsDetails == kTRUE) {
-      m_pTree->Branch("photodethitID", "vector<int>", &m_pEventData->m_pPhotoDetHitID);
-      m_pTree->Branch("photodethitTime", "vector<double>", &m_pEventData->m_pPhotoDetHitTime);
-      m_pTree->Branch("photodethitEnergy", "vector<float>", &m_pEventData->m_pPhotoDetHitEnergy);
-      m_pTree->Branch("photodethitTheta", "vector<float>",&m_pEventData->m_pPhotoDetHitTheta);
-      m_pTree->Branch("photodethitPhi", "vector<float>", &m_pEventData->m_pPhotoDetHitPhi);
-      m_pTree->Branch("photodethitXp", "vector<float>", &m_pEventData->m_pPhotoDetHitX);
-      m_pTree->Branch("photodethitYp", "vector<float>", &m_pEventData->m_pPhotoDetHitY);
-      m_pTree->Branch("photodethitZp", "vector<float>", &m_pEventData->m_pPhotoDetHitZ);
+      // trackid:	ID of the current event in the event track. All listed events are
+      //			generated within the main eventid. (e.g. emitted gammas)
+      m_pTree->Branch("trackid", "vector<int>", &m_pEventData->m_pTrackId);
+      // type:	type of the particles in the event track
+      m_pTree->Branch("type", "vector<string>", &m_pEventData->m_pParticleType);
+      // parentid:	trackid of the parent track event
+      m_pTree->Branch("parentid", "vector<int>", &m_pEventData->m_pParentId);
+      // parenttype:	parenttype of the parent track event
+      m_pTree->Branch("parenttype", "vector<string>", &m_pEventData->m_pParentType);
+      // creaproc:	name of the creation process of the track particle/trackid
+      m_pTree->Branch("creaproc", "vector<string>", &m_pEventData->m_pCreatorProcess);
+      // edproc:	name of the energy deposition process of the track particle/trackid
+      m_pTree->Branch("edproc", "vector<string>", &m_pEventData->m_pDepositingProcess);
+      // Positions of the current particle/trackid
+      m_pTree->Branch("xp", "vector<float>", &m_pEventData->m_pX);
+      m_pTree->Branch("yp", "vector<float>", &m_pEventData->m_pY);
+      m_pTree->Branch("zp", "vector<float>", &m_pEventData->m_pZ);
+      // ed:	energy deposition of the current particle/trackid
+      m_pTree->Branch("ed", "vector<float>", &m_pEventData->m_pEnergyDeposited);
+      // time:	timestamp of the current particle/trackid
+      m_pTree->Branch("time", "vector<double>", &m_pEventData->m_pTime);
+
+      // type_pri:	type of the primary event/main event
+      m_pTree->Branch("type_pri", "vector<string>", &m_pEventData->m_pPrimaryParticleType);
+      // Energy and positions of the current particle/trackid
+      m_pTree->Branch("e_pri", &m_pEventData->m_fPrimaryEnergy, "e_pri/F");
+      m_pTree->Branch("xp_pri", &m_pEventData->m_fPrimaryX, "xp_pri/F");
+      m_pTree->Branch("yp_pri", &m_pEventData->m_fPrimaryY, "yp_pri/F");
+      m_pTree->Branch("zp_pri", &m_pEventData->m_fPrimaryZ, "zp_pri/F");
+      m_pTree->Branch("vol_pri", &m_pEventData->m_fPrimaryVolume);
+      
+      // Array of PmtHits, indexed by PMT ID
+      if (m_PhotoDetHitsDetails == kTRUE) {
+        m_pTree->Branch("photodethitID", "vector<int>", &m_pEventData->m_pPhotoDetHitID);
+        m_pTree->Branch("photodethitTime", "vector<double>", &m_pEventData->m_pPhotoDetHitTime);
+        m_pTree->Branch("photodethitEnergy", "vector<float>", &m_pEventData->m_pPhotoDetHitEnergy);
+        m_pTree->Branch("photodethitTheta", "vector<float>",&m_pEventData->m_pPhotoDetHitTheta);
+        m_pTree->Branch("photodethitPhi", "vector<float>", &m_pEventData->m_pPhotoDetHitPhi);
+        m_pTree->Branch("photodethitXp", "vector<float>", &m_pEventData->m_pPhotoDetHitX);
+        m_pTree->Branch("photodethitYp", "vector<float>", &m_pEventData->m_pPhotoDetHitY);
+        m_pTree->Branch("photodethitZp", "vector<float>", &m_pEventData->m_pPhotoDetHitZ);
+      }
     }
-    
+
+    // Branches for configurable saves
+    m_pTree->Branch("NSave", &m_pEventData->m_iNSave, "NSave/I");
+    m_pTree->Branch("Save_flag", "vector<int>", &m_pEventData->m_pSave_flag);
+    m_pTree->Branch("Save_type", "vector<int>", &m_pEventData->m_pSave_type);
+    m_pTree->Branch("Save_x", "vector<float>", &m_pEventData->m_pSave_x);
+    m_pTree->Branch("Save_y", "vector<float>", &m_pEventData->m_pSave_y);
+    m_pTree->Branch("Save_z", "vector<float>", &m_pEventData->m_pSave_z);
+    m_pTree->Branch("Save_cx", "vector<float>", &m_pEventData->m_pSave_cx);
+    m_pTree->Branch("Save_cy", "vector<float>", &m_pEventData->m_pSave_cy);
+    m_pTree->Branch("Save_cz", "vector<float>", &m_pEventData->m_pSave_cz);
+    m_pTree->Branch("Save_e", "vector<float>", &m_pEventData->m_pSave_e);
+    m_pTree->Branch("Save_t", "vector<float>", &m_pEventData->m_pSave_t);
+    m_pTree->Branch("Save_trkid", "vector<int>", &m_pEventData->m_pSave_trkid);
+
+    // Branches for storing Neutron Activation information
+    if (m_pNeutronActivation == kTRUE) {
+      m_pTree->Branch("NAct_volume", "vector<string>", &m_pEventData->m_pNAct_volume);
+      m_pTree->Branch("NAct_name", "vector<string>", &m_pEventData->m_pNAct_name);
+      m_pTree->Branch("NAct_x", "vector<float>", &m_pEventData->m_pNAct_x);
+      m_pTree->Branch("NAct_y", "vector<float>", &m_pEventData->m_pNAct_y);
+      m_pTree->Branch("NAct_z", "vector<float>", &m_pEventData->m_pNAct_z);
+      m_pTree->Branch("NAct_process", "vector<string>", &m_pEventData->m_pNAct_process);
+      m_pTree->Branch("NAct_event", "vector<int>", &m_pEventData->m_pNAct_event);
+      m_pTree->Branch("NAct_mass", "vector<int>", &m_pEventData->m_pNAct_mass);
+      m_pTree->Branch("NAct_number", "vector<int>", &m_pEventData->m_pNAct_number);
+      m_pTree->Branch("NAct_t", "vector<float>", &m_pEventData->m_pNAct_t);
+      m_pTree->Branch("NAct", &m_pEventData->m_iNAct, "nAct/I");
+    }
+
     //m_pTree->SetMaxTreeSize(1000*Long64_t(2000000000)); //2TB
     //m_pTree->AutoSave();
 
@@ -143,7 +179,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     m_iNbEventsToSimulate = pRun->GetNumberOfEventToBeProcessed();
     m_pNbEventsToSimulateParameter = new TParameter<int>("nbevents", m_iNbEventsToSimulate);
     m_pNbEventsToSimulateParameter->Write();
-    
+
     m_pTreeFile->cd();
 }
 
@@ -221,6 +257,14 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
 
       if(pHit->GetParticleType() != "opticalphoton")
       {
+        if (m_pRecordOnlyActiveVolume){
+          G4double ix = pHit->GetPosition().x() / mm;
+          G4double iy = pHit->GetPosition().y() / mm;
+          G4double iz = pHit->GetPosition().z() / mm;
+          if ((ix*ix+iy*iy > 665*665) || (iz < -1548) || (iz > 10) ) continue;
+	        // Be very careful if using this option and document it in your simulations log!
+        }
+
         m_pEventData->m_pTrackId->push_back(pHit->GetTrackId());
         m_pEventData->m_pParentId->push_back(pHit->GetParentId());
 
@@ -279,11 +323,11 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
         //           m_pEventData->m_pPhotoDetHits->begin() + iNbPhotoDetHits, 0);
 
       // save only energy depositing events
-      if(writeEmptyEvents) {
+      if(writeEmptyEvents || m_pRecordOnlyEventID) {
         m_pTree->Fill(); // write all events to the tree
       } else {
+        // only events with some activity are written to the tree
         if(fTotalEnergyDeposited > 0. || iNbPhotoDetHits > 0) m_pTree->Fill(); 
-            // only events with some activity are written to the tree
       }
 
     // auto save functionality to avoid data loss/ROOT can recover aborted simulations
@@ -294,6 +338,41 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
     m_pEventData->Clear();
     m_pTreeFile->cd();
   }
+}
+
+// Can be called in the SteppingAction to store the particle information
+void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4int partPDGcode,
+                                                G4ThreeVector pos,
+                                                G4ThreeVector dir, G4float nrg,
+                                                G4float time, G4int trackID) {
+  m_pEventData->m_pSave_flag->push_back(flag);
+  m_pEventData->m_pSave_type->push_back(partPDGcode);
+  m_pEventData->m_pSave_x->push_back(pos.x() / mm);
+  m_pEventData->m_pSave_y->push_back(pos.y() / mm);
+  m_pEventData->m_pSave_z->push_back(pos.z() / mm);
+  m_pEventData->m_pSave_cx->push_back(dir.x());
+  m_pEventData->m_pSave_cy->push_back(dir.y());
+  m_pEventData->m_pSave_cz->push_back(dir.z());
+  m_pEventData->m_pSave_e->push_back(nrg / keV);
+  m_pEventData->m_pSave_t->push_back(time / ns);
+  m_pEventData->m_pSave_trkid->push_back(trackID);
+  m_pEventData->m_iNSave++;
+}
+
+void XeSimAnalysisManager::FillNeutronCaptureInSave(
+    G4String name, G4String process, G4int atomic_mass, G4int atomic_number,
+    G4ThreeVector pos, G4String volume, G4int event_number, G4float time) {
+  m_pEventData->m_pNAct_volume->push_back(volume);
+  m_pEventData->m_pNAct_name->push_back(name);
+  m_pEventData->m_pNAct_x->push_back(pos.x() / mm);
+  m_pEventData->m_pNAct_y->push_back(pos.y() / mm);
+  m_pEventData->m_pNAct_z->push_back(pos.z() / mm);
+  m_pEventData->m_pNAct_process->push_back(process);
+  m_pEventData->m_pNAct_event->push_back(event_number);
+  m_pEventData->m_pNAct_mass->push_back(atomic_mass);
+  m_pEventData->m_pNAct_number->push_back(atomic_number);
+  m_pEventData->m_pNAct_t->push_back(time);
+  m_pEventData->m_iNAct++;
 }
 
 void XeSimAnalysisManager::Step(const G4Step *pStep) {

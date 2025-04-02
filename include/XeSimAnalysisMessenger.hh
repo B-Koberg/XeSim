@@ -29,6 +29,10 @@ class XeSimAnalysisMessenger : public G4UImessenger {
   XeSimAnalysisManager *m_pAnalysis;
   G4UIdirectory *m_pDirectory;
   G4UIcmdWithABool *m_pPhotoDetHitsDetailsCmd;
+
+  G4UIcmdWithABool *m_pActivationCmd;
+  G4UIcmdWithABool *m_pRecordOnlyEventIDCmd;
+  G4UIcmdWithABool *m_pRecordOnlyActiveVolumeCmd;
 };
 
 #endif

@@ -47,6 +47,32 @@ public:
 	float m_fPrimaryY;
 	float m_fPrimaryZ;	
     string m_fPrimaryVolume;
+
+	int m_iNSave;
+	vector<int> *m_pSave_flag;
+	vector<int> *m_pSave_type;
+	vector<float> *m_pSave_x;
+	vector<float> *m_pSave_y;
+	vector<float> *m_pSave_z;
+	vector<float> *m_pSave_cx;
+	vector<float> *m_pSave_cy;
+	vector<float> *m_pSave_cz;
+	vector<float> *m_pSave_e;
+	vector<float> *m_pSave_t;
+	vector<int> *m_pSave_trkid;
+
+	// For Storing Information about Activation Through Neutron Capture
+	int m_iNAct;
+	vector<string> *m_pNAct_name;
+	vector<string> *m_pNAct_process;
+	vector<string> *m_pNAct_volume;
+	vector<int> *m_pNAct_number;
+	vector<int> *m_pNAct_mass;
+	vector<float> *m_pNAct_x;
+	vector<float> *m_pNAct_y;
+	vector<float> *m_pNAct_z;
+	vector<float> *m_pNAct_t;
+	vector<int> *m_pNAct_event;
 };  
 
 #endif

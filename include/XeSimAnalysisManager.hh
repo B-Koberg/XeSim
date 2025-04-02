@@ -41,6 +41,18 @@ public:
 
   void AddMacroFile(const G4String &hMacroFile) { m_hMacroFiles.push_back(hMacroFile); }
 
+  void SetRecordOnlyEventID(G4bool mRecordOnlyEventID) { m_pRecordOnlyEventID = mRecordOnlyEventID; }
+  void SetRecordOnlyActiveVolume(G4bool mRecordOnlyActiveVolume) { m_pRecordOnlyActiveVolume = mRecordOnlyActiveVolume; }
+  void SetNeutronActivation(G4bool mStoreNeutronActivation) { m_pNeutronActivation = mStoreNeutronActivation; }
+
+  void FillParticleInSave(G4int flag, G4int partPDGcode, G4ThreeVector pos,
+                          G4ThreeVector dir, G4float nrg, G4float time,
+                          G4int trackID);
+  void FillNeutronCaptureInSave(G4String name, G4String process,
+                                G4int atomic_mass, G4int atomic_number,
+                                G4ThreeVector pos, G4String volume,
+                                G4int event_number, G4float time);
+
 private:
     G4Timer *runTime;
 
@@ -68,8 +80,12 @@ private:
 
 	XeSimEventData *m_pEventData;
 	
-	G4bool writeEmptyEvents;
+    G4bool writeEmptyEvents;
     G4bool m_PhotoDetHitsDetails;
+
+    G4bool m_pNeutronActivation;
+    G4bool m_pRecordOnlyEventID;
+    G4bool m_pRecordOnlyActiveVolume;
 };
 
 #endif

@@ -12,4 +12,16 @@
 /Xe/detector/setNbTopPmts 4
 /Xe/detector/setNbBottomPmts 4
 
+# select how would you like to simulate radioactive decays
+# setting 0 means that you would like to simulate the full decay chain in a single event
+# setting 1 means that you want to manually postpone all radioactive decays
+# If postpone is on each new isotope will be written in its own event together with subsequent gamma decays
+/xe/Postponedecay 1
+
+# set a lifetime threshold for secondaries produced via RadioactiveDecay process (daughter isotopes)
+# if the daughter isotope lifetime > MaxLifeTime, postpone the track to the next event; keep in the running event otherwise
+# only works if /xe/Postponedecay is set to 1
+# default is 1 ns
+/xe/MaxLifeTime 1 ns
+
 /run/initialize

@@ -37,6 +37,32 @@ XeSimEventData::XeSimEventData() {
 	m_fPrimaryY = 0.;
 	m_fPrimaryZ = 0.;
     m_fPrimaryVolume = "";
+
+	m_iNSave = 0;
+	m_pSave_flag = new vector<int>;
+	m_pSave_type = new vector<int>;
+	m_pSave_x = new vector<float>;
+	m_pSave_y = new vector<float>;
+	m_pSave_z = new vector<float>;
+	m_pSave_cx = new vector<float>;
+	m_pSave_cy = new vector<float>;
+	m_pSave_cz = new vector<float>;
+	m_pSave_e = new vector<float>;
+	m_pSave_t = new vector<float>;
+	m_pSave_trkid = new vector<int>;
+
+	// Neutron capture
+	m_iNAct = 0;
+	m_pNAct_name = new vector<string>;
+	m_pNAct_process = new vector<string>;
+	m_pNAct_volume = new vector<string>;
+	m_pNAct_mass = new vector<int>;
+	m_pNAct_number = new vector<int>;
+	m_pNAct_x = new vector<float>;
+	m_pNAct_y = new vector<float>;
+	m_pNAct_z = new vector<float>;
+	m_pNAct_event = new vector<int>;
+	m_pNAct_t = new vector<float>;
 }
 
 XeSimEventData::~XeSimEventData() {
@@ -64,6 +90,29 @@ XeSimEventData::~XeSimEventData() {
 	delete m_pTime;
 
 	delete m_pPrimaryParticleType;
+
+	delete m_pSave_flag;
+	delete m_pSave_type;
+	delete m_pSave_x;
+	delete m_pSave_y;
+	delete m_pSave_z;
+	delete m_pSave_cx;
+	delete m_pSave_cy;
+	delete m_pSave_cz;
+	delete m_pSave_e;
+	delete m_pSave_t;
+	delete m_pSave_trkid;
+
+	delete m_pNAct_name;
+	delete m_pNAct_volume;
+	delete m_pNAct_process;
+	delete m_pNAct_event;
+	delete m_pNAct_mass;
+	delete m_pNAct_number;
+	delete m_pNAct_x;
+	delete m_pNAct_y;
+	delete m_pNAct_z;
+	delete m_pNAct_t;
 }
 
 void XeSimEventData::Clear() {
@@ -101,5 +150,30 @@ void XeSimEventData::Clear() {
 	m_fPrimaryY = 0.;
 	m_fPrimaryZ = 0.;	
     m_fPrimaryVolume = "";
+
+	m_iNSave = 0;
+	m_pSave_flag->clear();
+	m_pSave_type->clear();
+	m_pSave_x->clear();
+	m_pSave_y->clear();
+	m_pSave_z->clear();
+	m_pSave_cx->clear();
+	m_pSave_cy->clear();
+	m_pSave_cz->clear();
+	m_pSave_e->clear();
+	m_pSave_t->clear();
+	m_pSave_trkid->clear();
+
+	m_iNAct = 0;
+	m_pNAct_name->clear();
+	m_pNAct_volume->clear();
+	m_pNAct_process->clear();
+	m_pNAct_event->clear();
+	m_pNAct_mass->clear();
+	m_pNAct_number->clear();
+	m_pNAct_x->clear();
+	m_pNAct_y->clear();
+	m_pNAct_z->clear();
+	m_pNAct_t->clear();
 }
 
