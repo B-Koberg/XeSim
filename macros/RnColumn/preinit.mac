@@ -24,4 +24,10 @@
 # default is 1 ns
 /xe/MaxLifeTime 1 ns
 
+# Do no record primary information or hit collections. Just eventid and special saves.
+/analysis/settings/setRecordOnlyEventID false
+
+# Store interactions resulting from neutron capture throughout the detector, not only sensitive volumes.
+/analysis/settings/setRecordNeutronCapture false
+
 /run/initialize

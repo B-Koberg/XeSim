@@ -23,8 +23,13 @@ void XeSimEventAction::BeginOfEventAction(const G4Event *pEvent) {
 		     << "-" << time_now->tm_min << "-" << time_now->tm_sec; 
 		starttimeunix = mktime ( time_now ); // for UTC time use "timegm"
 	}
-	
-	if ( (pEvent->GetEventID() % 10000 == 0) || (pEvent->GetEventID() % (m_iNbEventsToSimulate/5) == 0) ) {
+
+	G4int minsteps = 5;
+	if (m_iNbEventsToSimulate < minsteps) {
+		minsteps = m_iNbEventsToSimulate;
+	}
+
+	if ( (pEvent->GetEventID() % 10000 == 0) || (pEvent->GetEventID() % (int)(m_iNbEventsToSimulate/minsteps) == 0) ) {
 		time_un = time(0);
 		time_now = localtime(&time_un);
 		currtime.str(std::string());
@@ -33,7 +38,7 @@ void XeSimEventAction::BeginOfEventAction(const G4Event *pEvent) {
 		     << "-" << time_now->tm_min << "-" << time_now->tm_sec;
 		currtimeunix = time_un - starttimeunix;
 
-		if ( (pEvent->GetEventID() > 0) && ((pEvent->GetEventID()/currtimeunix) > 0) ) {
+		if ( (pEvent->GetEventID() > 0) && ((pEvent->GetEventID()/currtimeunix) > 0.0) ) {
 			endtimeunix = starttimeunix + m_iNbEventsToSimulate / (pEvent->GetEventID()/currtimeunix);
 			time_end = localtime(&endtimeunix);
 			strftime(endtime, sizeof(endtime), "%Y-%m-%d %H-%M-%S", time_end);
@@ -46,7 +51,6 @@ void XeSimEventAction::BeginOfEventAction(const G4Event *pEvent) {
 			G4cout << currtime.str() << " || Start of first event || " << currtimeunix << "s initialization" << G4endl;
 		}
 	}
-
 	if(m_pAnalysisManager) m_pAnalysisManager->BeginOfEvent(pEvent);
 }
 
