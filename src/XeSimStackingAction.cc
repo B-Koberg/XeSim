@@ -33,21 +33,26 @@ G4ClassificationOfNewTrack XeSimStackingAction::ClassifyNewTrack(const G4Track *
 	G4String volumeName = " ";
 	if (particleType == "nucleus" && pTrack->GetParentID() > 0) {
 		G4String processName = pTrack->GetCreatorProcess()->GetProcessName();
-		G4Ions *ion = (G4Ions *)pTrack->GetDefinition();
-		G4double lifetime = ion->GetPDGLifeTime();
 		G4String particleName = pTrack->GetDefinition()->GetParticleName();
+		G4ThreeVector position = pTrack->GetPosition();
 		volumeName = G4TransportationManager::GetTransportationManager()
 							->GetNavigatorForTracking()
 							->LocateGlobalPointAndSetup(pTrack->GetPosition())
 							->GetName();
+		
+		G4Ions *ion = (G4Ions *)pTrack->GetDefinition();
+		G4int A = ion->GetAtomicMass();
 		G4int Z = ion->GetAtomicNumber();
 		G4double excitationEnergy = ion->GetExcitationEnergy();
+		G4double lifetime = ion->GetPDGLifeTime();
+		
 		G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
 
-		if (lifetime > 1e18 * second) lifetime = -1;  // too long-lived
-		if (lifetime > 0 || excitationEnergy > 0 || (Z > 30 && Z < 40)) {
-			G4int A = ion->GetAtomicMass();
-			G4ThreeVector position = pTrack->GetPosition();
+		// Remove long-lived isotopes
+		if (lifetime > 1e18 * second) lifetime = -1;  
+
+		// (Z > 30 && Z < 40) to add stable isotopes
+		if (lifetime > 0 || excitationEnergy > 0) {
 			m_pAnalysisManager->FillNeutronCaptureInSave(particleName, processName, A,
 														 Z, position, volumeName,
 														 eventID, timeP);

@@ -40,8 +40,8 @@ XeSimAnalysisManager::XeSimAnalysisManager(XeSimPrimaryGeneratorAction *pPrimary
   
   m_PhotoDetHitsDetails = kFALSE;
 
-  m_pNeutronActivation = kFALSE;
   m_pRecordOnlyEventID = kFALSE;
+  m_pNeutronActivation = kFALSE;
   m_pRecordOnlyActiveVolume = kFALSE;
 }
 
@@ -91,6 +91,15 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     //          detector event.
     m_pTree->Branch("eventid", &m_pEventData->m_iEventId, "eventid/I");
 
+    // type_pri:	type of the primary event/main event
+    m_pTree->Branch("type_pri", "vector<string>", &m_pEventData->m_pPrimaryParticleType);
+    // Energy and positions of the current particle/trackid
+    m_pTree->Branch("e_pri", &m_pEventData->m_fPrimaryEnergy, "e_pri/F");
+    m_pTree->Branch("xp_pri", &m_pEventData->m_fPrimaryX, "xp_pri/F");
+    m_pTree->Branch("yp_pri", &m_pEventData->m_fPrimaryY, "yp_pri/F");
+    m_pTree->Branch("zp_pri", &m_pEventData->m_fPrimaryZ, "zp_pri/F");
+    m_pTree->Branch("vol_pri", &m_pEventData->m_fPrimaryVolume);
+
     if (!m_pRecordOnlyEventID) {
       // photodethits:	total amount of PMT hits for a specific eventid and for each PMT
       m_pTree->Branch("photodethits", "vector<int>", &m_pEventData->m_pPhotoDetHits);
@@ -120,15 +129,6 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       m_pTree->Branch("ed", "vector<float>", &m_pEventData->m_pEnergyDeposited);
       // time:	timestamp of the current particle/trackid
       m_pTree->Branch("time", "vector<double>", &m_pEventData->m_pTime);
-
-      // type_pri:	type of the primary event/main event
-      m_pTree->Branch("type_pri", "vector<string>", &m_pEventData->m_pPrimaryParticleType);
-      // Energy and positions of the current particle/trackid
-      m_pTree->Branch("e_pri", &m_pEventData->m_fPrimaryEnergy, "e_pri/F");
-      m_pTree->Branch("xp_pri", &m_pEventData->m_fPrimaryX, "xp_pri/F");
-      m_pTree->Branch("yp_pri", &m_pEventData->m_fPrimaryY, "yp_pri/F");
-      m_pTree->Branch("zp_pri", &m_pEventData->m_fPrimaryZ, "zp_pri/F");
-      m_pTree->Branch("vol_pri", &m_pEventData->m_fPrimaryVolume);
       
       // Array of PmtHits, indexed by PMT ID
       if (m_PhotoDetHitsDetails == kTRUE) {
@@ -159,6 +159,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
 
     // Branches for storing Neutron Activation information
     if (m_pNeutronActivation == kTRUE) {
+      m_pTree->Branch("NNAct", &m_pEventData->m_iNAct, "NNAct/I");
       m_pTree->Branch("NAct_volume", "vector<string>", &m_pEventData->m_pNAct_volume);
       m_pTree->Branch("NAct_name", "vector<string>", &m_pEventData->m_pNAct_name);
       m_pTree->Branch("NAct_x", "vector<float>", &m_pEventData->m_pNAct_x);
@@ -169,7 +170,6 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       m_pTree->Branch("NAct_mass", "vector<int>", &m_pEventData->m_pNAct_mass);
       m_pTree->Branch("NAct_number", "vector<int>", &m_pEventData->m_pNAct_number);
       m_pTree->Branch("NAct_t", "vector<float>", &m_pEventData->m_pNAct_t);
-      m_pTree->Branch("NAct", &m_pEventData->m_iNAct, "nAct/I");
     }
 
     //m_pTree->SetMaxTreeSize(1000*Long64_t(2000000000)); //2TB
@@ -239,7 +239,6 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
   m_pEventData->m_iEventId = pEvent->GetEventID();
 
   m_pEventData->m_pPrimaryParticleType->push_back(m_pPrimaryGeneratorAction->GetParticleTypeOfPrimary());
-
   m_pEventData->m_fPrimaryEnergy = m_pPrimaryGeneratorAction->GetEnergyOfPrimary()/keV;
   m_pEventData->m_fPrimaryX = m_pPrimaryGeneratorAction->GetPositionOfPrimary().x()/mm;
   m_pEventData->m_fPrimaryY = m_pPrimaryGeneratorAction->GetPositionOfPrimary().y()/mm;
@@ -292,52 +291,54 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
     m_pEventData->m_pPhotoDetHits->resize(m_iNbPhotoDets, 0);
 
     // PhotoDet hits
-    for(G4int i=0; i<iNbPhotoDetHits; i++)
-        {
+    for(G4int i=0; i<iNbPhotoDetHits; i++) {
       (*(m_pEventData->m_pPhotoDetHits))[(*pPhotoDetHitsCollection)[i]->GetPhotoDetNb()]++;
             
-            if (m_PhotoDetHitsDetails) {
-                m_pEventData->m_pPhotoDetHitID->push_back((*pPhotoDetHitsCollection)[i]->GetPhotoDetNb());
-                m_pEventData->m_pPhotoDetHitTime->push_back((*pPhotoDetHitsCollection)[i]->GetTime() / second);
+      if (m_PhotoDetHitsDetails) {
+          m_pEventData->m_pPhotoDetHitID->push_back((*pPhotoDetHitsCollection)[i]->GetPhotoDetNb());
+          m_pEventData->m_pPhotoDetHitTime->push_back((*pPhotoDetHitsCollection)[i]->GetTime() / second);
 
-                m_pEventData->m_pPhotoDetHitEnergy->push_back((*pPhotoDetHitsCollection)[i]->GetEnergy()/eV);
-                // G4cout <<  pEvent->GetEventID() << " - TIME " <<
-                // (*pPhotoDetHitsCollection)[i]->GetTime()/second << " - Energy " << (*pPhotoDetHitsCollection)[i]->GetEnergy()/eV << G4endl;
+          m_pEventData->m_pPhotoDetHitEnergy->push_back((*pPhotoDetHitsCollection)[i]->GetEnergy()/eV);
+          // G4cout <<  pEvent->GetEventID() << " - TIME " <<
+          // (*pPhotoDetHitsCollection)[i]->GetTime()/second << " - Energy " << (*pPhotoDetHitsCollection)[i]->GetEnergy()/eV << G4endl;
 
-                // m_pEventData->m_pTrackId->push_back((*pPhotoDetHitsCollection)[i]->GetTrackId());
-                m_pEventData->m_pPhotoDetHitX->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().x() / mm);
-                m_pEventData->m_pPhotoDetHitY->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().y() / mm);
-                m_pEventData->m_pPhotoDetHitZ->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().z() / mm);
+          // m_pEventData->m_pTrackId->push_back((*pPhotoDetHitsCollection)[i]->GetTrackId());
+          m_pEventData->m_pPhotoDetHitX->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().x() / mm);
+          m_pEventData->m_pPhotoDetHitY->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().y() / mm);
+          m_pEventData->m_pPhotoDetHitZ->push_back((*pPhotoDetHitsCollection)[i]->GetPosition().z() / mm);
 
-                G4ThreeVector direction =(*pPhotoDetHitsCollection)[i]->GetDirection();  // Normalized vector
-                m_pEventData->m_pPhotoDetHitTheta->push_back(std::acos(direction.z()));  // Direction.theta()
-                m_pEventData->m_pPhotoDetHitPhi->push_back(std::atan2(direction.y(), direction.x()));  // Direction.phi()
-                // m_pEventData->m_pPmtHitVolumeName->push_back((*pPhotoDetHitsCollection)[i]->GetVolumeName());
+          G4ThreeVector direction =(*pPhotoDetHitsCollection)[i]->GetDirection();  // Normalized vector
+          m_pEventData->m_pPhotoDetHitTheta->push_back(std::acos(direction.z()));  // Direction.theta()
+          m_pEventData->m_pPhotoDetHitPhi->push_back(std::atan2(direction.y(), direction.x()));  // Direction.phi()
+          // m_pEventData->m_pPmtHitVolumeName->push_back((*pPhotoDetHitsCollection)[i]->GetVolumeName());
 
-                m_pEventData->m_pParticleType->push_back("opticalphoton");
-              }
+          m_pEventData->m_pParticleType->push_back("opticalphoton");
         }
-        
-        m_pEventData->m_iNbPhotoDetHits = iNbPhotoDetHits;
-        //accumulate(m_pEventData->m_pPhotoDetHits->begin(),
-        //           m_pEventData->m_pPhotoDetHits->begin() + iNbPhotoDetHits, 0);
-
-      // save only energy depositing events
-      if(writeEmptyEvents || m_pRecordOnlyEventID) {
-        m_pTree->Fill(); // write all events to the tree
-      } else {
-        // only events with some activity are written to the tree
-        if(fTotalEnergyDeposited > 0. || iNbPhotoDetHits > 0) m_pTree->Fill(); 
-      }
-
-    // auto save functionality to avoid data loss/ROOT can recover aborted simulations
-    if ( pEvent->GetEventID() % 10000 == 0) {
-      m_pTree->AutoSave();
     }
-
-    m_pEventData->Clear();
-    m_pTreeFile->cd();
+        
+    m_pEventData->m_iNbPhotoDetHits = iNbPhotoDetHits;
+    //accumulate(m_pEventData->m_pPhotoDetHits->begin(),
+    //           m_pEventData->m_pPhotoDetHits->begin() + iNbPhotoDetHits, 0);
   }
+
+  // save only energy depositing events
+  if (writeEmptyEvents || m_pRecordOnlyEventID) {
+    m_pTree->Fill(); // write all events to the tree
+  } else if (fTotalEnergyDeposited > 0. || iNbPhotoDetHits > 0) {
+    // only events with some activity are written to the tree
+    m_pTree->Fill(); 
+  } else if (m_pEventData->m_iNSave > 0 || m_pEventData->m_iNAct > 0) {
+    // if length of NSave or NAct is > 0, then save the event
+    m_pTree->Fill();
+  }
+
+  // auto save functionality to avoid data loss/ROOT can recover aborted simulations
+  if ( pEvent->GetEventID() % 10000 == 0) {
+    m_pTree->AutoSave();
+  }
+
+  m_pEventData->Clear();
+  m_pTreeFile->cd();
 }
 
 // Can be called in the SteppingAction to store the particle information
@@ -362,6 +363,7 @@ void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4int partPDGcode,
 void XeSimAnalysisManager::FillNeutronCaptureInSave(
     G4String name, G4String process, G4int atomic_mass, G4int atomic_number,
     G4ThreeVector pos, G4String volume, G4int event_number, G4float time) {
+  m_pEventData->m_iNAct++;
   m_pEventData->m_pNAct_volume->push_back(volume);
   m_pEventData->m_pNAct_name->push_back(name);
   m_pEventData->m_pNAct_x->push_back(pos.x() / mm);
@@ -372,7 +374,6 @@ void XeSimAnalysisManager::FillNeutronCaptureInSave(
   m_pEventData->m_pNAct_mass->push_back(atomic_mass);
   m_pEventData->m_pNAct_number->push_back(atomic_number);
   m_pEventData->m_pNAct_t->push_back(time);
-  m_pEventData->m_iNAct++;
 }
 
 void XeSimAnalysisManager::Step(const G4Step *pStep) {
