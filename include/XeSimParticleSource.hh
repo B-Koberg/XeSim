@@ -49,6 +49,7 @@ public:
 	const G4String &GetParticleType() { return m_pParticleDefinition->GetParticleName(); }
 	const G4double GetParticleEnergy() { return m_dParticleEnergy; }
 	const G4ThreeVector &GetParticlePosition() { return m_hParticlePosition; }
+	const G4ThreeVector &GetParticleMomentumDirection() { return m_hParticleMomentumDirection; }
 
 	G4bool ReadEnergySpectrum();
 	void GeneratePointSource();

@@ -24,6 +24,7 @@ public:
 	std::vector<G4String> * GetParticleTypeVectorOfPrimary() { return m_hParticleTypeVectorOfPrimary; }
 	G4double GetEnergyOfPrimary() { return m_dEnergyOfPrimary; }
 	G4ThreeVector GetPositionOfPrimary() { return m_hPositionOfPrimary; }
+	G4ThreeVector GetMomentumDirectionOfPrimary() { return m_hMomentumDirectionOfPrimary; }
 
 	void GeneratePrimaries(G4Event *pEvent);
 	void     SetWriteEmpty(G4bool doit){writeEmpty = doit;};
@@ -31,7 +32,7 @@ public:
 
   private:
 	void FillPrimaryType(G4Event *pEvent);
-	
+
 	XeSimPrimaryGeneratorMessenger *m_pMessenger;
 	long m_lSeeds[2];
 	G4bool	writeEmpty;
@@ -39,6 +40,7 @@ public:
 	std::vector<G4String> *m_hParticleTypeVectorOfPrimary;
 	G4double m_dEnergyOfPrimary;
 	G4ThreeVector m_hPositionOfPrimary;
+	G4ThreeVector m_hMomentumDirectionOfPrimary;
 
 	XeSimParticleSource *m_pParticleSource;
 };

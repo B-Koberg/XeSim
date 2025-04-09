@@ -98,6 +98,9 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     m_pTree->Branch("xp_pri", &m_pEventData->m_fPrimaryX, "xp_pri/F");
     m_pTree->Branch("yp_pri", &m_pEventData->m_fPrimaryY, "yp_pri/F");
     m_pTree->Branch("zp_pri", &m_pEventData->m_fPrimaryZ, "zp_pri/F");
+    m_pTree->Branch("cx_pri", &m_pEventData->m_fPrimaryCx, "cx_pri/F");
+    m_pTree->Branch("cy_pri", &m_pEventData->m_fPrimaryCy, "cy_pri/F");
+    m_pTree->Branch("cz_pri", &m_pEventData->m_fPrimaryCz, "cz_pri/F");
     m_pTree->Branch("vol_pri", &m_pEventData->m_fPrimaryVolume);
 
     if (!m_pRecordOnlyEventID) {
@@ -249,6 +252,9 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
   m_pEventData->m_fPrimaryX = m_pPrimaryGeneratorAction->GetPositionOfPrimary().x()/mm;
   m_pEventData->m_fPrimaryY = m_pPrimaryGeneratorAction->GetPositionOfPrimary().y()/mm;
   m_pEventData->m_fPrimaryZ = m_pPrimaryGeneratorAction->GetPositionOfPrimary().z()/mm;
+  m_pEventData->m_fPrimaryCx = m_pPrimaryGeneratorAction->GetMomentumDirectionOfPrimary().x();
+  m_pEventData->m_fPrimaryCy = m_pPrimaryGeneratorAction->GetMomentumDirectionOfPrimary().y();
+  m_pEventData->m_fPrimaryCz = m_pPrimaryGeneratorAction->GetMomentumDirectionOfPrimary().z();
 
   G4int iNbSteps = 0;
   G4float fTotalEnergyDeposited = 0.;

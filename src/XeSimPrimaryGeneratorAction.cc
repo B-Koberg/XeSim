@@ -16,6 +16,7 @@ XeSimPrimaryGeneratorAction::XeSimPrimaryGeneratorAction()
 	m_hParticleTypeVectorOfPrimary = new std::vector<G4String>();
 	m_dEnergyOfPrimary = 0.;
 	m_hPositionOfPrimary = G4ThreeVector(0., 0., 0.);
+	m_hMomentumDirectionOfPrimary = G4ThreeVector(0., 0., 0.);
 
 	m_lSeeds[0] = -1;
 	m_lSeeds[1] = -1;
@@ -73,5 +74,6 @@ void XeSimPrimaryGeneratorAction::GeneratePrimaries(G4Event *pEvent)
 
 	m_dEnergyOfPrimary = std::sqrt(dP*dP + dMass*dMass) - dMass;
 	m_hPositionOfPrimary = pVertex->GetPosition();
+	m_hMomentumDirectionOfPrimary = m_pParticleSource->GetParticleMomentumDirection();
 }
 
