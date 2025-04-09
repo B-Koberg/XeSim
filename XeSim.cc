@@ -19,6 +19,7 @@
 #include "XeSimPrimaryGeneratorAction.hh"
 #include "XeSimAnalysisManager.hh"
 #include "XeSimStackingAction.hh"
+#include "XeSimSteppingAction.hh"
 #include "XeSimRunAction.hh"
 #include "XeSimEventAction.hh"
 #include "XeSimActionInitialization.hh"
@@ -39,6 +40,8 @@ int main(int argc, char **argv) {
     bool bDetectorMacroFile = false;
 	bool bRunMacroFile = false;
 	bool bDataFilename = false;
+	bool bVerbose = false;
+	
 	int iNbEventsToSimulate = 0;
     std::string hCommand;
 	std::string hPreInitMacroFilename, hDetectorMacroFilename, hRunMacroFilename;
@@ -46,7 +49,7 @@ int main(int argc, char **argv) {
 	std::stringstream hStream;
     
 	if ( argc == 1 ) { bInteractive = true; }
-	while((c = getopt(argc,argv,"p:f:o:n:c:d:vi")) != -1) {
+	while((c = getopt(argc,argv,"p:f:o:n:c:d:viV")) != -1) {
 		switch(c)	{
 			case 'p':
 				bPreInitMacroFile = true;
@@ -97,6 +100,10 @@ int main(int argc, char **argv) {
             case 'd':
                 hExperiment = optarg;
                 break;
+
+			case 'V':
+				bVerbose = true;
+				break;
 
 			default:
 				usage();
@@ -158,6 +165,23 @@ int main(int argc, char **argv) {
 		pUImanager->ApplyCommand(hCommand);
 	}
 	
+	if (bVerbose) {
+		hCommand = "/control/verbose 2";
+		pUImanager->ApplyCommand(hCommand);
+		hCommand = "/run/verbose 2";
+		pUImanager->ApplyCommand(hCommand);
+		hCommand = "/event/verbose 2";
+		pUImanager->ApplyCommand(hCommand);
+		hCommand = "/tracking/verbose 2";
+		pUImanager->ApplyCommand(hCommand);
+		//hCommand = "/step/verbose 2";
+		//pUImanager->ApplyCommand(hCommand);
+		//hCommand = "/process/verbose 2";
+		//pUImanager->ApplyCommand(hCommand);
+		//hCommand = "/hits/verbose 2";
+		//pUImanager->ApplyCommand(hCommand);
+	}
+
 	pRunManager->Initialize();
     
 	G4UIExecutive* ui = 0;
@@ -223,6 +247,7 @@ void usage() {
 	G4cout << "  -o output_file: Output file" << G4endl;
 	G4cout << "  -n number_of_events: Number of events to simulate" << G4endl;
 	G4cout << "  -v: Visualize" << G4endl;
+	G4cout << "  -V: Verbose" << G4endl;
 	G4cout << "  -i: Interactive" << G4endl;
 	G4cout << "  -d experiment: Experiment to run" << G4endl;
 	exit(1);

@@ -10,7 +10,6 @@
 #include <G4EventManager.hh>
 
 #include "XeSimAnalysisManager.hh"
-
 #include "XeSimStackingAction.hh"
 
 XeSimStackingAction::XeSimStackingAction(XeSimAnalysisManager *pAnalysisManager)
@@ -31,14 +30,21 @@ G4ClassificationOfNewTrack XeSimStackingAction::ClassifyNewTrack(const G4Track *
 	G4float timeP = pTrack->GetGlobalTime();
 	G4String particleType = pTrack->GetDefinition()->GetParticleType();
 	G4String volumeName = " ";
+
 	if (particleType == "nucleus" && pTrack->GetParentID() > 0) {
 		G4String processName = pTrack->GetCreatorProcess()->GetProcessName();
 		G4String particleName = pTrack->GetDefinition()->GetParticleName();
 		G4ThreeVector position = pTrack->GetPosition();
-		volumeName = G4TransportationManager::GetTransportationManager()
+
+		if (G4TransportationManager::GetTransportationManager()
+			->GetNavigatorForTracking()->LocateGlobalPointAndSetup(pTrack->GetPosition())) {
+			volumeName = G4TransportationManager::GetTransportationManager()
 							->GetNavigatorForTracking()
 							->LocateGlobalPointAndSetup(pTrack->GetPosition())
 							->GetName();
+		} else {
+			volumeName = "unknown";
+		}
 		
 		G4Ions *ion = (G4Ions *)pTrack->GetDefinition();
 		G4int A = ion->GetAtomicMass();
@@ -67,21 +73,21 @@ G4ClassificationOfNewTrack XeSimStackingAction::ClassifyNewTrack(const G4Track *
 
 	// Radioactive decays
 	if (PostponeFlag) {
-	// Postpone radioactive decays if you want, for backward compatibility
-	if (pTrack->GetDefinition()->GetParticleType() == "nucleus" &&
-		!pTrack->GetDefinition()->GetPDGStable()) {
+		// Postpone radioactive decays if you want, for backward compatibility
+		if (pTrack->GetDefinition()->GetParticleType() == "nucleus" &&
+			!pTrack->GetDefinition()->GetPDGStable()) {
 
-		if (pTrack->GetParentID() > 0 &&
-			pTrack->GetCreatorProcess()->GetProcessName().find("RadioactiveDecay") != std::string::npos &&
-			pTrack->GetDefinition()->GetPDGLifeTime() > MaxLifeTime)
-			{
-				hTrackClassification = fPostpone;
-			}
+			if (pTrack->GetParentID() > 0 &&
+				pTrack->GetCreatorProcess()->GetProcessName().find("RadioactiveDecay") != std::string::npos &&
+				pTrack->GetDefinition()->GetPDGLifeTime() > MaxLifeTime)
+				{
+					hTrackClassification = fPostpone;
+				}
 
-		if (pTrack->GetDefinition()->GetParticleName() == KillPostponedNucleusName)
-			{
-				hTrackClassification = fKill;
-			}
+			if (pTrack->GetDefinition()->GetParticleName() == KillPostponedNucleusName)
+				{
+					hTrackClassification = fKill;
+				}
 
 		}
 	}

@@ -7,4 +7,22 @@
 /run/physics/setHadronicModel QGSP_BERT_HP
 /run/physics/setCerenkov false
 
+# select how would you like to simulate radioactive decays
+# setting 0 means that you would like to simulate the full decay chain in a single event
+# setting 1 means that you want to manually postpone all radioactive decays
+# If postpone is on each new isotope will be written in its own event together with subsequent gamma decays
+/xe/Postponedecay 1
+
+# set a lifetime threshold for secondaries produced via RadioactiveDecay process (daughter isotopes)
+# if the daughter isotope lifetime > MaxLifeTime, postpone the track to the next event; keep in the running event otherwise
+# only works if /xe/Postponedecay is set to 1
+# default is 1 ns
+/xe/MaxLifeTime 1 ns
+
+# Do no record primary information or hit collections. Just eventid and special saves.
+/analysis/settings/setRecordOnlyEventID false
+
+# Store interactions resulting from neutron capture throughout the detector, not only sensitive volumes.
+/analysis/settings/setRecordNeutronCapture false
+
 /run/initialize

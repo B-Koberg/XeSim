@@ -1,0 +1,7 @@
+# Store interactions resulting from neutron capture throughout the detector, not only sensitive volumes.
+/analysis/settings/setRecordNeutronCapture true
+
+/Xe/gun/particle neutron
+/Xe/gun/energy 5 MeV
+/Xe/gun/position 0 0 2000 mm
+/Xe/gun/direction 0 0 -1

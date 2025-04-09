@@ -45,9 +45,9 @@ public:
   void SetRecordOnlyActiveVolume(G4bool mRecordOnlyActiveVolume) { m_pRecordOnlyActiveVolume = mRecordOnlyActiveVolume; }
   void SetNeutronActivation(G4bool mStoreNeutronActivation) { m_pNeutronActivation = mStoreNeutronActivation; }
 
-  void FillParticleInSave(G4int flag, G4int partPDGcode, G4ThreeVector pos,
+  void FillParticleInSave(G4int flag, G4String description, G4String particle, G4ThreeVector pos,
                           G4ThreeVector dir, G4float nrg, G4float time,
-                          G4int trackID);
+                          G4int trackID, G4int eventID);
   void FillNeutronCaptureInSave(G4String name, G4String process,
                                 G4int atomic_mass, G4int atomic_number,
                                 G4ThreeVector pos, G4String volume,

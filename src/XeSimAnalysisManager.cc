@@ -146,7 +146,8 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     // Branches for configurable saves
     m_pTree->Branch("NSave", &m_pEventData->m_iNSave, "NSave/I");
     m_pTree->Branch("Save_flag", "vector<int>", &m_pEventData->m_pSave_flag);
-    m_pTree->Branch("Save_type", "vector<int>", &m_pEventData->m_pSave_type);
+    m_pTree->Branch("Save_desc", "vector<string>", &m_pEventData->m_pSave_desc);
+    m_pTree->Branch("Save_type", "vector<string>", &m_pEventData->m_pSave_type);
     m_pTree->Branch("Save_x", "vector<float>", &m_pEventData->m_pSave_x);
     m_pTree->Branch("Save_y", "vector<float>", &m_pEventData->m_pSave_y);
     m_pTree->Branch("Save_z", "vector<float>", &m_pEventData->m_pSave_z);
@@ -155,7 +156,8 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     m_pTree->Branch("Save_cz", "vector<float>", &m_pEventData->m_pSave_cz);
     m_pTree->Branch("Save_e", "vector<float>", &m_pEventData->m_pSave_e);
     m_pTree->Branch("Save_t", "vector<float>", &m_pEventData->m_pSave_t);
-    m_pTree->Branch("Save_trkid", "vector<int>", &m_pEventData->m_pSave_trkid);
+    m_pTree->Branch("Save_eventid", "vector<int>", &m_pEventData->m_pSave_number);
+    m_pTree->Branch("Save_trackid", "vector<int>", &m_pEventData->m_pSave_trkid);
 
     // Branches for storing Neutron Activation information
     if (m_pNeutronActivation == kTRUE) {
@@ -168,7 +170,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       m_pTree->Branch("NAct_process", "vector<string>", &m_pEventData->m_pNAct_process);
       m_pTree->Branch("NAct_event", "vector<int>", &m_pEventData->m_pNAct_event);
       m_pTree->Branch("NAct_mass", "vector<int>", &m_pEventData->m_pNAct_mass);
-      m_pTree->Branch("NAct_number", "vector<int>", &m_pEventData->m_pNAct_number);
+      m_pTree->Branch("NAct_eventid", "vector<int>", &m_pEventData->m_pNAct_number);
       m_pTree->Branch("NAct_t", "vector<float>", &m_pEventData->m_pNAct_t);
     }
 
@@ -237,8 +239,12 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
   }
 
   m_pEventData->m_iEventId = pEvent->GetEventID();
+  m_pEventData->m_iNParticle = pEvent->GetPrimaryVertex()->GetNumberOfParticle();
 
-  m_pEventData->m_pPrimaryParticleType->push_back(m_pPrimaryGeneratorAction->GetParticleTypeOfPrimary());
+  //m_pEventData->m_pPrimaryParticleType->push_back(m_pPrimaryGeneratorAction->GetParticleTypeOfPrimary());
+  for(int j = 0; j < G4int(m_pPrimaryGeneratorAction->GetParticleTypeVectorOfPrimary()->size()); j++) {
+    m_pEventData->m_pPrimaryParticleType->push_back(m_pPrimaryGeneratorAction->GetParticleTypeVectorOfPrimary()->at(j));
+  }
   m_pEventData->m_fPrimaryEnergy = m_pPrimaryGeneratorAction->GetEnergyOfPrimary()/keV;
   m_pEventData->m_fPrimaryX = m_pPrimaryGeneratorAction->GetPositionOfPrimary().x()/mm;
   m_pEventData->m_fPrimaryY = m_pPrimaryGeneratorAction->GetPositionOfPrimary().y()/mm;
@@ -247,8 +253,7 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
   G4int iNbSteps = 0;
   G4float fTotalEnergyDeposited = 0.;
   
-  if(iNbLXeHits || iNbPhotoDetHits)
-  {
+  if(iNbLXeHits > 0) {
     // LXe hits
     for(G4int i=0; i<iNbLXeHits; i++)
     {
@@ -289,7 +294,9 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
     m_pEventData->m_iNbSteps = iNbSteps;
     m_pEventData->m_fTotalEnergyDeposited = fTotalEnergyDeposited;
     m_pEventData->m_pPhotoDetHits->resize(m_iNbPhotoDets, 0);
+  }
 
+  if (iNbPhotoDetHits > 0) {
     // PhotoDet hits
     for(G4int i=0; i<iNbPhotoDetHits; i++) {
       (*(m_pEventData->m_pPhotoDetHits))[(*pPhotoDetHitsCollection)[i]->GetPhotoDetNb()]++;
@@ -342,12 +349,13 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
 }
 
 // Can be called in the SteppingAction to store the particle information
-void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4int partPDGcode,
-                                                G4ThreeVector pos,
-                                                G4ThreeVector dir, G4float nrg,
-                                                G4float time, G4int trackID) {
+void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4String description,
+                                              G4String particle, G4ThreeVector pos, 
+                                              G4ThreeVector dir, G4float nrg,
+                                              G4float time, G4int trackID, G4int eventID) {
   m_pEventData->m_pSave_flag->push_back(flag);
-  m_pEventData->m_pSave_type->push_back(partPDGcode);
+  m_pEventData->m_pSave_type->push_back(particle);
+  m_pEventData->m_pSave_desc->push_back(description);
   m_pEventData->m_pSave_x->push_back(pos.x() / mm);
   m_pEventData->m_pSave_y->push_back(pos.y() / mm);
   m_pEventData->m_pSave_z->push_back(pos.z() / mm);
@@ -356,6 +364,7 @@ void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4int partPDGcode,
   m_pEventData->m_pSave_cz->push_back(dir.z());
   m_pEventData->m_pSave_e->push_back(nrg / keV);
   m_pEventData->m_pSave_t->push_back(time / ns);
+  m_pEventData->m_pSave_number->push_back(eventID);
   m_pEventData->m_pSave_trkid->push_back(trackID);
   m_pEventData->m_iNSave++;
 }

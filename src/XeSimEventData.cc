@@ -2,6 +2,7 @@
 
 XeSimEventData::XeSimEventData() {
 	m_iEventId = 0;
+	m_iNParticle = 0;
 	m_iNbPhotoDetHits = 0;
     m_pPhotoDetHits = new vector<int>;
     m_pPhotoDetHitID = new vector<int>;
@@ -36,11 +37,15 @@ XeSimEventData::XeSimEventData() {
 	m_fPrimaryX = 0.;
 	m_fPrimaryY = 0.;
 	m_fPrimaryZ = 0.;
+	m_fPrimaryCx = 0.;
+	m_fPrimaryCy = 0.;
+	m_fPrimaryCz = 0.;
     m_fPrimaryVolume = "";
 
 	m_iNSave = 0;
 	m_pSave_flag = new vector<int>;
-	m_pSave_type = new vector<int>;
+	m_pSave_type = new vector<string>;
+	m_pSave_desc = new vector<string>;
 	m_pSave_x = new vector<float>;
 	m_pSave_y = new vector<float>;
 	m_pSave_z = new vector<float>;
@@ -49,6 +54,7 @@ XeSimEventData::XeSimEventData() {
 	m_pSave_cz = new vector<float>;
 	m_pSave_e = new vector<float>;
 	m_pSave_t = new vector<float>;
+	m_pSave_number = new vector<int>;
 	m_pSave_trkid = new vector<int>;
 
 	// Neutron capture
@@ -93,6 +99,7 @@ XeSimEventData::~XeSimEventData() {
 
 	delete m_pSave_flag;
 	delete m_pSave_type;
+	delete m_pSave_desc;
 	delete m_pSave_x;
 	delete m_pSave_y;
 	delete m_pSave_z;
@@ -101,6 +108,7 @@ XeSimEventData::~XeSimEventData() {
 	delete m_pSave_cz;
 	delete m_pSave_e;
 	delete m_pSave_t;
+	delete m_pSave_number;
 	delete m_pSave_trkid;
 
 	delete m_pNAct_name;
@@ -117,6 +125,7 @@ XeSimEventData::~XeSimEventData() {
 
 void XeSimEventData::Clear() {
 	m_iEventId = 0;
+	m_iNParticle = 0;
     m_iNbPhotoDetHits = 0;
     m_pPhotoDetHits->clear();
     m_pPhotoDetHitID->clear();
@@ -148,12 +157,16 @@ void XeSimEventData::Clear() {
 	m_fPrimaryEnergy = 0.;
 	m_fPrimaryX = 0.;
 	m_fPrimaryY = 0.;
-	m_fPrimaryZ = 0.;	
+	m_fPrimaryZ = 0.;
+	m_fPrimaryCx = 0.;
+	m_fPrimaryCy = 0.;
+	m_fPrimaryCz = 0.;
     m_fPrimaryVolume = "";
 
 	m_iNSave = 0;
 	m_pSave_flag->clear();
 	m_pSave_type->clear();
+	m_pSave_desc->clear();
 	m_pSave_x->clear();
 	m_pSave_y->clear();
 	m_pSave_z->clear();
@@ -162,6 +175,7 @@ void XeSimEventData::Clear() {
 	m_pSave_cz->clear();
 	m_pSave_e->clear();
 	m_pSave_t->clear();
+	m_pSave_number->clear();
 	m_pSave_trkid->clear();
 
 	m_iNAct = 0;

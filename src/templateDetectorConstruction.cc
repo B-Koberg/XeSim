@@ -118,7 +118,8 @@ void templateDetectorConstruction::DefineMaterials() {
   pLXePropertiesTable->AddProperty("ABSLENGTH", pdLXePhotonMomentum, pdLXeAbsorbtionLength, iNbEntries);
   pLXePropertiesTable->AddProperty("RAYLEIGH", pdLXePhotonMomentum, pdLXeScatteringLength, iNbEntries);
 	
-  pLXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0./(21.6*eV));
+  // Set to 0./21.6 to turn off scintillation
+  pLXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 1./(21.6*eV));
   pLXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
   pLXePropertiesTable->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 3.*ns);
   pLXePropertiesTable->AddConstProperty("SCINTILLATIONTIMECONSTANT2", 27.*ns);
@@ -144,7 +145,8 @@ void templateDetectorConstruction::DefineMaterials() {
   pGXePropertiesTable->AddProperty("ABSLENGTH", pdGXePhotonMomentum, pdGXeAbsorbtionLength, iNbEntries);
   pGXePropertiesTable->AddProperty("RAYLEIGH", pdGXePhotonMomentum, pdGXeScatteringLength, iNbEntries);
 
-  pGXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 0./(21.6*eV));
+  // Set to 0./21.6 to turn off scintillation
+  pGXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD", 1./(21.6*eV));
   pGXePropertiesTable->AddConstProperty("RESOLUTIONSCALE", 0);
   pGXePropertiesTable->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 3.*ns);
   pGXePropertiesTable->AddConstProperty("SCINTILLATIONTIMECONSTANT2", 27.*ns);

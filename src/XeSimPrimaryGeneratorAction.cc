@@ -13,6 +13,7 @@ XeSimPrimaryGeneratorAction::XeSimPrimaryGeneratorAction()
 	m_pParticleSource = new XeSimParticleSource();
 
 	m_hParticleTypeOfPrimary = "";
+	m_hParticleTypeVectorOfPrimary = new std::vector<G4String>();
 	m_dEnergyOfPrimary = 0.;
 	m_hPositionOfPrimary = G4ThreeVector(0., 0., 0.);
 
@@ -24,11 +25,24 @@ XeSimPrimaryGeneratorAction::~XeSimPrimaryGeneratorAction()
 {
 	delete m_pMessenger;
 	delete m_pParticleSource;
+	delete m_hParticleTypeVectorOfPrimary;
 }
 
-void
-XeSimPrimaryGeneratorAction::GeneratePrimaries(G4Event *pEvent)
+void XeSimPrimaryGeneratorAction::FillPrimaryType(G4Event *pEvent)
 {
+  G4PrimaryVertex * primVertex = pEvent->GetPrimaryVertex();
+  m_hParticleTypeVectorOfPrimary->push_back(primVertex->GetPrimary()->GetParticleDefinition()->GetParticleName());
+
+  while(primVertex->GetNext() != 0)
+  {
+    primVertex = primVertex->GetNext();
+    m_hParticleTypeVectorOfPrimary->push_back(primVertex->GetPrimary()->GetParticleDefinition()->GetParticleName());
+  }
+}
+
+void XeSimPrimaryGeneratorAction::GeneratePrimaries(G4Event *pEvent)
+{
+	m_hParticleTypeVectorOfPrimary->clear();
 	m_lSeeds[0] = *(CLHEP::HepRandom::getTheSeeds());
 	m_lSeeds[1] = *(CLHEP::HepRandom::getTheSeeds()+1);
 
@@ -37,14 +51,15 @@ XeSimPrimaryGeneratorAction::GeneratePrimaries(G4Event *pEvent)
 	if(!pStackManager->GetNPostponedTrack())
 	{
 		m_pParticleSource->GeneratePrimaryVertex(pEvent);
+		FillPrimaryType(pEvent);
 	}
-	else
-	{
+	else {
 		pStackManager->TransferStackedTracks(fPostpone, fUrgent);
 		G4VTrajectory* pTrajectory;
 		G4Track *pTrack = pStackManager->PopNextTrack(&pTrajectory);
 
 		m_pParticleSource->GeneratePrimaryVertexFromTrack(pTrack, pEvent);
+		FillPrimaryType(pEvent);
 
 		delete pTrack;
 	}

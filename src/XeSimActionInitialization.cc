@@ -7,6 +7,7 @@
 #include "XeSimPrimaryGeneratorAction.hh"
 #include "XeSimAnalysisManager.hh"
 #include "XeSimStackingAction.hh"
+#include "XeSimSteppingAction.hh"
 #include "XeSimRunAction.hh"
 #include "XeSimEventAction.hh"
 
@@ -30,6 +31,7 @@ void XeSimActionInitialization::BuildForMaster() const {
 void XeSimActionInitialization::Build() const {
 	SetUserAction(pPrimaryGeneratorAction);
 	SetUserAction(new XeSimStackingAction(pAnalysisManager));
+	SetUserAction(new XeSimSteppingAction(pAnalysisManager));
 	SetUserAction(new XeSimRunAction(pAnalysisManager));
 	SetUserAction(new XeSimEventAction(pAnalysisManager));
 }

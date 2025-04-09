@@ -17,6 +17,7 @@ public:
 
 public:
 	int m_iEventId;
+	int m_iNParticle;
     int m_iNbPhotoDetHits;
     vector<int> *m_pPhotoDetHits;
     vector<int> *m_pPhotoDetHitID;
@@ -46,11 +47,15 @@ public:
 	float m_fPrimaryX;
 	float m_fPrimaryY;
 	float m_fPrimaryZ;	
+	float m_fPrimaryCx;
+	float m_fPrimaryCy;
+	float m_fPrimaryCz;
     string m_fPrimaryVolume;
 
 	int m_iNSave;
 	vector<int> *m_pSave_flag;
-	vector<int> *m_pSave_type;
+	vector<string> *m_pSave_type;
+	vector<string> *m_pSave_desc;
 	vector<float> *m_pSave_x;
 	vector<float> *m_pSave_y;
 	vector<float> *m_pSave_z;
@@ -59,6 +64,7 @@ public:
 	vector<float> *m_pSave_cz;
 	vector<float> *m_pSave_e;
 	vector<float> *m_pSave_t;
+	vector<int> *m_pSave_number;
 	vector<int> *m_pSave_trkid;
 
 	// For Storing Information about Activation Through Neutron Capture
