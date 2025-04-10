@@ -18,13 +18,26 @@ XeSimStackingAction::XeSimStackingAction(XeSimAnalysisManager *pAnalysisManager)
 	theMessenger = new XeSimStackingActionMessenger(this);
 	PostponeFlag = false;
 	MaxLifeTime = 1 * ns;
+	KillGeneratedParticleNames.clear();
 }
 
-XeSimStackingAction::~XeSimStackingAction() { }
+XeSimStackingAction::~XeSimStackingAction() {
+	delete theMessenger;
+	KillGeneratedParticleNames.clear();
+ }
 
 G4ClassificationOfNewTrack XeSimStackingAction::ClassifyNewTrack(const G4Track *pTrack)
 {
 	G4ClassificationOfNewTrack hTrackClassification = fUrgent;
+
+	// For each particle in KillGeneratedParticleNames check if secondary and kill it
+	if (KillGeneratedParticleNames.size() > 0 && pTrack->GetParentID() > 0) {
+		for (size_t i = 0; i < KillGeneratedParticleNames.size(); i++) {
+			if (pTrack->GetDefinition()->GetParticleName() == KillGeneratedParticleNames[i]) {
+				return fKill;
+			}
+		}
+	}
 
 	// For storing Neutron Activation information
 	G4float timeP = pTrack->GetGlobalTime();

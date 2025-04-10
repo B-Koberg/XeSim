@@ -21,12 +21,14 @@ public:
 	inline void SetPostponeFlag(G4bool val) { PostponeFlag = val; };
 	inline void SetMaxLifeTime(G4double val) { MaxLifeTime = val; };
 	inline void SetKillPostponedNucleus(G4String val) { KillPostponedNucleusName = val; };
+	inline void SetKillGeneratedParticles(std::vector<G4String> val) { KillGeneratedParticleNames = val; };
 
 private:
 	XeSimAnalysisManager *m_pAnalysisManager;
 	G4bool PostponeFlag;
 	G4double MaxLifeTime;
 	G4String KillPostponedNucleusName = "None";
+	std::vector<G4String> KillGeneratedParticleNames;
 
 };
 

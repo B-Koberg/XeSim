@@ -32,6 +32,13 @@ XeSimStackingActionMessenger::XeSimStackingActionMessenger(
   KillPostponedNucleusCmd->SetParameterName("KillPostNuc", false);
   KillPostponedNucleusCmd->SetDefaultValue("None");
   KillPostponedNucleusCmd->AvailableForStates(G4State_Idle);
+
+  KillGeneratedParticleCmd = new G4UIcmdWithAString("/xe/KillGeneratedParticles", this);
+  KillGeneratedParticleCmd->SetGuidance("Kill the tracks with the specified particle names if it is a generated secondary."
+                                        "Provide a list of strings separated by spaces or commas.");
+  KillGeneratedParticleCmd->SetParameterName("KillGenPart", false);
+  KillGeneratedParticleCmd->SetDefaultValue("None");
+  KillGeneratedParticleCmd->AvailableForStates(G4State_Idle);
 }
 
 XeSimStackingActionMessenger::~XeSimStackingActionMessenger()
@@ -39,6 +46,7 @@ XeSimStackingActionMessenger::~XeSimStackingActionMessenger()
   delete PostponeCmd;
   delete MaxLifeTimeCmd;
   delete KillPostponedNucleusCmd;
+  delete KillGeneratedParticleCmd;
 }
 
 void XeSimStackingActionMessenger::SetNewValue(G4UIcommand* command,
@@ -52,4 +60,21 @@ void XeSimStackingActionMessenger::SetNewValue(G4UIcommand* command,
 
   if (command == KillPostponedNucleusCmd)
     XeSimAction->SetKillPostponedNucleus(newValue);
+
+  if (command == KillGeneratedParticleCmd) {
+    // /xe/StringList string1,string2,string3
+    std::replace(newValue.begin(), newValue.end(), ',', ' ');
+    // /xe/StringList string1 string2 string3
+
+    std::istringstream iss(newValue);
+    G4String token;
+    std::vector<G4String> particles;
+
+    while (iss >> token) { // Split by spaces
+        std::cout << "----> Removing secondary tracks from " << token << std::endl;
+        particles.push_back(token);
+    }
+    
+    XeSimAction->SetKillGeneratedParticles(particles);
+  }
 }

@@ -16,6 +16,20 @@ XeSimSteppingAction::XeSimSteppingAction(XeSimAnalysisManager *pAnalysisManager)
 
 XeSimSteppingAction::~XeSimSteppingAction() { }
 
+// void XeSimSteppingAction::UserPreStepAction(const G4Step *aStep) {
+// 	// m_pAnalysisManager->PreStep(aStep);
+
+// 	particle = aStep->GetTrack()->GetDefinition()->GetParticleName();
+
+// 	if (particle =="opticalphoton") {
+// 		aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+// 	}
+// 	if (particle =="e-") {
+// 		aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+// 	}
+
+// }
+
 void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 	m_pAnalysisManager->Step(aStep);
 
@@ -57,13 +71,6 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 	G4String nameSec;
 	G4int totalSec;
 	G4String finProc;
-
-	//if (particle =="opticalphoton") {
-	//	aStep->GetTrack()->SetTrackStatus(fStopAndKill);
-	//}
-	//if (particle =="e-") {
-	//	aStep->GetTrack()->SetTrackStatus(fStopAndKill);
-	//}
 
 	if (aStep->GetTrack()->GetNextVolume()) {
 		// Example to track particles entering the template detector

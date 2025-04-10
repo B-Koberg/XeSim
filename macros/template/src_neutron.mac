@@ -1,6 +1,9 @@
 # Store interactions resulting from neutron capture throughout the detector, not only sensitive volumes.
 /analysis/settings/setRecordNeutronCapture true
 
+# Remove generated secondaries from the event
+/xe/KillGeneratedParticles opticalphoton e- gamma
+
 /Xe/gun/particle neutron
 /Xe/gun/energy 5 MeV
 /Xe/gun/position 0 0 2000 mm

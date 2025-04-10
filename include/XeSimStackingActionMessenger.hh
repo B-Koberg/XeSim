@@ -27,6 +27,7 @@ private:
   G4UIcmdWithABool* PostponeCmd;
   G4UIcmdWithADoubleAndUnit* MaxLifeTimeCmd;
   G4UIcmdWithAString* KillPostponedNucleusCmd;
+  G4UIcmdWithAString* KillGeneratedParticleCmd;
 };
 
 #endif  // __XeSimStackingActionMessenger_H__
