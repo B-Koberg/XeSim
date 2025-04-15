@@ -175,6 +175,8 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       m_pTree->Branch("NAct_mass", "vector<int>", &m_pEventData->m_pNAct_mass);
       m_pTree->Branch("NAct_eventid", "vector<int>", &m_pEventData->m_pNAct_number);
       m_pTree->Branch("NAct_t", "vector<float>", &m_pEventData->m_pNAct_t);
+      m_pTree->Branch("NAct_lifetime", "vector<float>", &m_pEventData->m_pNAct_lifetime);
+      m_pTree->Branch("NAct_excitation_energy", "vector<float>", &m_pEventData->m_pNAct_excitation_energy);
     }
 
     //m_pTree->SetMaxTreeSize(1000*Long64_t(2000000000)); //2TB
@@ -189,14 +191,15 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
 }
 
 void XeSimAnalysisManager::EndOfRun(const G4Run *pRun) {
-    runTime->Stop();
-    G4double dt = runTime->GetRealElapsed();
+  runTime->Stop();
+  G4double dt = runTime->GetRealElapsed();
   
-    // Make tree structure
-    TParameter<G4double> *dtPar = new TParameter<G4double>("G4RUNTIME", dt);
-    dtPar->Write();
+  // Make tree structure
+  TParameter<G4double> *dtPar = new TParameter<G4double>("G4RUNTIME", dt);
+  dtPar->Write();
+
   
-    m_pTreeFile->cd();
+  m_pTreeFile->cd();
   
   // write and remove old revisions
   m_pTreeFile->Write(0, TObject::kOverwrite);
@@ -377,7 +380,7 @@ void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4String description,
 
 void XeSimAnalysisManager::FillNeutronCaptureInSave(
     G4String name, G4String process, G4int atomic_mass, G4int atomic_number,
-    G4ThreeVector pos, G4String volume, G4int event_number, G4float time) {
+    G4ThreeVector pos, G4String volume, G4int event_number, G4float time, G4float lifetime, G4float excitation_energy) {
   m_pEventData->m_iNAct++;
   m_pEventData->m_pNAct_volume->push_back(volume);
   m_pEventData->m_pNAct_name->push_back(name);
@@ -389,6 +392,8 @@ void XeSimAnalysisManager::FillNeutronCaptureInSave(
   m_pEventData->m_pNAct_mass->push_back(atomic_mass);
   m_pEventData->m_pNAct_number->push_back(atomic_number);
   m_pEventData->m_pNAct_t->push_back(time);
+  m_pEventData->m_pNAct_lifetime->push_back(lifetime);
+  m_pEventData->m_pNAct_excitation_energy->push_back(excitation_energy);
 }
 
 void XeSimAnalysisManager::Step(const G4Step *pStep) {

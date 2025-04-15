@@ -14,6 +14,7 @@
 #include "RefSetupDetectorConstruction.hh"
 #include "muensterTPCDetectorConstruction.hh"
 #include "RnColumnDetectorConstruction.hh"
+#include "NeutronShieldingConstruction.hh"
 
 #include "XeSimPhysicsList.hh"
 #include "XeSimPrimaryGeneratorAction.hh"
@@ -137,6 +138,10 @@ int main(int argc, char **argv) {
 		RnColumnDetectorConstruction *pRnColumnDetectorConstruction = new RnColumnDetectorConstruction();
 		iNbPhotoDets = pRnColumnDetectorConstruction->GetGeometryParameter("NbPhotoDets");
 		pRunManager->SetUserInitialization(pRnColumnDetectorConstruction);
+	} else if (hExperiment == "NeutronShielding") {
+		NeutronShieldingConstruction *pNeutronShieldingConstruction = new NeutronShieldingConstruction();
+		iNbPhotoDets = pNeutronShieldingConstruction->GetGeometryParameter("NbPhotoDets");
+		pRunManager->SetUserInitialization(pNeutronShieldingConstruction);
 	}
 	pRunManager->SetUserInitialization(new XeSimPhysicsList);
 

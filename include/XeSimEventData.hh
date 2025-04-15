@@ -79,6 +79,8 @@ public:
 	vector<float> *m_pNAct_z;
 	vector<float> *m_pNAct_t;
 	vector<int> *m_pNAct_event;
+	vector<float> *m_pNAct_lifetime;
+	vector<float> *m_pNAct_excitation_energy;
 };  
 
 #endif

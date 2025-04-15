@@ -76,23 +76,31 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 		// Example to track particles entering the template detector
 		// exclude optical photons and take all other particles
 		if (particle != "opticalphoton" &&
-			(aStep->GetTrack()->GetVolume()->GetName() == "Lab" &&
-			aStep->GetTrack()->GetNextVolume()->GetName() == "GXePTFETop")) {
-			// G4cout << particle << " inside the LNGS Hall at " << xP/cm << " " <<
-			// yP/cm << " " << zP/cm << " cm, with energy " << eP/MeV << " MeV" << " and
-			// Pz = " <<  aStep->GetPreStepPoint()->GetMomentum().z()/MeV << " MeV/c "
-			// << G4endl;
+			(aStep->GetTrack()->GetVolume()->GetName() == "RockPhysicalVolume" &&
+			aStep->GetTrack()->GetNextVolume()->GetName() == "ConcretePhysicalVolume")) {
 
 			m_pAnalysisManager->FillParticleInSave(
 							1, // 1==Particle entering the template detector
-							"entering GXePTFETop from Lab",
+							"entering Concrete from Rock",
+							particle, aStep->GetPostStepPoint()->GetPosition(),
+							direction, eP, timeP, trackID, eventID);
+		}
+
+
+		if (particle != "opticalphoton" &&
+			(aStep->GetTrack()->GetVolume()->GetName() == "ConcretePhysicalVolume" &&
+			aStep->GetTrack()->GetNextVolume()->GetName() == "AirPhysicalVolume")) {
+
+			m_pAnalysisManager->FillParticleInSave(
+							1, // 1==Particle entering the template detector
+							"entering Air from Concrete",
 							particle, aStep->GetPostStepPoint()->GetPosition(),
 							direction, eP, timeP, trackID, eventID);
 		}
 
 		// Example for neutrons entering the template detector
-		if (particle == "neutron" && aStep->GetTrack()->GetNextVolume()->GetName() == "Water") {
-			
+		//if (particle == "neutron" && aStep->GetTrack()->GetNextVolume()->GetName() == "Water") {
+		if(false){	
 			// Get process at the end of the step
 			if (aStep->GetPostStepPoint()->GetProcessDefinedStep()) {
 				finProc = aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();

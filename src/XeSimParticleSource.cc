@@ -131,6 +131,9 @@ XeSimParticleSource::ReadEnergySpectrum()
 	vector<G4double> hEnergyBins;
 	vector<G4double> hProbabilities;
 
+	G4int lineCount = 0;
+	std::string line;
+
 	while(!hIn.eof())
 	{
 		G4double dBinEnergy = 0., dProbability = 0.;
@@ -391,6 +394,25 @@ XeSimParticleSource::GenerateIsotropicFlux()
 }
 
 void
+XeSimParticleSource::SetDirectionToPoint(G4ThreeVector hPoint)
+{	m_hPoint = hPoint;
+    // Berechne den Richtungsvektor vom Punkt hPosition zum Punkt hPoint
+    G4ThreeVector direction = hPoint - m_hParticlePosition;
+
+    // Normiere den Richtungsvektor, um eine Einheitsrichtung zu erhalten
+    direction = direction.unit();
+
+    // Setze die Partikel-Momentum-Richtung auf den berechneten Richtungsvektor
+    m_hParticleMomentumDirection = direction;
+
+    if (m_iVerbosityLevel >= 2) {
+        G4cout << "Set direction from position " << m_hParticlePosition
+               << " to point " << hPoint
+               << " as " << direction << G4endl;
+    }
+}
+
+void
 XeSimParticleSource::GenerateMonoEnergetic()
 {
 	m_dParticleEnergy = m_dMonoEnergy;
@@ -467,6 +489,8 @@ XeSimParticleSource::GeneratePrimaryVertex(G4Event * evt)
             GenerateIsotropicFlux();
         else if(m_hAngDistType == "direction")
             SetParticleMomentumDirection(m_hParticleMomentumDirection);
+		else if(m_hAngDistType == "toPoint")
+			SetDirectionToPoint(m_hPoint);
         else
             G4cout << "Error: AngDistType has unusual value" << G4endl;
         // Energy stuff

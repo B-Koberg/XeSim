@@ -58,6 +58,7 @@ public:
 	void ConfineSourceToVolume(G4String);
 
 	void GenerateIsotropicFlux();
+	void SetDirectionToPoint(G4ThreeVector);
 
 	void GenerateMonoEnergetic();
 	void GenerateEnergyFromSpectrum();
@@ -82,6 +83,7 @@ private:
 	G4int m_iNumberOfParticlesToBeGenerated;
 	G4ParticleDefinition *m_pParticleDefinition;
 	G4ParticleMomentum m_hParticleMomentumDirection;
+	G4ThreeVector m_hPoint;
 	G4double m_dParticleEnergy;
 	G4double m_dParticleCharge;
 	G4ThreeVector m_hParticlePosition;

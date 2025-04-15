@@ -68,13 +68,15 @@ G4ClassificationOfNewTrack XeSimStackingAction::ClassifyNewTrack(const G4Track *
 		G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
 
 		// Remove long-lived isotopes
-		if (lifetime > 1e18 * second) lifetime = -1;  
+		//if (lifetime > 1e18 * second) lifetime = -1;  
 
 		// (Z > 30 && Z < 40) to add stable isotopes
-		if (lifetime > 0 || excitationEnergy > 0) {
+		//if (lifetime > 0 || excitationEnergy > 0) {
+		if (true) {
 			m_pAnalysisManager->FillNeutronCaptureInSave(particleName, processName, A,
 														 Z, position, volumeName,
-														 eventID, timeP);
+														 eventID, timeP, lifetime,
+														 excitationEnergy);
 		}
 	}
 

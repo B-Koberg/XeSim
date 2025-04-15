@@ -51,7 +51,8 @@ public:
   void FillNeutronCaptureInSave(G4String name, G4String process,
                                 G4int atomic_mass, G4int atomic_number,
                                 G4ThreeVector pos, G4String volume,
-                                G4int event_number, G4float time);
+                                G4int event_number, G4float time, G4float lifetime,
+                                G4float excitation_energy);
 
 private:
     G4Timer *runTime;

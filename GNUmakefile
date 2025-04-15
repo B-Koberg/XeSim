@@ -13,6 +13,9 @@ ROOTGLIBS       = $(shell root-config --glibs)
 EXTRALIBS +=$(ROOTLIBS)
 CPPFLAGS += $(ROOTCFLAGS)
 
+TBBLIBS = -ltbb
+EXTRALIBS += $(TBBLIBS)
+
 ifndef G4INSTALL
   G4INSTALL = ../../../..
 endif

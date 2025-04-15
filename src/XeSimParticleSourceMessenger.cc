@@ -61,6 +61,12 @@ XeSimParticleSourceMessenger::XeSimParticleSourceMessenger(XeSimParticleSource *
 	m_pDirectionCmd->SetParameterName("Px", "Py", "Pz", true, true);
 	m_pDirectionCmd->SetRange("Px != 0 || Py != 0 || Pz != 0");
 
+	// Point for particle direction
+	m_pPointForDirectionCmd = new G4UIcmdWith3Vector("/Xe/gun/point", this);
+	m_pPointForDirectionCmd->SetGuidance("Set Point for momentum direction.");
+	m_pPointForDirectionCmd->SetGuidance("Point needs to be a vector.");
+	m_pPointForDirectionCmd->SetParameterName("Kx", "Ky", "Kz", true, true);
+
 	// particle energy
 	m_pEnergyCmd = new G4UIcmdWithADoubleAndUnit("/Xe/gun/energy", this);
 	m_pEnergyCmd->SetGuidance("Set kinetic energy.");
@@ -156,10 +162,10 @@ XeSimParticleSourceMessenger::XeSimParticleSourceMessenger(XeSimParticleSource *
 	// angular distribution
 	m_pAngTypeCmd = new G4UIcmdWithAString("/Xe/gun/angtype", this);
 	m_pAngTypeCmd->SetGuidance("Sets angular source distribution type");
-	m_pAngTypeCmd->SetGuidance("Possible variables are: iso direction");
+	m_pAngTypeCmd->SetGuidance("Possible variables are: iso direction toPoint");
 	m_pAngTypeCmd->SetParameterName("AngDis", true, true);
 	m_pAngTypeCmd->SetDefaultValue("iso");
-	m_pAngTypeCmd->SetCandidates("iso direction");
+	m_pAngTypeCmd->SetCandidates("iso direction toPoint");
 
 	// energy distribution
 	m_pEnergyTypeCmd = new G4UIcmdWithAString("/Xe/gun/energytype", this);
@@ -208,6 +214,7 @@ XeSimParticleSourceMessenger::~XeSimParticleSourceMessenger()
 	delete m_pParticleCmd;
 	delete m_pPositionCmd;
 	delete m_pDirectionCmd;
+	delete m_pPointForDirectionCmd;
 	delete m_pEnergyCmd;
 	delete m_pListCmd;
 
@@ -328,6 +335,10 @@ XeSimParticleSourceMessenger::SetNewValue(G4UIcommand * command, G4String newVal
 	{
 		m_pParticleSource->SetAngDistType("direction");
 		m_pParticleSource->SetParticleMomentumDirection(m_pDirectionCmd->GetNew3VectorValue(newValues));
+	}
+	else if(command == m_pPointForDirectionCmd)
+	{   m_pParticleSource->SetAngDistType("toPoint");
+		m_pParticleSource->SetDirectionToPoint(m_pPointForDirectionCmd->GetNew3VectorValue(newValues));
 	}
 
 	else if(command == m_pEnergyCmd)
