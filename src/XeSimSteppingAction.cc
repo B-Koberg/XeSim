@@ -75,7 +75,7 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 	if (aStep->GetTrack()->GetNextVolume()) {
 		// Example to track particles entering the template detector
 		// exclude optical photons and take all other particles
-		if (particle != "opticalphoton" &&
+		if (particle == "neutron" &&
 			(aStep->GetTrack()->GetVolume()->GetName() == "RockPhysicalVolume" &&
 			aStep->GetTrack()->GetNextVolume()->GetName() == "ConcretePhysicalVolume")) {
 
@@ -87,7 +87,7 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 		}
 
 
-		if (particle != "opticalphoton" &&
+		if (particle == "neutron" &&
 			(aStep->GetTrack()->GetVolume()->GetName() == "ConcretePhysicalVolume" &&
 			aStep->GetTrack()->GetNextVolume()->GetName() == "AirPhysicalVolume")) {
 

@@ -109,16 +109,16 @@ void NeutronShieldingConstruction::DefineMaterials() {
   G4Isotope* Xe134 = new G4Isotope("Xe134", 54, 134, 133.90540*g/mole);
   G4Isotope* Xe136 = new G4Isotope("Xe136", 54, 136, 135.90722*g/mole);
 
-  G4Element* LXe_nA = new G4Element("Liquid Xenon", "LXe_nA", 9);
-  LXe_nA->AddIsotope(Xe124, 0.0009);  // 0.09%
-  LXe_nA->AddIsotope(Xe126, 0.0009);  // 0.09%
-  LXe_nA->AddIsotope(Xe128, 0.0192);  // 1.92%
-  LXe_nA->AddIsotope(Xe129, 0.2644);  // 26.44%
-  LXe_nA->AddIsotope(Xe130, 0.0408);  // 4.08%
-  LXe_nA->AddIsotope(Xe131, 0.2118);  // 21.18%
-  LXe_nA->AddIsotope(Xe132, 0.2689);  // 26.89%
-  LXe_nA->AddIsotope(Xe134, 0.1044);  // 10.44%
-  LXe_nA->AddIsotope(Xe136, 0.0887);  // 8.87%
+  G4Element* Xe_nA = new G4Element("Liquid Xenon", "LXe_nA", 9);
+  Xe_nA->AddIsotope(Xe124, 0.0009);  // 0.09%
+  Xe_nA->AddIsotope(Xe126, 0.0009);  // 0.09%
+  Xe_nA->AddIsotope(Xe128, 0.0192);  // 1.92%
+  Xe_nA->AddIsotope(Xe129, 0.2644);  // 26.44%
+  Xe_nA->AddIsotope(Xe130, 0.0408);  // 4.08%
+  Xe_nA->AddIsotope(Xe131, 0.2118);  // 21.18%
+  Xe_nA->AddIsotope(Xe132, 0.2689);  // 26.89%
+  Xe_nA->AddIsotope(Xe134, 0.1044);  // 10.44%
+  Xe_nA->AddIsotope(Xe136, 0.0887);  // 8.87%
 
 
 
@@ -131,7 +131,7 @@ void NeutronShieldingConstruction::DefineMaterials() {
   
   //-------------------------------- liquid xenon ---------------------------------
   G4Material *LXe = new G4Material("LXe", 2.9172*g/cm3, 1, kStateLiquid, 168.15*kelvin, 1.5*atmosphere);
-  LXe->AddElement(LXe_nA, 1);
+  LXe->AddElement(Xe, 1);
 
   const G4int iNbEntries = 3;
 
@@ -157,6 +157,10 @@ void NeutronShieldingConstruction::DefineMaterials() {
   pLXePropertiesTable->AddConstProperty("SCINTILLATIONYIELD1", 1.0);//ratio btw fast time constant and slow time constant
 	
   LXe->SetMaterialPropertiesTable(pLXePropertiesTable);
+
+  //-------------------------------- LXe_nA ---------------------------------
+  G4Material *LXe_nA = new G4Material("LXe_nA", 2.9172*g/cm3, 1, kStateLiquid, 168.15*kelvin, 1.5*atmosphere);
+  LXe_nA->AddElement(Xe_nA, 1);
 
   //-------------------------------- Rock ---------------------------------
   G4Material *Rock = new G4Material("Rock", 2.6*g/cm3, 7);
@@ -487,7 +491,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
   G4UnionSolid *pLXeBox2 = new G4UnionSolid("LXeBox2", pLXeBox1, pLXeBox1, 0, LXeContainerPosition);
   G4UnionSolid *pLXeBox = new G4UnionSolid("LXeBox", pLXeBox2, pLXeBox1, 0, - LXeContainerPosition);
 
-  m_pLXeLogicalVolume = new G4LogicalVolume(pLXeBox, LXe, "LXeVolume", 0, 0, 0);
+  m_pLXeLogicalVolume = new G4LogicalVolume(pLXeBox, LXe_nA, "LXeVolume", 0, 0, 0);
   m_pLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0), m_pLXeLogicalVolume,
                                               "LXe", m_pLXeContainerLogicalVolume, false, 0);
 
