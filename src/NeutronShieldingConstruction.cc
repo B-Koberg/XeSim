@@ -211,7 +211,7 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["dLabHalfY"] = 60.*m;
     m_hGeometryParameters["dLabHalfZ"] = 60.*m;
 
-    m_hGeometryParameters["dRockHalfThick"] = 2.5*m;
+    m_hGeometryParameters["dRockHalfThick"] = 0.5*mm;
     m_hGeometryParameters["dConcreteHalfThick"] = 25*cm;
 
     m_hGeometryParameters["dHallHalfX"] = 9.1*m;

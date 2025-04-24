@@ -2,18 +2,19 @@
 /Xe/gun/shape Box
 
 # full volume
-/Xe/gun/halfz 50000 mm
-/Xe/gun/halfx 50000 mm
-/Xe/gun/halfy 50000 mm
+/Xe/gun/position 0 0 10000 mm
+/Xe/gun/halfz 15000 mm
+/Xe/gun/halfx 10000 mm
+/Xe/gun/halfy 32000 mm
 
 /Xe/gun/confine RockPhysicalVolume
 
-#/Xe/gun/position 0 0 5000 mm
+
 
 /Xe/gun/particle neutron
 #/Xe/gun/energy 5 MeV
 /Xe/gun/energytype Spectrum
-/Xe/gun/energyspectrum ./notebooks/ThermicNeutronsDistributions.txt
+/Xe/gun/energyspectrum ./notebooks/RadiogenicNeutronDistribution.txt
 /Xe/gun/point 0 0 3000 mm
 
 # Remove generated secondaries from the event
