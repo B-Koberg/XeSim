@@ -211,8 +211,8 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["dLabHalfY"] = 60.*m;
     m_hGeometryParameters["dLabHalfZ"] = 60.*m;
 
-    m_hGeometryParameters["dRockHalfThick"] = 0.5*mm;
-    m_hGeometryParameters["dConcreteHalfThick"] = 25*cm;
+    m_hGeometryParameters["dRockHalfThick"] = 2500*mm;
+    m_hGeometryParameters["dConcreteHalfThick"] = 0.5*mm;
 
     m_hGeometryParameters["dHallHalfX"] = 9.1*m;
     m_hGeometryParameters["dHallHalfY"] = 30.*m;
@@ -369,7 +369,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
 
   G4UnionSolid *pConcreteBoxWithVault = new G4UnionSolid("ConcreteBoxWithVault", pConcreteBox, pConcreteVault, rotation, G4ThreeVector(0., 0., dConcreteBoxHalfZ));
 
-  m_pConcreteLogicalVolume = new G4LogicalVolume(pConcreteBoxWithVault, Concrete, "ConcreteLogicalVolume");
+  m_pConcreteLogicalVolume = new G4LogicalVolume(pConcreteBoxWithVault, Air, "ConcreteLogicalVolume");
 
   G4ThreeVector concretePosition(0., 0., dRockHalfThick);
   m_pConcretePhysicalVolume = new G4PVPlacement(

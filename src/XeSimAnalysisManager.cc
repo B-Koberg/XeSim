@@ -171,9 +171,9 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       m_pTree->Branch("NAct_y", "vector<float>", &m_pEventData->m_pNAct_y);
       m_pTree->Branch("NAct_z", "vector<float>", &m_pEventData->m_pNAct_z);
       m_pTree->Branch("NAct_process", "vector<string>", &m_pEventData->m_pNAct_process);
-      m_pTree->Branch("NAct_event", "vector<int>", &m_pEventData->m_pNAct_event);
+      m_pTree->Branch("NAct_atomicnumber", "vector<int>", &m_pEventData->m_pNAct_number);
       m_pTree->Branch("NAct_mass", "vector<int>", &m_pEventData->m_pNAct_mass);
-      m_pTree->Branch("NAct_eventid", "vector<int>", &m_pEventData->m_pNAct_number);
+      m_pTree->Branch("NAct_eventid", "vector<int>", &m_pEventData->m_pNAct_event);
       m_pTree->Branch("NAct_t", "vector<float>", &m_pEventData->m_pNAct_t);
       m_pTree->Branch("NAct_lifetime", "vector<float>", &m_pEventData->m_pNAct_lifetime);
       m_pTree->Branch("NAct_excitation_energy", "vector<float>", &m_pEventData->m_pNAct_excitation_energy);
