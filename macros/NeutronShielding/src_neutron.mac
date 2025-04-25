@@ -2,10 +2,10 @@
 /Xe/gun/shape Box
 
 # full volume
-/Xe/gun/position 0 0 10000 mm
-/Xe/gun/halfz 20000 mm
-/Xe/gun/halfx 15000 mm
-/Xe/gun/halfy 35000 mm
+#/Xe/gun/position 0 0 10000 mm
+/Xe/gun/halfz 25000 mm
+/Xe/gun/halfx 20000 mm
+/Xe/gun/halfy 60000 mm
 
 /Xe/gun/confine ConcretePhysicalVolume
 

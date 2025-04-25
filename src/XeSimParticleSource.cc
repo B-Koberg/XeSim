@@ -422,6 +422,7 @@ void
 XeSimParticleSource::GenerateEnergyFromSpectrum()
 {
 	m_dParticleEnergy = m_hEnergySpectrum.GetRandom()*MeV;
+	G4cout << "Energy from spectrum: " << m_dParticleEnergy/MeV << " MeV" << G4endl;
 }
 
 void

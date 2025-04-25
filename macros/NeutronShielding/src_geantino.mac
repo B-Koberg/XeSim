@@ -1,18 +1,23 @@
 /tracking/verbose 1
 
-#/Xe/gun/type Volume
-#/Xe/gun/shape Box
+/Xe/gun/type Volume
+/Xe/gun/shape Box
 
 # full volume
-#/Xe/gun/halfz 50000 mm
-#/Xe/gun/halfx 50000 mm
-#/Xe/gun/halfy 50000 mm
+#/Xe/gun/position 0 0 10000 mm
+/Xe/gun/halfz 25000 mm
+/Xe/gun/halfx 20000 mm
+/Xe/gun/halfy 60000 mm
 
-#/Xe/gun/confine RockPhysicalVolume
+/Xe/gun/confine ConcretePhysicalVolume
+
+
+
 /Xe/gun/particle geantino
-
-#/Xe/gun/energyspectrum neutronsDistributions.txt
-
-/Xe/gun/position 0 5000 3000 mm
-
+#/Xe/gun/energy 5 MeV
+/Xe/gun/energytype Spectrum
+/Xe/gun/energyspectrum ./notebooks/ConstantDistribution.txt
 /Xe/gun/point 0 0 3000 mm
+
+# Remove generated secondaries from the event
+/xe/KillGeneratedParticles opticalphoton e-
