@@ -21,6 +21,7 @@ private:
 	XeSimLXeHitsCollection* m_pLXeHitsCollection;
 
 	std::map<int,G4String> m_hParticleTypes;
+	std::map<int,G4int> m_hParticleTypeIDs;
 };
 
 #endif

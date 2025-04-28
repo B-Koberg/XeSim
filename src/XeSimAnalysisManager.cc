@@ -4,6 +4,12 @@
 #include <G4HCofThisEvent.hh>
 #include <G4SystemOfUnits.hh>
 #include <G4Version.hh>
+#include <G4VProcess.hh>
+#include <G4ProcessTable.hh>
+#include <G4LogicalVolumeStore.hh>
+#include <G4LogicalVolume.hh>
+#include <G4PhysicalVolumeStore.hh>
+#include <G4VPhysicalVolume.hh>
 
 #include <numeric>
 
@@ -31,6 +37,12 @@ XeSimAnalysisManager::XeSimAnalysisManager(XeSimPrimaryGeneratorAction *pPrimary
   m_hExperimentTag = "XeSim";
   m_hMacroFiles.clear();
   m_iNbPhotoDets = 0;
+
+  particle_name.clear();
+  particle_id.clear();
+  processNames.clear();
+  processTypes.clear();
+  processSubTypes.clear();
   
   m_pPrimaryGeneratorAction = pPrimaryGeneratorAction;
   m_pEventData = new XeSimEventData();
@@ -77,6 +89,100 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       MacroFiles->Write();
     }
     
+    _tables = m_pTreeFile->mkdir("tables");
+    _tables->cd();
+
+    // Create list of process subtypes as vectors
+    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+    G4ParticleTable::G4PTblDicIterator* particleIterator = particleTable->GetIterator();
+    particleIterator->reset();
+
+    // Iteration über alle Teilchen
+    while ((*particleIterator)()) {
+      G4ParticleDefinition* particle = particleIterator->value();
+      G4ProcessManager* processManager = particle->GetProcessManager();
+
+      if (processManager) {
+        G4ProcessVector* processVector = processManager->GetProcessList();
+
+        for (size_t i = 0; i < processVector->size(); ++i) {
+          G4VProcess* process = (*processVector)[i];
+          if (process) {
+            particle_name.push_back(particle->GetParticleName());
+            particle_id.push_back(particle->GetPDGEncoding());
+            processNames.push_back(process->GetProcessName());
+            processTypes.push_back(process->GetProcessType());
+            processSubTypes.push_back(process->GetProcessSubType());
+          }
+        }
+      }
+    }
+
+    //// Print all subtypes for debugging
+    //G4cout << "List of Process Subtypes:" << G4endl;
+    //// interate over the vectors to print the process names, types, and subtypes
+    //for (size_t i = 0; i < particle_name.size(); ++i) {
+    //    G4cout << "Particle: " << particle_name[i] << ", ID: " << particle_id[i]
+    //           << ", Process Name: " << processNames[i]
+    //           << ", Process Type: " << processTypes[i]
+    //           << ", Process Subtype: " << processSubTypes[i] << G4endl;
+    //}
+
+    // Create a TTree to store the process subtypes
+    TTree* processTree = new TTree("process_subtypes", "Process Subtypes Tree");
+
+    processTree->Branch("particle_name", &particle_name);
+    processTree->Branch("particle_id", &particle_id);
+    processTree->Branch("process_name", &processNames);
+    processTree->Branch("process_type", &processTypes);
+    processTree->Branch("process_subtype", &processSubTypes);
+
+    if (!particle_name.empty()) {
+      processTree->Fill();
+    }
+
+    processTree->Write();
+
+    const G4LogicalVolumeStore* logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
+    const G4PhysicalVolumeStore* physicalVolumeStore = G4PhysicalVolumeStore::GetInstance();
+    vector<string> logicalvolumeNames;
+    vector<int> logicalvolumeNamesHash;
+    vector<string> physicalvolumeNames;
+    vector<int> physicalvolumeNamesHash;
+
+    for (const auto* logicalVolume : *logicalVolumeStore) {
+        if (logicalVolume->GetName() != "") {
+            logicalvolumeNames.push_back(logicalVolume->GetName());
+            logicalvolumeNamesHash.push_back(std::hash<std::string>()(logicalVolume->GetName()));
+        }
+    }
+
+    for (const auto* physicalVolume : *physicalVolumeStore) {
+        if (physicalVolume->GetName() != "") {
+            physicalvolumeNames.push_back(physicalVolume->GetName());
+            physicalvolumeNamesHash.push_back(std::hash<std::string>()(physicalVolume->GetName()));
+        }
+    }
+
+    TTree* logicalVolumeTree = new TTree("logical_volumes", "Logical Volumes Tree");
+    logicalVolumeTree->Branch("logical_volume_name", &logicalvolumeNames);
+    logicalVolumeTree->Branch("logical_volume_hash", &logicalvolumeNamesHash);
+    
+    TTree* physicalVolumeTree = new TTree("physical_volumes", "Physical Volumes Tree");
+    physicalVolumeTree->Branch("physical_volume_name", &physicalvolumeNames);
+    physicalVolumeTree->Branch("physical_volume_hash", &physicalvolumeNamesHash);
+
+    if (!logicalvolumeNames.empty()) {
+      logicalVolumeTree->Fill();
+    }
+
+    if (!physicalvolumeNames.empty()) {
+      physicalVolumeTree->Fill();
+    }
+
+    logicalVolumeTree->Write();
+    physicalVolumeTree->Write();
+
     _events = m_pTreeFile->mkdir("events");
     _events->cd();
     
@@ -93,6 +199,8 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
 
     // type_pri:	type of the primary event/main event
     m_pTree->Branch("type_pri", "vector<string>", &m_pEventData->m_pPrimaryParticleType);
+    m_pTree->Branch("type_pri_id", "vector<int>", &m_pEventData->m_pPrimaryParticleTypeID);
+
     // Energy and positions of the current particle/trackid
     m_pTree->Branch("e_pri", &m_pEventData->m_fPrimaryEnergy, "e_pri/F");
     m_pTree->Branch("xp_pri", &m_pEventData->m_fPrimaryX, "xp_pri/F");
@@ -102,6 +210,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     m_pTree->Branch("cy_pri", &m_pEventData->m_fPrimaryCy, "cy_pri/F");
     m_pTree->Branch("cz_pri", &m_pEventData->m_fPrimaryCz, "cz_pri/F");
     m_pTree->Branch("vol_pri", &m_pEventData->m_fPrimaryVolume);
+    m_pTree->Branch("vol_pri_hash", &m_pEventData->m_fPrimaryVolumeHash, "vol_pri_hash/I");
 
     if (!m_pRecordOnlyEventID) {
       // photodethits:	total amount of PMT hits for a specific eventid and for each PMT
@@ -114,16 +223,22 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       // trackid:	ID of the current event in the event track. All listed events are
       //			generated within the main eventid. (e.g. emitted gammas)
       m_pTree->Branch("trackid", "vector<int>", &m_pEventData->m_pTrackId);
-      // type:	type of the particles in the event track
-      m_pTree->Branch("type", "vector<string>", &m_pEventData->m_pParticleType);
       // parentid:	trackid of the parent track event
       m_pTree->Branch("parentid", "vector<int>", &m_pEventData->m_pParentId);
+      // type:	type of the particles in the event track
+      m_pTree->Branch("type", "vector<string>", &m_pEventData->m_pParticleType);
+      m_pTree->Branch("typeid", "vector<int>", &m_pEventData->m_pParticleTypeID);
       // parenttype:	parenttype of the parent track event
       m_pTree->Branch("parenttype", "vector<string>", &m_pEventData->m_pParentType);
+      m_pTree->Branch("parenttypeid", "vector<int>", &m_pEventData->m_pParentTypeID);
       // creaproc:	name of the creation process of the track particle/trackid
       m_pTree->Branch("creaproc", "vector<string>", &m_pEventData->m_pCreatorProcess);
+      m_pTree->Branch("creaproctype", "vector<int>", &m_pEventData->m_pCreatorProcessType);
+      m_pTree->Branch("creaprocsubtype", "vector<int>", &m_pEventData->m_pCreatorProcessSubType);
       // edproc:	name of the energy deposition process of the track particle/trackid
       m_pTree->Branch("edproc", "vector<string>", &m_pEventData->m_pDepositingProcess);
+      m_pTree->Branch("edproctype", "vector<int>", &m_pEventData->m_pDepositingProcessType);
+      m_pTree->Branch("edprocsubtype", "vector<int>", &m_pEventData->m_pDepositingProcessSubType);
       // Positions of the current particle/trackid
       m_pTree->Branch("xp", "vector<float>", &m_pEventData->m_pX);
       m_pTree->Branch("yp", "vector<float>", &m_pEventData->m_pY);
@@ -165,16 +280,22 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     // Branches for storing Neutron Activation information
     if (m_pNeutronActivation == kTRUE) {
       m_pTree->Branch("NNAct", &m_pEventData->m_iNAct, "NNAct/I");
+      m_pTree->Branch("NAct_eventid", "vector<int>", &m_pEventData->m_pNAct_eventID);
+      m_pTree->Branch("NAct_trackid", "vector<int>", &m_pEventData->m_pNAct_trackID);
+      m_pTree->Branch("NAct_parentid", "vector<int>", &m_pEventData->m_pNAct_parentID);
+      m_pTree->Branch("NAct_t", "vector<float>", &m_pEventData->m_pNAct_t);
       m_pTree->Branch("NAct_volume", "vector<string>", &m_pEventData->m_pNAct_volume);
-      m_pTree->Branch("NAct_name", "vector<string>", &m_pEventData->m_pNAct_name);
+      m_pTree->Branch("NAct_volume_hash", "vector<unsigned int>", &m_pEventData->m_pNAct_volume_hash);
       m_pTree->Branch("NAct_x", "vector<float>", &m_pEventData->m_pNAct_x);
       m_pTree->Branch("NAct_y", "vector<float>", &m_pEventData->m_pNAct_y);
       m_pTree->Branch("NAct_z", "vector<float>", &m_pEventData->m_pNAct_z);
-      m_pTree->Branch("NAct_process", "vector<string>", &m_pEventData->m_pNAct_process);
-      m_pTree->Branch("NAct_atomicnumber", "vector<int>", &m_pEventData->m_pNAct_number);
-      m_pTree->Branch("NAct_mass", "vector<int>", &m_pEventData->m_pNAct_mass);
-      m_pTree->Branch("NAct_eventid", "vector<int>", &m_pEventData->m_pNAct_event);
-      m_pTree->Branch("NAct_t", "vector<float>", &m_pEventData->m_pNAct_t);
+      m_pTree->Branch("NAct_process_name", "vector<string>", &m_pEventData->m_pNAct_process_name);
+      m_pTree->Branch("NAct_process_category", "vector<int>", &m_pEventData->m_pNAct_process_category);
+      m_pTree->Branch("NAct_process_ID", "vector<int>", &m_pEventData->m_pNAct_process_ID);
+      m_pTree->Branch("NAct_particle_name", "vector<string>", &m_pEventData->m_pNAct_particle_name);
+      m_pTree->Branch("NAct_particle_atomicnumber", "vector<int>", &m_pEventData->m_pNAct_particle_atomic_number);
+      m_pTree->Branch("NAct_particle_mass", "vector<int>", &m_pEventData->m_pNAct_particle_mass);
+      m_pTree->Branch("NAct_particle_excitationEnergy", "vector<double>", &m_pEventData->m_pNAct_particle_excitationEnergy);
     }
 
     //m_pTree->SetMaxTreeSize(1000*Long64_t(2000000000)); //2TB
@@ -247,6 +368,7 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
   //m_pEventData->m_pPrimaryParticleType->push_back(m_pPrimaryGeneratorAction->GetParticleTypeOfPrimary());
   for(int j = 0; j < G4int(m_pPrimaryGeneratorAction->GetParticleTypeVectorOfPrimary()->size()); j++) {
     m_pEventData->m_pPrimaryParticleType->push_back(m_pPrimaryGeneratorAction->GetParticleTypeVectorOfPrimary()->at(j));
+    m_pEventData->m_pPrimaryParticleTypeID->push_back(m_pPrimaryGeneratorAction->GetParticleTypeIDVectorOfPrimary()->at(j));
   }
   m_pEventData->m_fPrimaryEnergy = m_pPrimaryGeneratorAction->GetEnergyOfPrimary()/keV;
   m_pEventData->m_fPrimaryX = m_pPrimaryGeneratorAction->GetPositionOfPrimary().x()/mm;
@@ -279,10 +401,15 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
         m_pEventData->m_pParentId->push_back(pHit->GetParentId());
 
         m_pEventData->m_pParticleType->push_back(pHit->GetParticleType());
+        m_pEventData->m_pParticleTypeID->push_back(pHit->GetParticleTypeID());
         m_pEventData->m_pParentType->push_back(pHit->GetParentType());
+        m_pEventData->m_pParentTypeID->push_back(pHit->GetParentTypeID());
         m_pEventData->m_pCreatorProcess->push_back(pHit->GetCreatorProcess());
+        m_pEventData->m_pCreatorProcessType->push_back(pHit->GetCreatorProcessType());
+        m_pEventData->m_pCreatorProcessSubType->push_back(pHit->GetCreatorProcessSubType());
         m_pEventData->m_pDepositingProcess->push_back(pHit->GetDepositingProcess());
-
+        m_pEventData->m_pDepositingProcessType->push_back(pHit->GetDepositingProcessType());
+        m_pEventData->m_pDepositingProcessSubType->push_back(pHit->GetDepositingProcessSubType());
         m_pEventData->m_pX->push_back(pHit->GetPosition().x()/mm);
         m_pEventData->m_pY->push_back(pHit->GetPosition().y()/mm);
         m_pEventData->m_pZ->push_back(pHit->GetPosition().z()/mm);
@@ -376,24 +503,33 @@ void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4String description,
 }
 
 void XeSimAnalysisManager::FillNeutronCaptureInSave(
-    G4String name, G4String process, G4int atomic_mass, G4int atomic_number,
-    G4ThreeVector pos, G4String volume, G4int event_number, G4float time) {
+  G4String particle_name, G4int particle_atomic_mass, G4int particle_atomic_number, G4double particle_excitationEnergy,
+  G4String creationprocess_name, G4int creationprocess_category, G4int creationprocess_ID,
+  G4ThreeVector pos, G4String pos_volume, G4int event_number, G4float time,
+  G4int trackID, G4int parentID) {
   m_pEventData->m_iNAct++;
-  m_pEventData->m_pNAct_volume->push_back(volume);
-  m_pEventData->m_pNAct_name->push_back(name);
+  m_pEventData->m_pNAct_t->push_back(time);
+  m_pEventData->m_pNAct_eventID->push_back(event_number);
+  m_pEventData->m_pNAct_trackID->push_back(trackID);
+  m_pEventData->m_pNAct_parentID->push_back(parentID);
+  m_pEventData->m_pNAct_volume->push_back(pos_volume);
+  m_pEventData->m_pNAct_volume_hash->push_back(std::hash<std::string>{}(pos_volume));
   m_pEventData->m_pNAct_x->push_back(pos.x() / mm);
   m_pEventData->m_pNAct_y->push_back(pos.y() / mm);
   m_pEventData->m_pNAct_z->push_back(pos.z() / mm);
-  m_pEventData->m_pNAct_process->push_back(process);
-  m_pEventData->m_pNAct_number->push_back(atomic_number);
-  m_pEventData->m_pNAct_mass->push_back(atomic_mass);
-  m_pEventData->m_pNAct_event->push_back(event_number);
-  m_pEventData->m_pNAct_t->push_back(time);
+  m_pEventData->m_pNAct_process_name->push_back(creationprocess_name);
+  m_pEventData->m_pNAct_process_category->push_back(creationprocess_category);
+  m_pEventData->m_pNAct_process_ID->push_back(creationprocess_ID);
+  m_pEventData->m_pNAct_particle_name->push_back(particle_name);
+  m_pEventData->m_pNAct_particle_mass->push_back(particle_atomic_mass);
+  m_pEventData->m_pNAct_particle_atomic_number->push_back(particle_atomic_number);
+  m_pEventData->m_pNAct_particle_excitationEnergy->push_back(particle_excitationEnergy);
 }
 
 void XeSimAnalysisManager::Step(const G4Step *pStep) {
   if (pStep->GetTrack()->GetTrackID() == 1 &&
       pStep->GetTrack()->GetCurrentStepNumber() == 1) {
     m_pEventData->m_fPrimaryVolume = pStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
+    m_pEventData->m_fPrimaryVolumeHash = std::hash<std::string>{}(m_pEventData->m_fPrimaryVolume);
   }
 }

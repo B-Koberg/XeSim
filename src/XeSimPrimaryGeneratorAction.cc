@@ -14,6 +14,7 @@ XeSimPrimaryGeneratorAction::XeSimPrimaryGeneratorAction()
 
 	m_hParticleTypeOfPrimary = "";
 	m_hParticleTypeVectorOfPrimary = new std::vector<G4String>();
+	m_hParticleTypeIDVectorOfPrimary = new std::vector<G4int>();
 	m_dEnergyOfPrimary = 0.;
 	m_hPositionOfPrimary = G4ThreeVector(0., 0., 0.);
 	m_hMomentumDirectionOfPrimary = G4ThreeVector(0., 0., 0.);
@@ -27,23 +28,27 @@ XeSimPrimaryGeneratorAction::~XeSimPrimaryGeneratorAction()
 	delete m_pMessenger;
 	delete m_pParticleSource;
 	delete m_hParticleTypeVectorOfPrimary;
+	delete m_hParticleTypeIDVectorOfPrimary;
 }
 
 void XeSimPrimaryGeneratorAction::FillPrimaryType(G4Event *pEvent)
 {
   G4PrimaryVertex * primVertex = pEvent->GetPrimaryVertex();
   m_hParticleTypeVectorOfPrimary->push_back(primVertex->GetPrimary()->GetParticleDefinition()->GetParticleName());
+  m_hParticleTypeIDVectorOfPrimary->push_back(primVertex->GetPrimary()->GetParticleDefinition()->GetPDGEncoding());
 
   while(primVertex->GetNext() != 0)
   {
     primVertex = primVertex->GetNext();
     m_hParticleTypeVectorOfPrimary->push_back(primVertex->GetPrimary()->GetParticleDefinition()->GetParticleName());
+	m_hParticleTypeIDVectorOfPrimary->push_back(primVertex->GetPrimary()->GetParticleDefinition()->GetPDGEncoding());
   }
 }
 
 void XeSimPrimaryGeneratorAction::GeneratePrimaries(G4Event *pEvent)
 {
 	m_hParticleTypeVectorOfPrimary->clear();
+	m_hParticleTypeIDVectorOfPrimary->clear();
 	m_lSeeds[0] = *(CLHEP::HepRandom::getTheSeeds());
 	m_lSeeds[1] = *(CLHEP::HepRandom::getTheSeeds()+1);
 
