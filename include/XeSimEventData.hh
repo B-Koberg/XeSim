@@ -1,6 +1,12 @@
 #ifndef __XeSimEventData_H__
 #define __XeSimEventData_H__
 
+#include <TROOT.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TParameter.h>
+#include <TDirectory.h>
+
 #include <string>
 #include <vector>
 
@@ -58,7 +64,7 @@ public:
 	float m_fPrimaryCy;
 	float m_fPrimaryCz;
     string m_fPrimaryVolume;
-	unsigned int m_fPrimaryVolumeHash;
+	ULong64_t m_fPrimaryVolumeHash;
 
 	int m_iNSave;
 	vector<int> *m_pSave_flag;
@@ -81,7 +87,7 @@ public:
 	vector<int> *m_pNAct_process_category;
 	vector<int> *m_pNAct_process_ID;
 	vector<string> *m_pNAct_volume;
-	vector<unsigned int> *m_pNAct_volume_hash;
+	vector<ULong64_t> *m_pNAct_volume_hash;
 	vector<int> *m_pNAct_particle_atomic_number;
 	vector<int> *m_pNAct_particle_mass;
 	vector<string> *m_pNAct_particle_name;

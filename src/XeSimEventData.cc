@@ -1,5 +1,17 @@
 #include "XeSimEventData.hh"
 
+#include <TROOT.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TParameter.h>
+#include <TDirectory.h>
+
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
+
 XeSimEventData::XeSimEventData() {
 	m_iEventId = 0;
 	m_iNParticle = 0;
@@ -71,7 +83,7 @@ XeSimEventData::XeSimEventData() {
 	m_pNAct_process_category = new vector<int>;
 	m_pNAct_process_ID = new vector<int>;
 	m_pNAct_volume = new vector<string>;
-	m_pNAct_volume_hash = new vector<unsigned int>;
+	m_pNAct_volume_hash = new vector<ULong64_t>;
 	m_pNAct_particle_name = new vector<string>;
 	m_pNAct_particle_mass = new vector<int>;
 	m_pNAct_particle_atomic_number = new vector<int>;

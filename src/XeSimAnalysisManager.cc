@@ -72,7 +72,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     TNamed *G4MCname = new TNamed("MC_TAG", m_hExperimentTag);
     G4MCname->Write();
     TNamed *G4MCVersion = new TNamed("MCVERSION_TAG", m_hVersionTag);
-    G4MCname->Write();
+    G4MCVersion->Write();
     
     _macros = m_pTreeFile->mkdir("macros");
     _macros->cd();
@@ -146,9 +146,9 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     const G4LogicalVolumeStore* logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
     const G4PhysicalVolumeStore* physicalVolumeStore = G4PhysicalVolumeStore::GetInstance();
     vector<string> logicalvolumeNames;
-    vector<int> logicalvolumeNamesHash;
+    vector<ULong64_t> logicalvolumeNamesHash;
     vector<string> physicalvolumeNames;
-    vector<int> physicalvolumeNamesHash;
+    vector<ULong64_t> physicalvolumeNamesHash;
 
     for (const auto* logicalVolume : *logicalVolumeStore) {
         if (logicalVolume->GetName() != "") {
@@ -167,7 +167,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     TTree* logicalVolumeTree = new TTree("logical_volumes", "Logical Volumes Tree");
     logicalVolumeTree->Branch("logical_volume_name", &logicalvolumeNames);
     logicalVolumeTree->Branch("logical_volume_hash", &logicalvolumeNamesHash);
-    
+
     TTree* physicalVolumeTree = new TTree("physical_volumes", "Physical Volumes Tree");
     physicalVolumeTree->Branch("physical_volume_name", &physicalvolumeNames);
     physicalVolumeTree->Branch("physical_volume_hash", &physicalvolumeNamesHash);
