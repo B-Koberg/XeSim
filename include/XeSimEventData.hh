@@ -93,6 +93,7 @@ public:
 	vector<string> *m_pNAct_particle_name;
 	vector<int> *m_pNAct_particle_id;
 	vector<double> *m_pNAct_particle_excitationEnergy;
+	vector<double> *m_pNAct_particle_lifetime;
 	vector<float> *m_pNAct_x;
 	vector<float> *m_pNAct_y;
 	vector<float> *m_pNAct_z;

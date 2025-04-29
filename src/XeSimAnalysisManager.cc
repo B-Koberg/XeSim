@@ -504,7 +504,7 @@ void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4String description,
 }
 
 void XeSimAnalysisManager::FillNeutronCaptureInSave(
-  G4String particle_name, G4int particle_atomic_mass, G4int particle_atomic_number, G4double particle_excitationEnergy, G4int particle_ID,
+  G4String particle_name, G4int particle_atomic_mass, G4int particle_atomic_number, G4double particle_excitationEnergy, G4int particle_ID, G4double particle_lifetime,
   G4String creationprocess_name, G4int creationprocess_category, G4int creationprocess_ID,
   G4ThreeVector pos, G4String pos_volume, G4int event_number, G4float time,
   G4int trackID, G4int parentID) {
@@ -526,6 +526,7 @@ void XeSimAnalysisManager::FillNeutronCaptureInSave(
   m_pEventData->m_pNAct_particle_mass->push_back(particle_atomic_mass);
   m_pEventData->m_pNAct_particle_atomic_number->push_back(particle_atomic_number);
   m_pEventData->m_pNAct_particle_excitationEnergy->push_back(particle_excitationEnergy);
+  m_pEventData->m_pNAct_particle_lifetime->push_back(particle_lifetime);
 }
 
 void XeSimAnalysisManager::Step(const G4Step *pStep) {

@@ -89,6 +89,7 @@ XeSimEventData::XeSimEventData() {
 	m_pNAct_particle_mass = new vector<int>;
 	m_pNAct_particle_atomic_number = new vector<int>;
 	m_pNAct_particle_excitationEnergy = new vector<double>;
+	m_pNAct_particle_lifetime = new vector<double>;
 	m_pNAct_x = new vector<float>;
 	m_pNAct_y = new vector<float>;
 	m_pNAct_z = new vector<float>;
@@ -159,6 +160,7 @@ XeSimEventData::~XeSimEventData() {
 	delete m_pNAct_particle_mass;
 	delete m_pNAct_particle_atomic_number;
 	delete m_pNAct_particle_excitationEnergy;
+	delete m_pNAct_particle_lifetime;
 	delete m_pNAct_x;
 	delete m_pNAct_y;
 	delete m_pNAct_z;
@@ -243,6 +245,7 @@ void XeSimEventData::Clear() {
 	m_pNAct_particle_mass->clear();
 	m_pNAct_particle_atomic_number->clear();
 	m_pNAct_particle_excitationEnergy->clear();
+	m_pNAct_particle_lifetime->clear();
 	m_pNAct_x->clear();
 	m_pNAct_y->clear();
 	m_pNAct_z->clear();
