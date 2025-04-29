@@ -22,6 +22,7 @@ public:
 	const long *GetEventSeeds() { return m_lSeeds; }
 	const G4String &GetParticleTypeOfPrimary() { return m_hParticleTypeOfPrimary; }
 	std::vector<G4String> * GetParticleTypeVectorOfPrimary() { return m_hParticleTypeVectorOfPrimary; }
+	const std::vector<G4int> * GetParticleTypeIDVectorOfPrimary() { return m_hParticleTypeIDVectorOfPrimary; }
 	G4double GetEnergyOfPrimary() { return m_dEnergyOfPrimary; }
 	G4ThreeVector GetPositionOfPrimary() { return m_hPositionOfPrimary; }
 	G4ThreeVector GetMomentumDirectionOfPrimary() { return m_hMomentumDirectionOfPrimary; }
@@ -38,6 +39,7 @@ public:
 	G4bool	writeEmpty;
 	G4String m_hParticleTypeOfPrimary;
 	std::vector<G4String> *m_hParticleTypeVectorOfPrimary;
+	std::vector<G4int> *m_hParticleTypeIDVectorOfPrimary;
 	G4double m_dEnergyOfPrimary;
 	G4ThreeVector m_hPositionOfPrimary;
 	G4ThreeVector m_hMomentumDirectionOfPrimary;

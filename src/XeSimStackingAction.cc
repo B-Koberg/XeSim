@@ -41,12 +41,16 @@ G4ClassificationOfNewTrack XeSimStackingAction::ClassifyNewTrack(const G4Track *
 
 	// For storing Neutron Activation information
 	G4float timeP = pTrack->GetGlobalTime();
+	G4int trackID = pTrack->GetTrackID();
+	G4int parentID = pTrack->GetParentID();
 	G4String particleType = pTrack->GetDefinition()->GetParticleType();
 	G4String volumeName = " ";
 
 	if (particleType == "nucleus" && pTrack->GetParentID() > 0) {
+		G4int processCategory = pTrack->GetCreatorProcess()->GetProcessType();
+		G4int processID = pTrack->GetCreatorProcess()->GetProcessSubType();
 		G4String processName = pTrack->GetCreatorProcess()->GetProcessName();
-		G4String particleName = pTrack->GetDefinition()->GetParticleName();
+		
 		G4ThreeVector position = pTrack->GetPosition();
 
 		if (G4TransportationManager::GetTransportationManager()
@@ -59,25 +63,27 @@ G4ClassificationOfNewTrack XeSimStackingAction::ClassifyNewTrack(const G4Track *
 			volumeName = "unknown";
 		}
 		
+		
 		G4Ions *ion = (G4Ions *)pTrack->GetDefinition();
-		G4int A = ion->GetAtomicMass();
-		G4int Z = ion->GetAtomicNumber();
-		G4double excitationEnergy = ion->GetExcitationEnergy();
-		G4double lifetime = ion->GetPDGLifeTime();
+		G4String particle_name = ion->GetParticleName();
+		G4int particle_ID = ion->GetPDGEncoding();
+		G4int particle_A = ion->GetAtomicMass();
+		G4int particle_Z = ion->GetAtomicNumber();
+		G4double particle_excitationEnergy = ion->GetExcitationEnergy()*1e3; // in eV
+		G4double particle_lifetime = ion->GetPDGLifeTime();
 		
 		G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
 
 		// Remove long-lived isotopes
-		//if (lifetime > 1e18 * second) lifetime = -1;  
+		if (particle_lifetime > 1e18 * second) particle_lifetime = -1;  
 
 		// (Z > 30 && Z < 40) to add stable isotopes
-		//if (lifetime > 0 || excitationEnergy > 0) {
-		if (true) {
-			m_pAnalysisManager->FillNeutronCaptureInSave(particleName, processName, A,
-														 Z, position, volumeName,
-														 eventID, timeP, lifetime,
-														 excitationEnergy);
-		}
+		//if (particle_lifetime > 0 || particle_excitationEnergy > 0) {
+			m_pAnalysisManager->FillNeutronCaptureInSave(particle_name, particle_A, particle_Z, particle_excitationEnergy, particle_ID, lifetime,
+														 processName, processCategory, processID,
+														 position, volumeName, eventID, timeP,
+														 trackID, parentID);
+		//}
 	}
 
 	//if(pTrack->GetDefinition()->GetParticleType() == "nucleus" && !pTrack->GetDefinition()->GetPDGStable())

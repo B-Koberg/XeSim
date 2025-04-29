@@ -31,6 +31,7 @@ void XeSimLXeSensitiveDetector::Initialize(G4HCofThisEvent* pHitsCollectionOfThi
 	pHitsCollectionOfThisEvent->AddHitsCollection(iHitsCollectionID, m_pLXeHitsCollection);
 
 	m_hParticleTypes.clear();
+	m_hParticleTypeIDs.clear();
 }
 
 G4bool XeSimLXeSensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory *pHistory)
@@ -42,23 +43,36 @@ G4bool XeSimLXeSensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory 
 
 	pHit->SetTrackId(pTrack->GetTrackID());
 
-	if(!m_hParticleTypes.count(pTrack->GetTrackID()))
+	if(!m_hParticleTypes.count(pTrack->GetTrackID())) {
 		m_hParticleTypes[pTrack->GetTrackID()] = pTrack->GetDefinition()->GetParticleName();
-
+		m_hParticleTypeIDs[pTrack->GetTrackID()] = pTrack->GetDefinition()->GetPDGEncoding();
+	}
+	
 	pHit->SetParentId(pTrack->GetParentID());
 	pHit->SetParticleType(pTrack->GetDefinition()->GetParticleName());
+	pHit->SetParticleTypeID(pTrack->GetDefinition()->GetPDGEncoding());
 
-	if(pTrack->GetParentID())
+	if(pTrack->GetParentID()) {
 		pHit->SetParentType(m_hParticleTypes[pTrack->GetParentID()]);
-	else
+		pHit->SetParentTypeID(m_hParticleTypeIDs[pTrack->GetParentID()]);
+	} else {
 		pHit->SetParentType(G4String("none"));
+		pHit->SetParentTypeID(0);
+	}
 
-	if(pTrack->GetCreatorProcess())
+	if(pTrack->GetCreatorProcess()) {
 		pHit->SetCreatorProcess(pTrack->GetCreatorProcess()->GetProcessName());
-	else
+		pHit->SetCreatorProcessType(pTrack->GetCreatorProcess()->GetProcessType());
+		pHit->SetCreatorProcessSubType(pTrack->GetCreatorProcess()->GetProcessSubType());
+	} else {
 		pHit->SetCreatorProcess(G4String("Null"));
+		pHit->SetCreatorProcessType(0);
+		pHit->SetCreatorProcessSubType(0);
+	}
 
 	pHit->SetDepositingProcess(pStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName());
+	pHit->SetDepositingProcessType(pStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessType());
+	pHit->SetDepositingProcessSubType(pStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessSubType());
 	pHit->SetPosition(pStep->GetPostStepPoint()->GetPosition());
 	pHit->SetEnergyDeposited(dEnergyDeposited);
 	pHit->SetKineticEnergy(pTrack->GetKineticEnergy());

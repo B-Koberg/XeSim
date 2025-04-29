@@ -20,6 +20,7 @@ std::string NewDatafileName, std::string ExperimentTag, XeSimPrimaryGeneratorAct
 	pAnalysisManager->SetDataFilename(NewDatafileName);
     pAnalysisManager->SetExperimentTag(ExperimentTag);
     pAnalysisManager->SetNbPhotoDets(NbPhotoDets);
+
 }
 
 XeSimActionInitialization::~XeSimActionInitialization() { }

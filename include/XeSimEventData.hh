@@ -1,6 +1,12 @@
 #ifndef __XeSimEventData_H__
 #define __XeSimEventData_H__
 
+#include <TROOT.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TParameter.h>
+#include <TDirectory.h>
+
 #include <string>
 #include <vector>
 
@@ -33,9 +39,15 @@ public:
 	vector<int> *m_pTrackId;
 	vector<int> *m_pParentId;
 	vector<string> *m_pParticleType;
+	vector<int> *m_pParticleTypeID;
 	vector<string> *m_pParentType;
+	vector<int> *m_pParentTypeID;
 	vector<string> *m_pCreatorProcess;
+	vector<int> *m_pCreatorProcessType;
+	vector<int> *m_pCreatorProcessSubType;
 	vector<string> *m_pDepositingProcess;
+	vector<int> *m_pDepositingProcessType;
+	vector<int> *m_pDepositingProcessSubType;
 	vector<float> *m_pX;
 	vector<float> *m_pY;
 	vector<float> *m_pZ;
@@ -43,6 +55,7 @@ public:
 	vector<float> *m_pKineticEnergy;
 	vector<double> *m_pTime;
 	vector<string> *m_pPrimaryParticleType;
+	vector<int> *m_pPrimaryParticleTypeID;
 	float m_fPrimaryEnergy;
 	float m_fPrimaryX;
 	float m_fPrimaryY;
@@ -51,6 +64,7 @@ public:
 	float m_fPrimaryCy;
 	float m_fPrimaryCz;
     string m_fPrimaryVolume;
+	ULong64_t m_fPrimaryVolumeHash;
 
 	int m_iNSave;
 	vector<int> *m_pSave_flag;
@@ -69,18 +83,24 @@ public:
 
 	// For Storing Information about Activation Through Neutron Capture
 	int m_iNAct;
-	vector<string> *m_pNAct_name;
-	vector<string> *m_pNAct_process;
+	vector<string> *m_pNAct_process_name;
+	vector<int> *m_pNAct_process_category;
+	vector<int> *m_pNAct_process_ID;
 	vector<string> *m_pNAct_volume;
-	vector<int> *m_pNAct_number;
-	vector<int> *m_pNAct_mass;
+	vector<ULong64_t> *m_pNAct_volume_hash;
+	vector<int> *m_pNAct_particle_atomic_number;
+	vector<int> *m_pNAct_particle_mass;
+	vector<string> *m_pNAct_particle_name;
+	vector<int> *m_pNAct_particle_id;
+	vector<double> *m_pNAct_particle_excitationEnergy;
 	vector<float> *m_pNAct_x;
 	vector<float> *m_pNAct_y;
 	vector<float> *m_pNAct_z;
 	vector<float> *m_pNAct_t;
-	vector<int> *m_pNAct_event;
 	vector<float> *m_pNAct_lifetime;
-	vector<float> *m_pNAct_excitation_energy;
+	vector<int> *m_pNAct_eventID;
+	vector<int> *m_pNAct_trackID;
+	vector<int> *m_pNAct_parentID;
 };  
 
 #endif

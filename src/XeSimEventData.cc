@@ -1,5 +1,17 @@
 #include "XeSimEventData.hh"
 
+#include <TROOT.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TParameter.h>
+#include <TDirectory.h>
+
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
+
 XeSimEventData::XeSimEventData() {
 	m_iEventId = 0;
 	m_iNParticle = 0;
@@ -21,9 +33,15 @@ XeSimEventData::XeSimEventData() {
 	m_pTrackId = new vector<int>;
 	m_pParentId = new vector<int>;
 	m_pParticleType = new vector<string>;
+	m_pParticleTypeID = new vector<int>;
 	m_pParentType = new vector<string>;
+	m_pParentTypeID = new vector<int>;
 	m_pCreatorProcess = new vector<string>;
+	m_pCreatorProcessType = new vector<int>;
+	m_pCreatorProcessSubType = new vector<int>;
 	m_pDepositingProcess = new vector<string>;
+	m_pDepositingProcessType = new vector<int>;
+	m_pDepositingProcessSubType = new vector<int>;
 	m_pX = new vector<float>;
 	m_pY = new vector<float>;
 	m_pZ = new vector<float>;
@@ -33,6 +51,7 @@ XeSimEventData::XeSimEventData() {
 	m_pTime = new vector<double>;
 
 	m_pPrimaryParticleType = new vector<string>;
+	m_pPrimaryParticleTypeID = new vector<int>;
 	m_fPrimaryEnergy = 0.;
 	m_fPrimaryX = 0.;
 	m_fPrimaryY = 0.;
@@ -41,6 +60,7 @@ XeSimEventData::XeSimEventData() {
 	m_fPrimaryCy = 0.;
 	m_fPrimaryCz = 0.;
     m_fPrimaryVolume = "";
+	m_fPrimaryVolumeHash = 0;
 
 	m_iNSave = 0;
 	m_pSave_flag = new vector<int>;
@@ -59,15 +79,22 @@ XeSimEventData::XeSimEventData() {
 
 	// Neutron capture
 	m_iNAct = 0;
-	m_pNAct_name = new vector<string>;
-	m_pNAct_process = new vector<string>;
+	m_pNAct_process_name = new vector<string>;
+	m_pNAct_process_category = new vector<int>;
+	m_pNAct_process_ID = new vector<int>;
 	m_pNAct_volume = new vector<string>;
-	m_pNAct_mass = new vector<int>;
-	m_pNAct_number = new vector<int>;
+	m_pNAct_volume_hash = new vector<ULong64_t>;
+	m_pNAct_particle_name = new vector<string>;
+	m_pNAct_particle_id = new vector<int>;
+	m_pNAct_particle_mass = new vector<int>;
+	m_pNAct_particle_atomic_number = new vector<int>;
+	m_pNAct_particle_excitationEnergy = new vector<double>;
 	m_pNAct_x = new vector<float>;
 	m_pNAct_y = new vector<float>;
 	m_pNAct_z = new vector<float>;
-	m_pNAct_event = new vector<int>;
+	m_pNAct_eventID = new vector<int>;
+	m_pNAct_trackID = new vector<int>;
+	m_pNAct_parentID = new vector<int>;
 	m_pNAct_t = new vector<float>;
 	m_pNAct_lifetime = new vector<float>;
 	m_pNAct_excitation_energy = new vector<float>;
@@ -87,9 +114,15 @@ XeSimEventData::~XeSimEventData() {
 	delete m_pTrackId;
 	delete m_pParentId;
 	delete m_pParticleType;
+	delete m_pParticleTypeID;
 	delete m_pParentType;
+	delete m_pParentTypeID;
 	delete m_pCreatorProcess;
+	delete m_pCreatorProcessType;
+	delete m_pCreatorProcessSubType;
 	delete m_pDepositingProcess;
+	delete m_pDepositingProcessType;
+	delete m_pDepositingProcessSubType;
 	delete m_pX;
 	delete m_pY;
 	delete m_pZ;
@@ -98,6 +131,7 @@ XeSimEventData::~XeSimEventData() {
 	delete m_pTime;
 
 	delete m_pPrimaryParticleType;
+	delete m_pPrimaryParticleTypeID;
 
 	delete m_pSave_flag;
 	delete m_pSave_type;
@@ -113,12 +147,20 @@ XeSimEventData::~XeSimEventData() {
 	delete m_pSave_number;
 	delete m_pSave_trkid;
 
-	delete m_pNAct_name;
+	
 	delete m_pNAct_volume;
-	delete m_pNAct_process;
-	delete m_pNAct_event;
-	delete m_pNAct_mass;
-	delete m_pNAct_number;
+	delete m_pNAct_volume_hash;
+	delete m_pNAct_process_name;
+	delete m_pNAct_process_category;
+	delete m_pNAct_process_ID;
+	delete m_pNAct_eventID;
+	delete m_pNAct_trackID;
+	delete m_pNAct_parentID;
+	delete m_pNAct_particle_name;
+	delete m_pNAct_particle_id;
+	delete m_pNAct_particle_mass;
+	delete m_pNAct_particle_atomic_number;
+	delete m_pNAct_particle_excitationEnergy;
 	delete m_pNAct_x;
 	delete m_pNAct_y;
 	delete m_pNAct_z;
@@ -147,9 +189,15 @@ void XeSimEventData::Clear() {
 	m_pTrackId->clear();
 	m_pParentId->clear();
 	m_pParticleType->clear();
+	m_pParticleTypeID->clear();
 	m_pParentType->clear();
+	m_pParentTypeID->clear();
 	m_pCreatorProcess->clear();
+	m_pCreatorProcessType->clear();
+	m_pCreatorProcessSubType->clear();
 	m_pDepositingProcess->clear();
+	m_pDepositingProcessType->clear();
+	m_pDepositingProcessSubType->clear();
 	m_pX->clear();
 	m_pY->clear();
 	m_pZ->clear();
@@ -158,6 +206,7 @@ void XeSimEventData::Clear() {
 	m_pTime->clear();
 
 	m_pPrimaryParticleType->clear();
+	m_pPrimaryParticleTypeID->clear();
 	m_fPrimaryEnergy = 0.;
 	m_fPrimaryX = 0.;
 	m_fPrimaryY = 0.;
@@ -166,6 +215,7 @@ void XeSimEventData::Clear() {
 	m_fPrimaryCy = 0.;
 	m_fPrimaryCz = 0.;
     m_fPrimaryVolume = "";
+	m_fPrimaryVolumeHash = 0;
 
 	m_iNSave = 0;
 	m_pSave_flag->clear();
@@ -183,12 +233,20 @@ void XeSimEventData::Clear() {
 	m_pSave_trkid->clear();
 
 	m_iNAct = 0;
-	m_pNAct_name->clear();
+	
 	m_pNAct_volume->clear();
-	m_pNAct_process->clear();
-	m_pNAct_event->clear();
-	m_pNAct_mass->clear();
-	m_pNAct_number->clear();
+	m_pNAct_volume_hash->clear();
+	m_pNAct_process_name->clear();
+	m_pNAct_process_category->clear();
+	m_pNAct_process_ID->clear();
+	m_pNAct_eventID->clear();
+	m_pNAct_trackID->clear();
+	m_pNAct_parentID->clear();
+	m_pNAct_particle_name->clear();
+	m_pNAct_particle_id->clear();
+	m_pNAct_particle_mass->clear();
+	m_pNAct_particle_atomic_number->clear();
+	m_pNAct_particle_excitationEnergy->clear();
 	m_pNAct_x->clear();
 	m_pNAct_y->clear();
 	m_pNAct_z->clear();
