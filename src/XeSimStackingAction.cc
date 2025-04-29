@@ -79,7 +79,7 @@ G4ClassificationOfNewTrack XeSimStackingAction::ClassifyNewTrack(const G4Track *
 
 		// (Z > 30 && Z < 40) to add stable isotopes
 		//if (particle_lifetime > 0 || particle_excitationEnergy > 0) {
-			m_pAnalysisManager->FillNeutronCaptureInSave(particle_name, particle_A, particle_Z, particle_excitationEnergy, particle_ID, lifetime,
+			m_pAnalysisManager->FillNeutronCaptureInSave(particle_name, particle_A, particle_Z, particle_excitationEnergy, particle_ID, particle_lifetime,
 														 processName, processCategory, processID,
 														 position, volumeName, eventID, timeP,
 														 trackID, parentID);
