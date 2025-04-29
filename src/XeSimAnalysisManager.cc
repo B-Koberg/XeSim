@@ -97,7 +97,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     G4ParticleTable::G4PTblDicIterator* particleIterator = particleTable->GetIterator();
     particleIterator->reset();
 
-    // Iteration über alle Teilchen
+    // Iteration over all particles in the table
     while ((*particleIterator)()) {
       G4ParticleDefinition* particle = particleIterator->value();
       G4ProcessManager* processManager = particle->GetProcessManager();
@@ -210,7 +210,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     m_pTree->Branch("cy_pri", &m_pEventData->m_fPrimaryCy, "cy_pri/F");
     m_pTree->Branch("cz_pri", &m_pEventData->m_fPrimaryCz, "cz_pri/F");
     m_pTree->Branch("vol_pri", &m_pEventData->m_fPrimaryVolume);
-    m_pTree->Branch("vol_pri_hash", &m_pEventData->m_fPrimaryVolumeHash, "vol_pri_hash/I");
+    m_pTree->Branch("vol_pri_hash", &m_pEventData->m_fPrimaryVolumeHash);
 
     if (!m_pRecordOnlyEventID) {
       // photodethits:	total amount of PMT hits for a specific eventid and for each PMT
@@ -293,6 +293,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       m_pTree->Branch("NAct_process_category", "vector<int>", &m_pEventData->m_pNAct_process_category);
       m_pTree->Branch("NAct_process_ID", "vector<int>", &m_pEventData->m_pNAct_process_ID);
       m_pTree->Branch("NAct_particle_name", "vector<string>", &m_pEventData->m_pNAct_particle_name);
+      m_pTree->Branch("NAct_particle_id", "vector<int>", &m_pEventData->m_pNAct_particle_id);
       m_pTree->Branch("NAct_particle_atomicnumber", "vector<int>", &m_pEventData->m_pNAct_particle_atomic_number);
       m_pTree->Branch("NAct_particle_mass", "vector<int>", &m_pEventData->m_pNAct_particle_mass);
       m_pTree->Branch("NAct_particle_excitationEnergy", "vector<double>", &m_pEventData->m_pNAct_particle_excitationEnergy);
@@ -503,7 +504,7 @@ void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4String description,
 }
 
 void XeSimAnalysisManager::FillNeutronCaptureInSave(
-  G4String particle_name, G4int particle_atomic_mass, G4int particle_atomic_number, G4double particle_excitationEnergy,
+  G4String particle_name, G4int particle_atomic_mass, G4int particle_atomic_number, G4double particle_excitationEnergy, G4int particle_ID,
   G4String creationprocess_name, G4int creationprocess_category, G4int creationprocess_ID,
   G4ThreeVector pos, G4String pos_volume, G4int event_number, G4float time,
   G4int trackID, G4int parentID) {
@@ -521,6 +522,7 @@ void XeSimAnalysisManager::FillNeutronCaptureInSave(
   m_pEventData->m_pNAct_process_category->push_back(creationprocess_category);
   m_pEventData->m_pNAct_process_ID->push_back(creationprocess_ID);
   m_pEventData->m_pNAct_particle_name->push_back(particle_name);
+  m_pEventData->m_pNAct_particle_id->push_back(particle_ID);
   m_pEventData->m_pNAct_particle_mass->push_back(particle_atomic_mass);
   m_pEventData->m_pNAct_particle_atomic_number->push_back(particle_atomic_number);
   m_pEventData->m_pNAct_particle_excitationEnergy->push_back(particle_excitationEnergy);

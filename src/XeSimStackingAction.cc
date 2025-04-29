@@ -66,6 +66,7 @@ G4ClassificationOfNewTrack XeSimStackingAction::ClassifyNewTrack(const G4Track *
 		
 		G4Ions *ion = (G4Ions *)pTrack->GetDefinition();
 		G4String particle_name = ion->GetParticleName();
+		G4int particle_ID = ion->GetPDGEncoding();
 		G4int particle_A = ion->GetAtomicMass();
 		G4int particle_Z = ion->GetAtomicNumber();
 		G4double particle_excitationEnergy = ion->GetExcitationEnergy()*1e3; // in eV
@@ -78,7 +79,7 @@ G4ClassificationOfNewTrack XeSimStackingAction::ClassifyNewTrack(const G4Track *
 
 		// (Z > 30 && Z < 40) to add stable isotopes
 		if (particle_lifetime > 0 || particle_excitationEnergy > 0) {
-			m_pAnalysisManager->FillNeutronCaptureInSave(particle_name, particle_A, particle_Z, particle_excitationEnergy,
+			m_pAnalysisManager->FillNeutronCaptureInSave(particle_name, particle_A, particle_Z, particle_excitationEnergy, particle_ID,
 														 processName, processCategory, processID,
 														 position, volumeName, eventID, timeP,
 														 trackID, parentID);

@@ -91,6 +91,7 @@ public:
 	vector<int> *m_pNAct_particle_atomic_number;
 	vector<int> *m_pNAct_particle_mass;
 	vector<string> *m_pNAct_particle_name;
+	vector<int> *m_pNAct_particle_id;
 	vector<double> *m_pNAct_particle_excitationEnergy;
 	vector<float> *m_pNAct_x;
 	vector<float> *m_pNAct_y;

@@ -85,6 +85,7 @@ XeSimEventData::XeSimEventData() {
 	m_pNAct_volume = new vector<string>;
 	m_pNAct_volume_hash = new vector<ULong64_t>;
 	m_pNAct_particle_name = new vector<string>;
+	m_pNAct_particle_id = new vector<int>;
 	m_pNAct_particle_mass = new vector<int>;
 	m_pNAct_particle_atomic_number = new vector<int>;
 	m_pNAct_particle_excitationEnergy = new vector<double>;
@@ -154,6 +155,7 @@ XeSimEventData::~XeSimEventData() {
 	delete m_pNAct_trackID;
 	delete m_pNAct_parentID;
 	delete m_pNAct_particle_name;
+	delete m_pNAct_particle_id;
 	delete m_pNAct_particle_mass;
 	delete m_pNAct_particle_atomic_number;
 	delete m_pNAct_particle_excitationEnergy;
@@ -237,6 +239,7 @@ void XeSimEventData::Clear() {
 	m_pNAct_trackID->clear();
 	m_pNAct_parentID->clear();
 	m_pNAct_particle_name->clear();
+	m_pNAct_particle_id->clear();
 	m_pNAct_particle_mass->clear();
 	m_pNAct_particle_atomic_number->clear();
 	m_pNAct_particle_excitationEnergy->clear();
