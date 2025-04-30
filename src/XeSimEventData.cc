@@ -83,7 +83,7 @@ XeSimEventData::XeSimEventData() {
 	m_pNAct_process_category = new vector<int>;
 	m_pNAct_process_ID = new vector<int>;
 	m_pNAct_volume = new vector<string>;
-	m_pNAct_volume_hash = new vector<ULong64_t>;
+	m_pNAct_volume_hash = new vector<std::uint64_t>;
 	m_pNAct_particle_name = new vector<string>;
 	m_pNAct_particle_id = new vector<int>;
 	m_pNAct_particle_mass = new vector<int>;

@@ -285,7 +285,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       m_pTree->Branch("NAct_parentid", "vector<int>", &m_pEventData->m_pNAct_parentID);
       m_pTree->Branch("NAct_t", "vector<float>", &m_pEventData->m_pNAct_t);
       m_pTree->Branch("NAct_volume", "vector<string>", &m_pEventData->m_pNAct_volume);
-      m_pTree->Branch("NAct_volume_hash", "vector<unsigned int>", &m_pEventData->m_pNAct_volume_hash);
+      m_pTree->Branch("NAct_volume_hash", "vector<uint64_t>", &m_pEventData->m_pNAct_volume_hash);
       m_pTree->Branch("NAct_x", "vector<float>", &m_pEventData->m_pNAct_x);
       m_pTree->Branch("NAct_y", "vector<float>", &m_pEventData->m_pNAct_y);
       m_pTree->Branch("NAct_z", "vector<float>", &m_pEventData->m_pNAct_z);
