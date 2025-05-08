@@ -61,6 +61,9 @@ private:
 	G4LogicalVolume *m_pConcreteLogicalVolume;
 	G4VPhysicalVolume *m_pConcretePhysicalVolume;
 
+	G4LogicalVolume *m_pSpawnLogicalVolume;
+	G4VPhysicalVolume *m_pSpawnPhysicalVolume;
+
 	G4LogicalVolume *m_pAirLogicalVolume;
 	G4VPhysicalVolume *m_pAirPhysicalVolume;
 

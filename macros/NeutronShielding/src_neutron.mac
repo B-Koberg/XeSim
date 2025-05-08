@@ -7,7 +7,7 @@
 /Xe/gun/halfx 20000 mm
 /Xe/gun/halfy 60000 mm
 
-/Xe/gun/confine ConcretePhysicalVolume
+/Xe/gun/confine SpawnPhysicalVolume
 
 
 

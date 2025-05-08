@@ -120,10 +120,13 @@ void NeutronShieldingConstruction::DefineMaterials() {
   Xe_nA->AddIsotope(Xe134, 0.1044);  // 10.44%
   Xe_nA->AddIsotope(Xe136, 0.0887);  // 8.87%
 
+  
+  
 
 
   G4NistManager* pNistManager = G4NistManager::Instance();
   pNistManager->FindOrBuildMaterial("G4_AIR");
+  pNistManager->FindOrBuildMaterial("G4_WATER");
   
   G4Material *Vacuum = new G4Material("Vacuum", 1.e-20*g/cm3, 2, kStateGas);
   Vacuum->AddElement(N, 0.755);
@@ -212,7 +215,8 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["dLabHalfZ"] = 60.*m;
 
     m_hGeometryParameters["dRockHalfThick"] = 2500*mm;
-    m_hGeometryParameters["dConcreteHalfThick"] = 0.5*cm;
+    m_hGeometryParameters["dConcreteHalfThick"] = 25*cm;
+    m_hGeometryParameters["dSpawnHalfThick"] = 0.5*cm;
 
     m_hGeometryParameters["dHallHalfX"] = 9.1*m;
     m_hGeometryParameters["dHallHalfY"] = 30.*m;
@@ -235,7 +239,7 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
 
     m_hGeometryParameters["dLXeContainerDist"] = 0.5*m;
 
-    
+  
     m_hGeometryParameters["dWaterContainerHalfZ"] = 5*m;
     m_hGeometryParameters["dWaterContainerRadius"] = 5*m;
     m_hGeometryParameters["dWaterConatinerThick"] = 0.25*cm;
@@ -271,7 +275,8 @@ void NeutronShieldingConstruction::ConstructDetector() {
   G4Material *StainlessSteel = G4Material::GetMaterial("SS304LSteel");
   G4Material *Rock = G4Material::GetMaterial("Rock");
   G4Material *Concrete = G4Material::GetMaterial("Concrete");
-  G4Material *Water = G4Material::GetMaterial("Water");
+  G4Material *Water = G4Material::GetMaterial("G4_WATER");
+  G4Material *Vacuum = G4Material::GetMaterial("Vacuum");
 
   const G4double dLabHalfX = m_hGeometryParameters["dLabHalfX"];
   const G4double dLabHalfY = m_hGeometryParameters["dLabHalfY"];
@@ -284,6 +289,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
 
 	const G4double dConcreteHalfThick = m_hGeometryParameters["dConcreteHalfThick"];
   const G4double dRockHalfThick = m_hGeometryParameters["dRockHalfThick"];
+  const G4double dSpawnHalfThick = m_hGeometryParameters["dSpawnHalfThick"];
 
   const G4double dBuildHalfX = m_hGeometryParameters["dBuildHalfX"];
   const G4double dBuildHalfY = m_hGeometryParameters["dBuildHalfY"];
@@ -349,8 +355,8 @@ void NeutronShieldingConstruction::ConstructDetector() {
   m_pRockLogicalVolume->SetVisAttributes(pRockVisAtt);
 
   //-------------------------------- Concrete Volume ---------------------------------
-  const G4double dConcreteBoxHalfX = dHallHalfX + 2 * dConcreteHalfThick;
-  const G4double dConcreteBoxHalfY = dHallHalfY + 2 * dConcreteHalfThick; 
+  const G4double dConcreteBoxHalfX = dHallHalfX + 2 * dConcreteHalfThick ;
+  const G4double dConcreteBoxHalfY = dHallHalfY + 2 * dConcreteHalfThick ; 
   const G4double dConcreteBoxHalfZ = dHallHalfZ + dConcreteHalfThick;
   G4Box *pConcreteBox = new G4Box("ConcreteBox", dConcreteBoxHalfX, dConcreteBoxHalfY, dConcreteBoxHalfZ);
 
@@ -369,7 +375,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
 
   G4UnionSolid *pConcreteBoxWithVault = new G4UnionSolid("ConcreteBoxWithVault", pConcreteBox, pConcreteVault, rotation, G4ThreeVector(0., 0., dConcreteBoxHalfZ));
 
-  m_pConcreteLogicalVolume = new G4LogicalVolume(pConcreteBoxWithVault, Air, "ConcreteLogicalVolume");
+  m_pConcreteLogicalVolume = new G4LogicalVolume(pConcreteBoxWithVault, Concrete, "ConcreteLogicalVolume");
 
   G4ThreeVector concretePosition(0., 0., dRockHalfThick);
   m_pConcretePhysicalVolume = new G4PVPlacement(
@@ -387,15 +393,54 @@ void NeutronShieldingConstruction::ConstructDetector() {
   pConcreteVisAtt->SetVisibility(true);
   m_pConcreteLogicalVolume->SetVisAttributes(pConcreteVisAtt);
 
+  //-------------------------------- Spawn Volume ---------------------------------
+  const G4double dSpawnBoxHalfX = dHallHalfX ;
+  const G4double dSpawnBoxHalfY = dHallHalfY ; 
+  const G4double dSpawnBoxHalfZ = dHallHalfZ ;
+  G4Box *pSpawnBox = new G4Box("SpawnBox", dSpawnBoxHalfX, dSpawnBoxHalfY, dSpawnBoxHalfZ);
+
+  G4double dSpawnVaultInnerRadius = 0;  
+  G4double dSpawnVaultOuterRadius = dHallRadius ;   
+  G4double dSpawnVaultHalfLength = dHallHalfY ;    
+  G4double dSpawnVaultStartAngle = 0.0 * deg; 
+  G4double dSpawnVaultSweepAngle = 180.0 * deg; 
+  
+  G4Tubs* pSpawnVault = new G4Tubs("SpawnVault",
+                                  dSpawnVaultInnerRadius,
+                                  dSpawnVaultOuterRadius,
+                                  dSpawnVaultHalfLength,
+                                  dSpawnVaultStartAngle,
+                                  dSpawnVaultSweepAngle);
+
+  G4UnionSolid *pSpawnBoxWithVault = new G4UnionSolid("SpawnBoxWithVault", pSpawnBox, pSpawnVault, rotation, G4ThreeVector(0., 0., dSpawnBoxHalfZ));
+
+  m_pSpawnLogicalVolume = new G4LogicalVolume(pSpawnBoxWithVault, Air, "SpawnLogicalVolume");
+
+  G4ThreeVector SpawnPosition(0., 0., dConcreteHalfThick);
+  m_pSpawnPhysicalVolume = new G4PVPlacement(
+      0,                        // Keine Rotation
+      SpawnPosition,         // Verschiebung
+      m_pSpawnLogicalVolume, // Logisches Volumen
+      "SpawnPhysicalVolume", // Name des Volumens
+      m_pConcreteLogicalVolume,      // Muttervolumen 
+      false,                    // Keine Mehrfachplatzierung
+      0                         // Kopiennummer
+  );
+
+  G4Colour SpawnColor(0.5, 0., 0.5, 0.3); 
+  G4VisAttributes *pSpawnVisAtt = new G4VisAttributes(SpawnColor);
+  pSpawnVisAtt->SetVisibility(true);
+  m_pSpawnLogicalVolume->SetVisAttributes(pSpawnVisAtt);
+
   //-------------------------------- Air Volume ---------------------------------
-  const G4double dAirBoxHalfX = dHallHalfX ;
-  const G4double dAirBoxHalfY = dHallHalfY ; 
-  const G4double dAirBoxHalfZ = dHallHalfZ ;
+  const G4double dAirBoxHalfX = dHallHalfX - 2*dSpawnHalfThick ;
+  const G4double dAirBoxHalfY = dHallHalfY - 2*dSpawnHalfThick; 
+  const G4double dAirBoxHalfZ = dHallHalfZ - dSpawnHalfThick;
   G4Box *pAirBox = new G4Box("AirBox", dAirBoxHalfX, dAirBoxHalfY, dAirBoxHalfZ);
 
   G4double dAirVaultInnerRadius = 0;  
-  G4double dAirVaultOuterRadius = dHallRadius ;   
-  G4double dAirVaultHalfLength = dHallHalfY ;    
+  G4double dAirVaultOuterRadius = dHallRadius - 2*dSpawnHalfThick;   
+  G4double dAirVaultHalfLength = dHallHalfY - 2*dSpawnHalfThick; ;    
   G4double dAirVaultStartAngle = 0.0 * deg; 
   G4double dAirVaultSweepAngle = 180.0 * deg; 
   
@@ -410,13 +455,13 @@ void NeutronShieldingConstruction::ConstructDetector() {
 
   m_pAirLogicalVolume = new G4LogicalVolume(pAirBoxWithVault, Air, "AirLogicalVolume");
 
-  G4ThreeVector airPosition(0., 0., dConcreteHalfThick);
+  G4ThreeVector airPosition(0., 0., dSpawnHalfThick);
   m_pAirPhysicalVolume = new G4PVPlacement(
       0,                        // Keine Rotation
       airPosition,         // Verschiebung
       m_pAirLogicalVolume, // Logisches Volumen
       "AirPhysicalVolume", // Name des Volumens
-      m_pConcreteLogicalVolume,      // Muttervolumen 
+      m_pSpawnLogicalVolume,      // Muttervolumen 
       false,                    // Keine Mehrfachplatzierung
       0                         // Kopiennummer
   );
@@ -433,7 +478,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
   // Building
   G4Box *pBuildBox = new G4Box("BuildBox", dBuildHalfX, dBuildHalfY, dBuildHalfZ);
   m_pBuildLogicalVolume = new G4LogicalVolume(pBuildBox, StainlessSteel, "BuildVolume", 0, 0, 0);
-  m_pBuildPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -dHallHalfZ + dBuildHalfZ), m_pBuildLogicalVolume,
+  m_pBuildPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -dHallHalfZ + dBuildHalfZ + dSpawnHalfThick ), m_pBuildLogicalVolume,
                                               "Build", m_pAirLogicalVolume, false, 0);
   
   G4Colour hBuildColor(0.0,1.,0.,0.5);
@@ -461,7 +506,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
   G4SubtractionSolid* pAbsorber = new G4SubtractionSolid("Absorber",pAbsorber_out , pAbsorber_in, 0, G4ThreeVector(0., 0., 0.));
 
   
-  m_pAbsorberLogicalVolume = new G4LogicalVolume(pAbsorber, Air, "AbsorberVolume", 0, 0, 0);
+  m_pAbsorberLogicalVolume = new G4LogicalVolume(pAbsorber, Water, "AbsorberVolume", 0, 0, 0);
   m_pAbsorberPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0), m_pAbsorberLogicalVolume,
                                               "Absorber", m_pBuildAirLogicalVolume, false, 0);
   
