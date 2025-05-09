@@ -97,7 +97,6 @@ XeSimEventData::XeSimEventData() {
 	m_pNAct_trackID = new vector<int>;
 	m_pNAct_parentID = new vector<int>;
 	m_pNAct_t = new vector<float>;
-	m_pNAct_lifetime = new vector<float>;
 }
 
 XeSimEventData::~XeSimEventData() {
@@ -166,7 +165,6 @@ XeSimEventData::~XeSimEventData() {
 	delete m_pNAct_y;
 	delete m_pNAct_z;
 	delete m_pNAct_t;
-	delete m_pNAct_lifetime;
 	delete m_pNAct_particle_excitationEnergy;
 }
 
@@ -253,7 +251,6 @@ void XeSimEventData::Clear() {
 	m_pNAct_y->clear();
 	m_pNAct_z->clear();
 	m_pNAct_t->clear();
-	m_pNAct_lifetime->clear();
 	m_pNAct_particle_excitationEnergy->clear();
 }
 

@@ -293,7 +293,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
       m_pTree->Branch("NAct_process_category", "vector<int>", &m_pEventData->m_pNAct_process_category);
       m_pTree->Branch("NAct_process_ID", "vector<int>", &m_pEventData->m_pNAct_process_ID);
       m_pTree->Branch("NAct_particle_name", "vector<string>", &m_pEventData->m_pNAct_particle_name);
-      m_pTree->Branch("NAct_particle_lifetime", "vector<float>", &m_pEventData->m_pNAct_lifetime);
+      m_pTree->Branch("NAct_particle_lifetime", "vector<double>", &m_pEventData->m_pNAct_particle_lifetime);
       m_pTree->Branch("NAct_particle_id", "vector<int>", &m_pEventData->m_pNAct_particle_id);
       m_pTree->Branch("NAct_particle_atomicnumber", "vector<int>", &m_pEventData->m_pNAct_particle_atomic_number);
       m_pTree->Branch("NAct_particle_mass", "vector<int>", &m_pEventData->m_pNAct_particle_mass);
@@ -524,7 +524,6 @@ void XeSimAnalysisManager::FillNeutronCaptureInSave(
   m_pEventData->m_pNAct_process_category->push_back(creationprocess_category);
   m_pEventData->m_pNAct_process_ID->push_back(creationprocess_ID);
   m_pEventData->m_pNAct_particle_name->push_back(particle_name);
-  m_pEventData->m_pNAct_lifetime->push_back(lifetime);
   m_pEventData->m_pNAct_particle_id->push_back(particle_ID);
   m_pEventData->m_pNAct_particle_mass->push_back(particle_atomic_mass);
   m_pEventData->m_pNAct_particle_atomic_number->push_back(particle_atomic_number);
