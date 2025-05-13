@@ -98,6 +98,20 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     // Get the material table
     const G4MaterialTable* materialTable = G4Material::GetMaterialTable();
 
+    int nBins = 1500;
+    double min = 0.01 * MeV;
+    double max = 15.0 * MeV;
+    std::vector<double> bins;
+    std::vector<double> bin_centers;
+    double step = (std::log10(max) - std::log10(min)) / nBins;
+
+    for (int i = 0; i <= nBins; ++i) {
+      bins.push_back(std::pow(10, std::log10(min) + i * step));
+    }
+    for (int i = 0; i < nBins; ++i) {
+      bin_centers.push_back(std::pow(10, std::log10(min) + (i + 0.5) * step));
+    }
+
     // Loop over all materials
     for (size_t i = 0; i < materialTable->size(); ++i) {
       G4Material* material = (*materialTable)[i];
@@ -105,20 +119,21 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
           // Create a TH1 histogram for this material
           std::string histName = "neutronXS_" + material->GetName();
           std::string histTitle = "Neutron Capture Cross-Section for " + material->GetName();
-          TH1D* hist = new TH1D(histName.c_str(), histTitle.c_str(), 1500, 0.01, 15.0);
+          TH1D* hist = new TH1D(histName.c_str(), histTitle.c_str(), nBins, bins.data());
 
-          for (double energy = 0.01; energy <= 15.0 * MeV; energy += 0.01 * MeV) {
+          for (int k = 0; k < nBins; ++k) {
               // Get the neutron capture cross-section
               G4NeutronCaptureXS neutronXS;
-              G4DynamicParticle neutron(G4Neutron::Definition(), G4ThreeVector(0, 0, 1), energy);
+              G4DynamicParticle neutron(G4Neutron::Definition(), G4ThreeVector(0, 0, 1), bin_centers[k]);
               double crossSection = 0.0;
               const G4Material* mat = material;
               for (size_t j = 0; j < mat->GetNumberOfElements(); ++j) {
                   const G4Element* element = mat->GetElement(j);
                   double fraction = mat->GetFractionVector()[j];
-                  crossSection += fraction * neutronXS.GetCrossSection(&neutron, element);
+                  //crossSection += fraction * neutronXS.GetCrossSection(&neutron, element);
+                  crossSection += fraction * neutronXS.GetElementCrossSection(&neutron, element->GetZ(), mat);
               }
-              hist->Fill(energy / MeV, crossSection);
+              hist->Fill(bin_centers[k] / MeV, crossSection);
           }
           // Set errors to 0 for all bins
           for (int bin = 1; bin <= hist->GetNbinsX(); ++bin) {
