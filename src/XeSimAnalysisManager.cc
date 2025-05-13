@@ -94,7 +94,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     
     _tables = m_pTreeFile->mkdir("tables");
     _tables->cd();
-    
+
     // Get the material table
     const G4MaterialTable* materialTable = G4Material::GetMaterialTable();
 
@@ -129,9 +129,6 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
           hist->Write();
       }
     }
-
-    // Fill the tree
-    neutronXS_Tree->Fill();
 
     // Create list of process subtypes as vectors
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
