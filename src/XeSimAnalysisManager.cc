@@ -8,6 +8,8 @@
 #include <G4ProcessTable.hh>
 #include <G4LogicalVolumeStore.hh>
 #include <G4LogicalVolume.hh>
+#include <G4NeutronCaptureXS.hh>
+#include <G4Neutron.hh>
 #include <G4PhysicalVolumeStore.hh>
 #include <G4VPhysicalVolume.hh>
 
@@ -17,6 +19,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TParameter.h>
+#include <TH1D.h>
 #include <TDirectory.h>
 
 #include "XeSimPrimaryGeneratorAction.hh"
@@ -91,6 +94,44 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     
     _tables = m_pTreeFile->mkdir("tables");
     _tables->cd();
+    
+    // Get the material table
+    const G4MaterialTable* materialTable = G4Material::GetMaterialTable();
+
+    // Loop over all materials
+    for (size_t i = 0; i < materialTable->size(); ++i) {
+      G4Material* material = (*materialTable)[i];
+      if (material) {
+          // Create a TH1 histogram for this material
+          std::string histName = "neutronXS_" + material->GetName();
+          std::string histTitle = "Neutron Capture Cross-Section for " + material->GetName();
+          TH1D* hist = new TH1D(histName.c_str(), histTitle.c_str(), 1500, 0.01, 15.0);
+
+          for (double energy = 0.01; energy <= 15.0 * MeV; energy += 0.01 * MeV) {
+              // Get the neutron capture cross-section
+              G4NeutronCaptureXS neutronXS;
+              G4DynamicParticle neutron(G4Neutron::Definition(), G4ThreeVector(0, 0, 1), energy);
+              double crossSection = 0.0;
+              const G4Material* mat = material;
+              for (size_t j = 0; j < mat->GetNumberOfElements(); ++j) {
+                  const G4Element* element = mat->GetElement(j);
+                  double fraction = mat->GetFractionVector()[j];
+                  crossSection += fraction * neutronXS.GetCrossSection(&neutron, element);
+              }
+              hist->Fill(energy / MeV, crossSection);
+          }
+          // Set errors to 0 for all bins
+          for (int bin = 1; bin <= hist->GetNbinsX(); ++bin) {
+            hist->SetBinError(bin, 0.0);
+          }
+
+          // Store the histogram in the ROOT file
+          hist->Write();
+      }
+    }
+
+    // Fill the tree
+    neutronXS_Tree->Fill();
 
     // Create list of process subtypes as vectors
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
