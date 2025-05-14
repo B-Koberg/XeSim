@@ -96,9 +96,15 @@ void NeutronShieldingConstruction::DefineMaterials() {
   G4Element *Na = new G4Element("Natrium", "Na", 11., 22.989*g/mole);
   G4Element* P = new G4Element("Phosphorus", "P", 15., 30.974 * g/mole);
   G4Element* Ti = new G4Element("Titanium", "Ti", 22., 47.867 * g/mole);
+  G4Element* B = new G4Element("Boron", "B", 5., 10.811 * g/mole);
+  G4Element* Li = new G4Element("Lithium", "Li", 3., 6.941 * g/mole);
+
+  G4NistManager* pNistManager = G4NistManager::Instance();
+  pNistManager->FindOrBuildMaterial("G4_AIR");
+  pNistManager->FindOrBuildMaterial("G4_WATER");
+  pNistManager->FindOrBuildMaterial("G4_Galactic");
   
 //------------------------------- Liquid Xenon with natural abundance element -----------------------------
-
   G4Isotope* Xe124 = new G4Isotope("Xe124", 54, 124, 123.90589*g/mole);
   G4Isotope* Xe126 = new G4Isotope("Xe126", 54, 126, 125.90430*g/mole);
   G4Isotope* Xe128 = new G4Isotope("Xe128", 54, 128, 127.90353*g/mole);
@@ -119,19 +125,28 @@ void NeutronShieldingConstruction::DefineMaterials() {
   Xe_nA->AddIsotope(Xe132, 0.2689);  // 26.89%
   Xe_nA->AddIsotope(Xe134, 0.1044);  // 10.44%
   Xe_nA->AddIsotope(Xe136, 0.0887);  // 8.87%
+  
+  //------------------------------- Enriched Boron -----------------------------
+  G4Isotope* isoB10 = new G4Isotope("B10", 5, 10, 10.0129*g/mole);
+  G4Isotope* isoB11 = new G4Isotope("B11", 5, 11, 11.0093*g/mole);
 
-  
-  
+  G4Element* eB = new G4Element("EnrichedBoron", "EB", 2);
+  eB->AddIsotope(isoB10, 19.6*perCent);
+  eB->AddIsotope(isoB11, 80.4*perCent);
 
+  //------------------------------- Enriched Lithium -----------------------------
+  G4Isotope* isoLi6 = new G4Isotope("Li6", 3, 6, 6.0151*g/mole);
+  G4Isotope* isoLi7 = new G4Isotope("Li7", 3, 7, 7.0160*g/mole);
 
-  G4NistManager* pNistManager = G4NistManager::Instance();
-  pNistManager->FindOrBuildMaterial("G4_AIR");
-  pNistManager->FindOrBuildMaterial("G4_WATER");
-  
-  G4Material *Vacuum = new G4Material("Vacuum", 1.e-20*g/cm3, 2, kStateGas);
-  Vacuum->AddElement(N, 0.755);
-  Vacuum->AddElement(O, 0.245);
-  
+  G4Element* eLi = new G4Element("EnrichedLithium", "ELi", 2);
+  eLi->AddIsotope(isoLi7, 92.6*perCent);
+  eLi->AddIsotope(isoLi6, 7.4*perCent);
+
+  //------------------------------- Enriched Lithium -----------------------------
+  G4Element* eLi6 = new G4Element("EnrichedLithium6", "ELi6", 2);
+  eLi6->AddIsotope(isoLi6, 79*perCent);
+  eLi6->AddIsotope(isoLi7, 21*perCent);
+
   //-------------------------------- liquid xenon ---------------------------------
   G4Material *LXe = new G4Material("LXe", 2.9172*g/cm3, 1, kStateLiquid, 168.15*kelvin, 1.5*atmosphere);
   LXe->AddElement(Xe, 1);
@@ -202,10 +217,54 @@ void NeutronShieldingConstruction::DefineMaterials() {
   SS304LSteel->AddElement(Mn, 0.02);
   SS304LSteel->AddElement(Si, 0.01);
 
-  //-------------------------------- Water ---------------------------------
-  G4Material *Water = new G4Material("Water", 1.0*g/cm3, 2);
-  Water->AddElement(H, 2);
-  Water->AddElement(O, 1);
+  //------------------------------- Paraffin -------------------------------
+  G4Material* paraffin = new G4Material("Paraffin", 0.9, 2);
+  paraffin->AddElement(C, (100-14.96)*perCent);
+  paraffin->AddElement(H, 14.96*perCent);
+
+  //------------------------------- Paraffin 25% Boron-------------------------------
+  G4Material* paraffin25 = new G4Material("Paraffin25", 1, 3);
+  paraffin25->AddElement(C, (100-25-9.72)*perCent);
+  paraffin25->AddElement(H, 9.72*perCent);
+  paraffin25->AddElement(eB, 25*perCent);
+
+  //------------------------------- Polyethylen -------------------------------
+  G4Material* polyethylen = new G4Material("Polyethylen", 0.93, 2);
+  polyethylen->AddElement(C, (100-13.38)*perCent);
+  polyethylen->AddElement(H, 13.38*perCent);
+
+  //------------------------------- Polyethylen 5% Boron-------------------------------
+  
+  G4Material* polyethylen5 = new G4Material("Polyethylen5", 1.07, 3);
+  polyethylen5->AddElement(C, (100-5-11.7)*perCent);
+  polyethylen5->AddElement(H, 11.7*perCent);
+  polyethylen5->AddElement(eB, 5*perCent);
+
+  //------------------------------- Polyethylen 25% Boron-------------------------------
+  G4Material* polyethylen25 = new G4Material("Polyethylen25", 1.17, 3);
+  polyethylen25->AddElement(C, (100-25-9.3)*perCent);
+  polyethylen25->AddElement(H, 9.3*perCent);
+  polyethylen25->AddElement(eB, 25*perCent);
+
+  //------------------------------- Polyethylen 7.5% lithium -------------------------------
+  G4Material* polyethylen7Lit = new G4Material("Polyethylen7Lit", 1.06, 3);
+  polyethylen7Lit->AddElement(C, (100-7.5-8.59)*perCent);
+  polyethylen7Lit->AddElement(H, 8.59*perCent);
+  polyethylen7Lit->AddElement(eLi, 7.5*perCent);
+
+  //------------------------------- Silicone 5% Boron-------------------------------
+  G4Material* silicone5 = new G4Material("Silicone5", 1.34, 4);
+  silicone5->AddElement(eB, 5*perCent);      // B
+  silicone5->AddElement(Si, 87.25/3*perCent);     // Si
+  silicone5->AddElement(C, 87.25*2/3*perCent + 0.25 * perCent);      // C
+  silicone5->AddElement(H, 7.5*perCent);     // H
+
+  //------------------------------- Silicone 25% Lithium 6-------------------------------
+  G4Material* silicone25Lit6 = new G4Material("Silicone25Lit6", 1.34, 4);
+  silicone25Lit6->AddElement(eLi6, 25*perCent);      // Li
+  silicone25Lit6->AddElement(Si, (100-25-1.3)/3*perCent);     // Si
+  silicone25Lit6->AddElement(C, (100-25-1.3)*2/3*perCent);      // C
+  silicone25Lit6->AddElement(H, 1.3*perCent);     // H
 
 }
 
@@ -254,7 +313,7 @@ void NeutronShieldingConstruction::ConstructLaboratory() {
   G4Box *pLabBox = new G4Box("LabBox", dLabHalfX, dLabHalfY, dLabHalfZ);
 	
   G4Material *Air = G4Material::GetMaterial("G4_AIR");
-  G4Material *Vacuum = G4Material::GetMaterial("Vacuum");
+  G4Material *Vacuum = G4Material::GetMaterial("G4_Galactic");
 
   m_pLabLogicalVolume = new G4LogicalVolume(pLabBox, Vacuum, "LabLogicalVolume", 0, 0, 0);
 
@@ -270,13 +329,26 @@ void NeutronShieldingConstruction::ConstructDetector() {
   G4SDManager *pSDManager = G4SDManager::GetSDMpointer();
 
   G4Material *Air = G4Material::GetMaterial("G4_AIR");
+  G4Material *Water = G4Material::GetMaterial("G4_WATER");
+  G4Material *Vacuum = G4Material::GetMaterial("G4_Galactic");
+
   G4Material *LXe = G4Material::GetMaterial("LXe");
   G4Material *LXe_nA = G4Material::GetMaterial("LXe_nA");
+
   G4Material *StainlessSteel = G4Material::GetMaterial("SS304LSteel");
+
   G4Material *Rock = G4Material::GetMaterial("Rock");
   G4Material *Concrete = G4Material::GetMaterial("Concrete");
-  G4Material *Water = G4Material::GetMaterial("G4_WATER");
-  G4Material *Vacuum = G4Material::GetMaterial("Vacuum");
+
+  G4Material *Paraffin = G4Material::GetMaterial("Paraffin");
+  G4Material *Paraffin25 = G4Material::GetMaterial("Paraffin25");
+  G4Material *Polyethylen = G4Material::GetMaterial("Polyethylen");
+  G4Material *Polyethylen5 = G4Material::GetMaterial("Polyethylen5");
+  G4Material *Polyethylen25 = G4Material::GetMaterial("Polyethylen25");
+  G4Material *Polyethylen7Lit = G4Material::GetMaterial("Polyethylen7Lit");
+  G4Material *Silicone5 = G4Material::GetMaterial("Silicone5");
+  G4Material *Silicone25Lit6 = G4Material::GetMaterial("Silicone25Lit6");
+
 
   const G4double dLabHalfX = m_hGeometryParameters["dLabHalfX"];
   const G4double dLabHalfY = m_hGeometryParameters["dLabHalfY"];

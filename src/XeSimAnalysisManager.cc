@@ -98,9 +98,9 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     // Get the material table
     const G4MaterialTable* materialTable = G4Material::GetMaterialTable();
 
-    int nBins = 1500;
-    double min = 0.01 * MeV;
-    double max = 15.0 * MeV;
+    int nBins = 1000;
+    double min = 1 * eV;
+    double max = 20.0 * MeV;
     std::vector<double> bins;
     std::vector<double> bin_centers;
     double step = (std::log10(max) - std::log10(min)) / nBins;
@@ -127,13 +127,14 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
               G4DynamicParticle neutron(G4Neutron::Definition(), G4ThreeVector(0, 0, 1), bin_centers[k]);
               double crossSection = 0.0;
               const G4Material* mat = material;
+              
               for (size_t j = 0; j < mat->GetNumberOfElements(); ++j) {
                   const G4Element* element = mat->GetElement(j);
                   double fraction = mat->GetFractionVector()[j];
-                  //crossSection += fraction * neutronXS.GetCrossSection(&neutron, element);
-                  crossSection += fraction * neutronXS.GetElementCrossSection(&neutron, element->GetZ(), mat);
-              }
-              hist->Fill(bin_centers[k] / MeV, crossSection);
+                  crossSection += fraction * neutronXS.GetCrossSection(&neutron, mat->GetElement(j), mat) * 10000;
+                  //crossSection += fraction * neutronXS.GetElementCrossSection(&neutron, element->GetZ(), mat);
+              } 
+              hist->Fill(bin_centers[k] / MeV, crossSection / barn);
           }
           // Set errors to 0 for all bins
           for (int bin = 1; bin <= hist->GetNbinsX(); ++bin) {
