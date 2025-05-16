@@ -48,6 +48,9 @@ private:
 	G4LogicalVolume *m_pAbsorberLogicalVolume;
 	G4VPhysicalVolume *m_pAbsorberPhysicalVolume;
 
+	G4LogicalVolume *m_pAbsorberAirLogicalVolume;
+	G4VPhysicalVolume *m_pAbsorberAirPhysicalVolume;
+
 	G4LogicalVolume *m_pLXeContainerLogicalVolume;
     G4VPhysicalVolume *m_pLXeContainerPhysicalVolume;
 

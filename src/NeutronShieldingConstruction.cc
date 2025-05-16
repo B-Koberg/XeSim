@@ -218,49 +218,49 @@ void NeutronShieldingConstruction::DefineMaterials() {
   SS304LSteel->AddElement(Si, 0.01);
 
   //------------------------------- Paraffin -------------------------------
-  G4Material* paraffin = new G4Material("Paraffin", 0.9, 2);
+  G4Material* paraffin = new G4Material("Paraffin", 0.9*g/cm3, 2, kStateSolid);
   paraffin->AddElement(C, (100-14.96)*perCent);
   paraffin->AddElement(H, 14.96*perCent);
 
   //------------------------------- Paraffin 25% Boron-------------------------------
-  G4Material* paraffin25 = new G4Material("Paraffin25", 1, 3);
+  G4Material* paraffin25 = new G4Material("Paraffin25", 1*g/cm3, 3, kStateSolid);
   paraffin25->AddElement(C, (100-25-9.72)*perCent);
   paraffin25->AddElement(H, 9.72*perCent);
   paraffin25->AddElement(eB, 25*perCent);
 
   //------------------------------- Polyethylen -------------------------------
-  G4Material* polyethylen = new G4Material("Polyethylen", 0.93, 2);
+  G4Material* polyethylen = new G4Material("Polyethylen", 0.93*g/cm3, 2, kStateSolid);
   polyethylen->AddElement(C, (100-13.38)*perCent);
   polyethylen->AddElement(H, 13.38*perCent);
 
   //------------------------------- Polyethylen 5% Boron-------------------------------
-  
-  G4Material* polyethylen5 = new G4Material("Polyethylen5", 1.07, 3);
+
+  G4Material* polyethylen5 = new G4Material("Polyethylen5", 1.07*g/cm3, 3, kStateSolid);
   polyethylen5->AddElement(C, (100-5-11.7)*perCent);
   polyethylen5->AddElement(H, 11.7*perCent);
   polyethylen5->AddElement(eB, 5*perCent);
 
   //------------------------------- Polyethylen 25% Boron-------------------------------
-  G4Material* polyethylen25 = new G4Material("Polyethylen25", 1.17, 3);
+  G4Material* polyethylen25 = new G4Material("Polyethylen25", 1.17*g/cm3, 3, kStateSolid);
   polyethylen25->AddElement(C, (100-25-9.3)*perCent);
   polyethylen25->AddElement(H, 9.3*perCent);
   polyethylen25->AddElement(eB, 25*perCent);
 
   //------------------------------- Polyethylen 7.5% lithium -------------------------------
-  G4Material* polyethylen7Lit = new G4Material("Polyethylen7Lit", 1.06, 3);
+  G4Material* polyethylen7Lit = new G4Material("Polyethylen7Lit", 1.06*g/cm3, 3, kStateSolid);
   polyethylen7Lit->AddElement(C, (100-7.5-8.59)*perCent);
   polyethylen7Lit->AddElement(H, 8.59*perCent);
   polyethylen7Lit->AddElement(eLi, 7.5*perCent);
 
   //------------------------------- Silicone 5% Boron-------------------------------
-  G4Material* silicone5 = new G4Material("Silicone5", 1.34, 4);
+  G4Material* silicone5 = new G4Material("Silicone5", 1.34*g/cm3, 4, kStateSolid);
   silicone5->AddElement(eB, 5*perCent);      // B
   silicone5->AddElement(Si, 87.25/3*perCent);     // Si
   silicone5->AddElement(C, 87.25*2/3*perCent + 0.25 * perCent);      // C
   silicone5->AddElement(H, 7.5*perCent);     // H
 
   //------------------------------- Silicone 25% Lithium 6-------------------------------
-  G4Material* silicone25Lit6 = new G4Material("Silicone25Lit6", 1.34, 4);
+  G4Material* silicone25Lit6 = new G4Material("Silicone25Lit6", 1.34*g/cm3, 4, kStateSolid);
   silicone25Lit6->AddElement(eLi6, 25*perCent);      // Li
   silicone25Lit6->AddElement(Si, (100-25-1.3)/3*perCent);     // Si
   silicone25Lit6->AddElement(C, (100-25-1.3)*2/3*perCent);      // C
@@ -287,7 +287,7 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["dBuildHalfZ"] = 3.*m;
     m_hGeometryParameters["dBuildHalfThick"] = 0.5*cm;
 
-    m_hGeometryParameters["dAbsorberHalfThick"]= 35*cm;
+    m_hGeometryParameters["dAbsorberHalfThick"]= 2.5*cm;
 
     m_hGeometryParameters["dLXeHalfX"] = 0.23*m;
     m_hGeometryParameters["dLXeHalfY"] = 0.23*m;
@@ -339,6 +339,8 @@ void NeutronShieldingConstruction::ConstructDetector() {
 
   G4Material *Rock = G4Material::GetMaterial("Rock");
   G4Material *Concrete = G4Material::GetMaterial("Concrete");
+
+  G4Material *AbsorberMat = G4Material::GetMaterial("Polyethylen5");
 
   G4Material *Paraffin = G4Material::GetMaterial("Paraffin");
   G4Material *Paraffin25 = G4Material::GetMaterial("Paraffin25");
@@ -573,12 +575,12 @@ void NeutronShieldingConstruction::ConstructDetector() {
   const G4double dAbsorberHalfZ = dAbsorberHalfX ;
 
   G4Box *pAbsorber_out = new G4Box("Absorber_outer",dAbsorberHalfX, dAbsorberHalfY, dAbsorberHalfZ);
-  G4Box *pAbsorber_in = new G4Box("Absorber_inner",dAbsorberHalfX-2*dAbsorberHalfThick, dAbsorberHalfY-2*dAbsorberHalfThick, dAbsorberHalfZ-2*dAbsorberHalfThick);
+  /* G4Box *pAbsorber_in = new G4Box("Absorber_inner",dAbsorberHalfX-2*dAbsorberHalfThick, dAbsorberHalfY-2*dAbsorberHalfThick, dAbsorberHalfZ-2*dAbsorberHalfThick);
   
   G4SubtractionSolid* pAbsorber = new G4SubtractionSolid("Absorber",pAbsorber_out , pAbsorber_in, 0, G4ThreeVector(0., 0., 0.));
-
+ */
   
-  m_pAbsorberLogicalVolume = new G4LogicalVolume(pAbsorber, Water, "AbsorberVolume", 0, 0, 0);
+  m_pAbsorberLogicalVolume = new G4LogicalVolume(pAbsorber_out, AbsorberMat, "AbsorberVolume", 0, 0, 0);
   m_pAbsorberPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0), m_pAbsorberLogicalVolume,
                                               "Absorber", m_pBuildAirLogicalVolume, false, 0);
   
@@ -587,7 +589,19 @@ void NeutronShieldingConstruction::ConstructDetector() {
   pAbsorberVisAtt->SetVisibility(true);
   m_pAbsorberLogicalVolume->SetVisAttributes(pAbsorberVisAtt);
 
-   // Container
+  for (size_t j = 0; j < AbsorberMat->GetNumberOfElements(); ++j) {
+                  G4cout << AbsorberMat->GetFractionVector()[j] << AbsorberMat->GetElement(j)->GetName() << AbsorberMat->GetDensity()*cm3/g << G4endl;
+              } 
+  
+  // Air in the absorber
+  G4Box *pAbsorberAir = new G4Box("AbsorberAir",dAbsorberHalfX-2*dAbsorberHalfThick, dAbsorberHalfY-2*dAbsorberHalfThick, dAbsorberHalfZ-2*dAbsorberHalfThick);
+  m_pAbsorberAirLogicalVolume = new G4LogicalVolume(pAbsorberAir, Air, "AbsorberAirVolume", 0, 0, 0);
+  m_pAbsorberAirPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0), m_pAbsorberAirLogicalVolume,
+                                              "AbsorberAir", m_pAbsorberLogicalVolume, false, 0);
+
+  m_pAbsorberAirLogicalVolume->SetVisAttributes(pAirVisAtt);
+
+  // Container
   G4Box *pLXeContainerBox1 = new G4Box("LXeContainerBox1", dLXeHalfX+2*dLXeContainerHalfThick, dLXeHalfY+2*dLXeContainerHalfThick, dLXeHalfZ+2*dLXeContainerHalfThick);
   
   G4ThreeVector LXeContainerPosition(0., dLXeContainerDist + 2* dLXeHalfY + 4*dLXeContainerHalfThick, 0.);
@@ -598,8 +612,8 @@ void NeutronShieldingConstruction::ConstructDetector() {
 
   m_pLXeContainerLogicalVolume = new G4LogicalVolume(pLXeContainerBox, StainlessSteel, "LXeContainerVolume", 0, 0, 0);
   m_pLXeContainerPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0), m_pLXeContainerLogicalVolume,
-                                              "LXeContainer", m_pBuildAirLogicalVolume, false, 0);
-  
+                                              "LXeContainer", m_pAbsorberAirLogicalVolume, false, 0);
+
   m_pLXeContainerLogicalVolume->SetVisAttributes(pBuildVisAtt);
   
   // LXe

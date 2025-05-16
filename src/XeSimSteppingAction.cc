@@ -75,28 +75,61 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 	if (aStep->GetTrack()->GetNextVolume()) {
 		// Example to track particles entering the template detector
 		// exclude optical photons and take all other particles
-		/* if (particle == "neutron" &&
-			(aStep->GetTrack()->GetVolume()->GetName() == "RockPhysicalVolume" &&
-			aStep->GetTrack()->GetNextVolume()->GetName() == "ConcretePhysicalVolume")) {
+		if (particle == "neutron" &&
+			(aStep->GetTrack()->GetVolume()->GetName() == "BuildAir" &&
+			aStep->GetTrack()->GetNextVolume()->GetName() == "Absorber")) {
 
 			m_pAnalysisManager->FillParticleInSave(
 							1, // 1==Particle entering the template detector
-							"entering Concrete from Rock",
+							"Building to Absorber",
 							particle, aStep->GetPostStepPoint()->GetPosition(),
 							direction, eP, timeP, trackID, eventID);
 		}
 
 
 		if (particle == "neutron" &&
-			(aStep->GetTrack()->GetVolume()->GetName() == "ConcretePhysicalVolume" &&
-			aStep->GetTrack()->GetNextVolume()->GetName() == "AirPhysicalVolume")) {
+			(aStep->GetTrack()->GetVolume()->GetName() == "Absorber" &&
+			aStep->GetTrack()->GetNextVolume()->GetName() == "LXeContainer")) {
 
 			m_pAnalysisManager->FillParticleInSave(
 							1, // 1==Particle entering the template detector
-							"entering Air from Concrete",
+							"Absorber to Container",
 							particle, aStep->GetPostStepPoint()->GetPosition(),
 							direction, eP, timeP, trackID, eventID);
-		} */
+		}
+
+		if (particle == "neutron" &&
+			(aStep->GetTrack()->GetVolume()->GetName() == "LXeContainer" &&
+			aStep->GetTrack()->GetNextVolume()->GetName() == "LXe")) {
+
+			m_pAnalysisManager->FillParticleInSave(
+							1, // 1==Particle entering the template detector
+							"Container to LXe",
+							particle, aStep->GetPostStepPoint()->GetPosition(),
+							direction, eP, timeP, trackID, eventID);
+		}
+
+		if (particle == "neutron" &&
+			(aStep->GetTrack()->GetVolume()->GetName() == "Absorber" &&
+			aStep->GetTrack()->GetNextVolume()->GetName() == "AbsorberAir")) {
+
+			m_pAnalysisManager->FillParticleInSave(
+							1, // 1==Particle entering the template detector
+							"Absorber to Air inside Absorber",
+							particle, aStep->GetPostStepPoint()->GetPosition(),
+							direction, eP, timeP, trackID, eventID);
+		}
+
+		if (particle == "neutron" &&
+			(aStep->GetTrack()->GetVolume()->GetName() == "AbsorberAir" &&
+			aStep->GetTrack()->GetNextVolume()->GetName() == "LXeContainer")) {
+
+			m_pAnalysisManager->FillParticleInSave(
+							1, // 1==Particle entering the template detector
+							"Air inside Absorber to Container",
+							particle, aStep->GetPostStepPoint()->GetPosition(),
+							direction, eP, timeP, trackID, eventID);
+		}
 
 		// Example for neutrons entering the template detector
 		//if (particle == "neutron" && aStep->GetTrack()->GetNextVolume()->GetName() == "Water") {
