@@ -80,6 +80,7 @@ public:
 	vector<float> *m_pSave_t;
 	vector<int> *m_pSave_number;
 	vector<int> *m_pSave_trkid;
+	vector<string> *m_pSave_volume;
 
 	// For Storing Information about Activation Through Neutron Capture
 	int m_iNAct;

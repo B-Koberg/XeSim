@@ -71,64 +71,18 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 	G4String nameSec;
 	G4int totalSec;
 	G4String finProc;
+	G4String volume = aStep->GetTrack()->GetVolume()->GetName();
 
 	if (aStep->GetTrack()->GetNextVolume()) {
 		// Example to track particles entering the template detector
 		// exclude optical photons and take all other particles
-		if (particle == "neutron" &&
-			(aStep->GetTrack()->GetVolume()->GetName() == "BuildAir" &&
-			aStep->GetTrack()->GetNextVolume()->GetName() == "Absorber")) {
+		if (particle == "neutron" && aStep->GetTrack()->GetNextVolume()->GetName() == "Absorber") {
 
 			m_pAnalysisManager->FillParticleInSave(
 							1, // 1==Particle entering the template detector
-							"Building to Absorber",
+							"Into Absorber",
 							particle, aStep->GetPostStepPoint()->GetPosition(),
-							direction, eP, timeP, trackID, eventID);
-		}
-
-
-		if (particle == "neutron" &&
-			(aStep->GetTrack()->GetVolume()->GetName() == "Absorber" &&
-			aStep->GetTrack()->GetNextVolume()->GetName() == "LXeContainer")) {
-
-			m_pAnalysisManager->FillParticleInSave(
-							1, // 1==Particle entering the template detector
-							"Absorber to Container",
-							particle, aStep->GetPostStepPoint()->GetPosition(),
-							direction, eP, timeP, trackID, eventID);
-		}
-
-		if (particle == "neutron" &&
-			(aStep->GetTrack()->GetVolume()->GetName() == "LXeContainer" &&
-			aStep->GetTrack()->GetNextVolume()->GetName() == "LXe")) {
-
-			m_pAnalysisManager->FillParticleInSave(
-							1, // 1==Particle entering the template detector
-							"Container to LXe",
-							particle, aStep->GetPostStepPoint()->GetPosition(),
-							direction, eP, timeP, trackID, eventID);
-		}
-
-		if (particle == "neutron" &&
-			(aStep->GetTrack()->GetVolume()->GetName() == "Absorber" &&
-			aStep->GetTrack()->GetNextVolume()->GetName() == "AbsorberAir")) {
-
-			m_pAnalysisManager->FillParticleInSave(
-							1, // 1==Particle entering the template detector
-							"Absorber to Air inside Absorber",
-							particle, aStep->GetPostStepPoint()->GetPosition(),
-							direction, eP, timeP, trackID, eventID);
-		}
-
-		if (particle == "neutron" &&
-			(aStep->GetTrack()->GetVolume()->GetName() == "AbsorberAir" &&
-			aStep->GetTrack()->GetNextVolume()->GetName() == "LXeContainer")) {
-
-			m_pAnalysisManager->FillParticleInSave(
-							1, // 1==Particle entering the template detector
-							"Air inside Absorber to Container",
-							particle, aStep->GetPostStepPoint()->GetPosition(),
-							direction, eP, timeP, trackID, eventID);
+							direction, eP, timeP, trackID, eventID, volume);
 		}
 
 		// Example for neutrons entering the template detector
@@ -179,7 +133,7 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 				m_pAnalysisManager->FillParticleInSave(
 									100, "neutron capture in Water",
 									particle, aStep->GetPostStepPoint()->GetPosition(),
-									direction, eP, timeP, trackID, eventID);
+									direction, eP, timeP, trackID, eventID, volume);
 
 				for(int i=totalSec-totalSecThisStep; i<totalSec; i++)   {
 					nameSec = (*vectorPartSec)[i]->GetDefinition()->GetParticleName();
@@ -187,25 +141,25 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 						m_pAnalysisManager->FillParticleInSave(101, "gamma after n-capture",
 											particle, aStep->GetPostStepPoint()->GetPosition(),
 											direction, (*vectorPartSec)[i]->GetKineticEnergy(),
-											timeP, trackID, eventID);
+											timeP, trackID, eventID, volume);
 					}
 					if (nameSec == "deuteron") {
 						m_pAnalysisManager->FillParticleInSave(
 											102, "n-capture on H",
 											particle, aStep->GetPostStepPoint()->GetPosition(),
-											direction, eP, timeP, trackID, eventID);
+											direction, eP, timeP, trackID, eventID, volume);
 					}
 					if (nameSec.find("Gd") == 0){
 						m_pAnalysisManager->FillParticleInSave(
 											103, "n-capture on Gd",
 											particle, aStep->GetPostStepPoint()->GetPosition(),
-											direction, eP, timeP, trackID, eventID);
+											direction, eP, timeP, trackID, eventID, volume);
 					}
 					if (flagCaptureInOxygen) {
 						m_pAnalysisManager->FillParticleInSave(
 											104, "n-capture on O",
 											particle, aStep->GetPostStepPoint()->GetPosition(),
-											direction, eP, timeP, trackID, eventID);
+											direction, eP, timeP, trackID, eventID, volume);
 					}
 				}
 			}

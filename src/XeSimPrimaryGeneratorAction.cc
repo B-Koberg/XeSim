@@ -37,6 +37,7 @@ void XeSimPrimaryGeneratorAction::FillPrimaryType(G4Event *pEvent)
   m_hParticleTypeVectorOfPrimary->push_back(primVertex->GetPrimary()->GetParticleDefinition()->GetParticleName());
   m_hParticleTypeIDVectorOfPrimary->push_back(primVertex->GetPrimary()->GetParticleDefinition()->GetPDGEncoding());
 
+
   while(primVertex->GetNext() != 0)
   {
     primVertex = primVertex->GetNext();

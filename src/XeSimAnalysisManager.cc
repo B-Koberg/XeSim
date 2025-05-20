@@ -253,7 +253,12 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
 
     // type_pri:	type of the primary event/main event
     m_pTree->Branch("type_pri", "vector<string>", &m_pEventData->m_pPrimaryParticleType);
-    m_pTree->Branch("type_pri_id", "vector<int>", &m_pEventData->m_pPrimaryParticleTypeID);
+
+    m_pTree->Branch("type_pri_id", &m_pEventData->m_pPrimaryParticleTypeID);
+
+
+
+    //m_pTree->Branch("type_pri_id", &m_pEventData->m_pPrimaryParticleTypeID, "type_pri_id/I");
 
     // Energy and positions of the current particle/trackid
     m_pTree->Branch("e_pri", &m_pEventData->m_fPrimaryEnergy, "e_pri/F");
@@ -330,6 +335,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     m_pTree->Branch("Save_t", "vector<float>", &m_pEventData->m_pSave_t);
     m_pTree->Branch("Save_eventid", "vector<int>", &m_pEventData->m_pSave_number);
     m_pTree->Branch("Save_trackid", "vector<int>", &m_pEventData->m_pSave_trkid);
+    m_pTree->Branch("Save_volume", "vector<string>", &m_pEventData->m_pSave_volume);
 
     // Branches for storing Neutron Activation information
     if (m_pNeutronActivation == kTRUE) {
@@ -542,7 +548,8 @@ void XeSimAnalysisManager::EndOfEvent(const G4Event *pEvent) {
 void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4String description,
                                               G4String particle, G4ThreeVector pos, 
                                               G4ThreeVector dir, G4float nrg,
-                                              G4float time, G4int trackID, G4int eventID) {
+                                              G4float time, G4int trackID, G4int eventID,
+                                              G4String volume) {
   m_pEventData->m_pSave_flag->push_back(flag);
   m_pEventData->m_pSave_type->push_back(particle);
   m_pEventData->m_pSave_desc->push_back(description);
@@ -556,6 +563,7 @@ void XeSimAnalysisManager::FillParticleInSave(G4int flag, G4String description,
   m_pEventData->m_pSave_t->push_back(time / ns);
   m_pEventData->m_pSave_number->push_back(eventID);
   m_pEventData->m_pSave_trkid->push_back(trackID);
+  m_pEventData->m_pSave_volume->push_back(volume);
   m_pEventData->m_iNSave++;
 }
 

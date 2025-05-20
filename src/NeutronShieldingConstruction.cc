@@ -287,7 +287,7 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["dBuildHalfZ"] = 3.*m;
     m_hGeometryParameters["dBuildHalfThick"] = 0.5*cm;
 
-    m_hGeometryParameters["dAbsorberHalfThick"]= 2.5*cm;
+    m_hGeometryParameters["dAbsorberHalfThick"]= 10*cm;
 
     m_hGeometryParameters["dLXeHalfX"] = 0.23*m;
     m_hGeometryParameters["dLXeHalfY"] = 0.23*m;
@@ -340,7 +340,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
   G4Material *Rock = G4Material::GetMaterial("Rock");
   G4Material *Concrete = G4Material::GetMaterial("Concrete");
 
-  G4Material *AbsorberMat = G4Material::GetMaterial("Polyethylen5");
+  G4Material *AbsorberMat = G4Material::GetMaterial("Polyethylen25");
 
   G4Material *Paraffin = G4Material::GetMaterial("Paraffin");
   G4Material *Paraffin25 = G4Material::GetMaterial("Paraffin25");
@@ -589,9 +589,6 @@ void NeutronShieldingConstruction::ConstructDetector() {
   pAbsorberVisAtt->SetVisibility(true);
   m_pAbsorberLogicalVolume->SetVisAttributes(pAbsorberVisAtt);
 
-  for (size_t j = 0; j < AbsorberMat->GetNumberOfElements(); ++j) {
-                  G4cout << AbsorberMat->GetFractionVector()[j] << AbsorberMat->GetElement(j)->GetName() << AbsorberMat->GetDensity()*cm3/g << G4endl;
-              } 
   
   // Air in the absorber
   G4Box *pAbsorberAir = new G4Box("AbsorberAir",dAbsorberHalfX-2*dAbsorberHalfThick, dAbsorberHalfY-2*dAbsorberHalfThick, dAbsorberHalfZ-2*dAbsorberHalfThick);

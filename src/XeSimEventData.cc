@@ -76,6 +76,7 @@ XeSimEventData::XeSimEventData() {
 	m_pSave_t = new vector<float>;
 	m_pSave_number = new vector<int>;
 	m_pSave_trkid = new vector<int>;
+	m_pSave_volume = new vector<string>;
 
 	// Neutron capture
 	m_iNAct = 0;
@@ -145,6 +146,7 @@ XeSimEventData::~XeSimEventData() {
 	delete m_pSave_t;
 	delete m_pSave_number;
 	delete m_pSave_trkid;
+	delete m_pSave_volume;
 
 	
 	delete m_pNAct_volume;
@@ -230,6 +232,7 @@ void XeSimEventData::Clear() {
 	m_pSave_t->clear();
 	m_pSave_number->clear();
 	m_pSave_trkid->clear();
+	m_pSave_volume->clear();
 
 	m_iNAct = 0;
 	

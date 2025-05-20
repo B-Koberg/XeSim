@@ -53,7 +53,7 @@ public:
 
   void FillParticleInSave(G4int flag, G4String description, G4String particle, G4ThreeVector pos,
                           G4ThreeVector dir, G4float nrg, G4float time,
-                          G4int trackID, G4int eventID);
+                          G4int trackID, G4int eventID, G4String volume);
   void FillNeutronCaptureInSave(G4String particle_name, G4int particle_atomic_mass, G4int particle_atomic_number, G4double particle_excitationEnergy, G4int particle_ID, G4double particle_lifetime,
                                 G4String creationprocess_name, G4int creationprocess_category, G4int creationprocess_ID,
                                 G4ThreeVector pos, G4String pos_volume, G4int event_number, G4float time,
