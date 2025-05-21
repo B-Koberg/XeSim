@@ -340,7 +340,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
   G4Material *Rock = G4Material::GetMaterial("Rock");
   G4Material *Concrete = G4Material::GetMaterial("Concrete");
 
-  G4Material *AbsorberMat = G4Material::GetMaterial("Polyethylen25");
+  G4Material *AbsorberMat = G4Material::GetMaterial("Polyethylen");
 
   G4Material *Paraffin = G4Material::GetMaterial("Paraffin");
   G4Material *Paraffin25 = G4Material::GetMaterial("Paraffin25");

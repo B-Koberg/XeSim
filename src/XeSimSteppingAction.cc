@@ -72,15 +72,21 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 	G4int totalSec;
 	G4String finProc;
 	G4String volume = aStep->GetTrack()->GetVolume()->GetName();
+	std::vector<std::string> volumesToTrack = {
+        "Absorber",
+		"AbsorberAir",
+		"LXeContainer",
+		"LXe",
+    };
 
 	if (aStep->GetTrack()->GetNextVolume()) {
 		// Example to track particles entering the template detector
 		// exclude optical photons and take all other particles
-		if (particle == "neutron" && aStep->GetTrack()->GetNextVolume()->GetName() == "Absorber") {
-
+		G4String nextVolume = aStep->GetTrack()->GetNextVolume()->GetName();
+		if (particle == "neutron" && (std::find(volumesToTrack.begin(), volumesToTrack.end(), nextVolume) != volumesToTrack.end())) {
 			m_pAnalysisManager->FillParticleInSave(
 							1, // 1==Particle entering the template detector
-							"Into Absorber",
+							nextVolume,
 							particle, aStep->GetPostStepPoint()->GetPosition(),
 							direction, eP, timeP, trackID, eventID, volume);
 		}
