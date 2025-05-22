@@ -83,7 +83,9 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 		// Example to track particles entering the template detector
 		// exclude optical photons and take all other particles
 		G4String nextVolume = aStep->GetTrack()->GetNextVolume()->GetName();
-		if (particle == "neutron" && (std::find(volumesToTrack.begin(), volumesToTrack.end(), nextVolume) != volumesToTrack.end())) {
+		if (particle == "neutron" &&
+			(std::find(volumesToTrack.begin(), volumesToTrack.end(), nextVolume) != volumesToTrack.end()) &&
+			(nextVolume != volume)) {
 			m_pAnalysisManager->FillParticleInSave(
 							1, // 1==Particle entering the template detector
 							nextVolume,

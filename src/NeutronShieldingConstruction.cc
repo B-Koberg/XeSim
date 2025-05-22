@@ -287,7 +287,7 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["dBuildHalfZ"] = 3.*m;
     m_hGeometryParameters["dBuildHalfThick"] = 0.5*cm;
 
-    m_hGeometryParameters["dAbsorberHalfThick"]= 2.5*cm;
+    m_hGeometryParameters["dAbsorberHalfThick"]= 10*cm;
 
     m_hGeometryParameters["dLXeHalfX"] = 0.23*m;
     m_hGeometryParameters["dLXeHalfY"] = 0.23*m;
@@ -340,7 +340,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
   G4Material *Rock = G4Material::GetMaterial("Rock");
   G4Material *Concrete = G4Material::GetMaterial("Concrete");
 
-  G4Material *AbsorberMat = G4Material::GetMaterial("Polyethylen");
+  G4Material *AbsorberMat = G4Material::GetMaterial("Polyethylen25");
 
   G4Material *Paraffin = G4Material::GetMaterial("Paraffin");
   G4Material *Paraffin25 = G4Material::GetMaterial("Paraffin25");
