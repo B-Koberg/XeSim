@@ -15,7 +15,8 @@
 #/Xe/gun/energy 5 MeV
 /Xe/gun/energytype Spectrum
 /Xe/gun/energyspectrum ./notebooks/ConstantDistribution.txt
-/Xe/gun/point 0 0 3000 mm
+#/Xe/gun/point 0 0 3000 mm
+/Xe/gun/angtype iso 
 
 # Remove generated secondaries from the event
 /xe/KillGeneratedParticles opticalphoton e-

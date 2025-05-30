@@ -217,7 +217,6 @@ void NeutronShieldingConstruction::DefineMaterials() {
   SS304LSteel->AddElement(Mn, 0.02);
   SS304LSteel->AddElement(Si, 0.01);
 
-  //------------------------------- Paraffin -------------------------------
   G4Material* paraffin = new G4Material("Paraffin", 0.9*g/cm3, 2, kStateSolid);
   paraffin->AddElement(C, (100-14.96)*perCent);
   paraffin->AddElement(H, 14.96*perCent);
@@ -234,7 +233,6 @@ void NeutronShieldingConstruction::DefineMaterials() {
   polyethylen->AddElement(H, 13.38*perCent);
 
   //------------------------------- Polyethylen 5% Boron-------------------------------
-
   G4Material* polyethylen5 = new G4Material("Polyethylen5", 1.07*g/cm3, 3, kStateSolid);
   polyethylen5->AddElement(C, (100-5-11.7)*perCent);
   polyethylen5->AddElement(H, 11.7*perCent);
@@ -245,6 +243,12 @@ void NeutronShieldingConstruction::DefineMaterials() {
   polyethylen25->AddElement(C, (100-25-9.3)*perCent);
   polyethylen25->AddElement(H, 9.3*perCent);
   polyethylen25->AddElement(eB, 25*perCent);
+
+  //------------------------------- Polyethylen 25% G4_Boron-------------------------------
+  G4Material* polyethylen25_G4Boron = new G4Material("Polyethylen25_G4Boron", 1.17*g/cm3, 3, kStateSolid);
+  polyethylen25_G4Boron->AddElement(C, (100-25-9.3)*perCent);
+  polyethylen25_G4Boron->AddElement(H, 9.3*perCent);
+  polyethylen25_G4Boron->AddElement(B, 25*perCent);
 
   //------------------------------- Polyethylen 7.5% lithium -------------------------------
   G4Material* polyethylen7Lit = new G4Material("Polyethylen7Lit", 1.06*g/cm3, 3, kStateSolid);
@@ -278,7 +282,7 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["dSpawnHalfThick"] = 0.5*cm;
 
     m_hGeometryParameters["dHallHalfX"] = 9.1*m;
-    m_hGeometryParameters["dHallHalfY"] = 30.*m;
+    m_hGeometryParameters["dHallHalfY"] = 15.*m;
     m_hGeometryParameters["dHallHalfZ"] = (20*m - 9.1*m)/2;
     m_hGeometryParameters["dHallRadius"] = 9.1*m;
 
@@ -287,7 +291,7 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["dBuildHalfZ"] = 3.*m;
     m_hGeometryParameters["dBuildHalfThick"] = 0.5*cm;
 
-    m_hGeometryParameters["dAbsorberHalfThick"]= 2.5*cm;
+    m_hGeometryParameters["dAbsorberHalfThick"]= 25*cm;
 
     m_hGeometryParameters["dLXeHalfX"] = 0.23*m;
     m_hGeometryParameters["dLXeHalfY"] = 0.23*m;
@@ -340,16 +344,16 @@ void NeutronShieldingConstruction::ConstructDetector() {
   G4Material *Rock = G4Material::GetMaterial("Rock");
   G4Material *Concrete = G4Material::GetMaterial("Concrete");
 
-  G4Material *AbsorberMat = G4Material::GetMaterial("G4_WATER");
+  G4Material *AbsorberMat = G4Material::GetMaterial("G4_AIR");
 
-  G4Material *Paraffin = G4Material::GetMaterial("Paraffin");
+  /* G4Material *Paraffin = G4Material::GetMaterial("Paraffin");
   G4Material *Paraffin25 = G4Material::GetMaterial("Paraffin25");
   G4Material *Polyethylen = G4Material::GetMaterial("Polyethylen");
   G4Material *Polyethylen5 = G4Material::GetMaterial("Polyethylen5");
   G4Material *Polyethylen25 = G4Material::GetMaterial("Polyethylen25");
   G4Material *Polyethylen7Lit = G4Material::GetMaterial("Polyethylen7Lit");
   G4Material *Silicone5 = G4Material::GetMaterial("Silicone5");
-  G4Material *Silicone25Lit6 = G4Material::GetMaterial("Silicone25Lit6");
+  G4Material *Silicone25Lit6 = G4Material::GetMaterial("Silicone25Lit6"); */
 
 
   const G4double dLabHalfX = m_hGeometryParameters["dLabHalfX"];
@@ -588,6 +592,20 @@ void NeutronShieldingConstruction::ConstructDetector() {
   G4VisAttributes *pAbsorberVisAtt = new G4VisAttributes(hAbsorberColor);
   pAbsorberVisAtt->SetVisibility(true);
   m_pAbsorberLogicalVolume->SetVisAttributes(pAbsorberVisAtt);
+
+  G4cout << AbsorberMat->GetName() << AbsorberMat->GetDensity() * cm3/g << G4endl;
+  for (size_t j = 0; j < AbsorberMat->GetNumberOfElements(); ++j) {
+                  const G4Element* element = AbsorberMat->GetElement(j);
+                  double fraction = AbsorberMat->GetFractionVector()[j];
+                  G4cout << "Element: " << element->GetName() << ", Fraction: " << fraction <<G4endl;
+                  if (element->GetName() == "Boron") {
+                      for (size_t i = 0; i < element->GetNumberOfIsotopes(); ++i) {
+                        const G4Isotope* iso = element->GetIsotope(i);
+                        double fraction = element->GetRelativeAbundanceVector()[i];
+                        G4cout << "  Isotop: " << iso->GetName() << ", Anteil: " << fraction << G4endl;
+                      }
+                  }
+              } 
 
   
   // Air in the absorber
