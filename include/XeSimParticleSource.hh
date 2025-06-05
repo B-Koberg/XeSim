@@ -58,6 +58,7 @@ public:
 	void ConfineSourceToVolume(G4String);
 
 	void GenerateIsotropicFlux();
+	void GenerateIsotropicFluxHalf();
 	void SetDirectionToPoint(G4ThreeVector);
 
 	void GenerateMonoEnergetic();

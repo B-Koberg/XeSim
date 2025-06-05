@@ -341,6 +341,10 @@ XeSimParticleSource::GenerateIsotropicFlux()
 	G4double rndm, rndm2;
 	G4double px, py, pz;
 
+	G4double x = m_hParticlePosition.x();
+	G4double y = m_hParticlePosition.y();
+	G4double z = m_hParticlePosition.z();
+
 	G4double sintheta, sinphi, costheta, cosphi;
 
 	rndm = G4UniformRand();
@@ -391,6 +395,92 @@ XeSimParticleSource::GenerateIsotropicFlux()
     m_hParticlePolarization = cos * m_hParticlePolarization + sin * hPerpendicular;
     m_hParticlePolarization = m_hParticlePolarization.unit();
   }
+}
+
+void
+XeSimParticleSource::GenerateIsotropicFluxHalf()
+{
+    // 1) Startpunkt-Koordinate
+    G4double x = m_hParticlePosition.x();
+    G4double y = m_hParticlePosition.y();
+    G4double z = m_hParticlePosition.z();
+
+    // 2) Randabstände definieren
+    G4double xBorder  = 9100.0 - 10.0;
+    G4double yBorder  = 15000.0 - 10.0;
+    G4double zBorder1 = 10.0;                       // Bodenhöhe
+    G4double zBorder2 = 20000.0 - 9100.0 - 10.0;    // Deckenhöhe
+
+    // 3) Herausfinden, an welcher Wand wir starten
+    //    Und gleichzeitig die Einheitsnormale "nach innen" festlegen
+    G4ThreeVector hat_n;   // Normale nach innen
+    if      (z < zBorder1)             { hat_n = G4ThreeVector( 0,  0, +1); } // „boden“
+    else if (x >  xBorder  && z < zBorder2) { hat_n = G4ThreeVector(-1,  0,  0); } // „x“
+    else if (x < -xBorder  && z < zBorder2) { hat_n = G4ThreeVector(+1,  0,  0); } // „nx“
+    else if (y >  yBorder)             { hat_n = G4ThreeVector( 0, -1,  0); } // „y“
+    else if (y < -yBorder)             { hat_n = G4ThreeVector( 0, +1,  0); } // „ny“
+    else{ 
+		G4ThreeVector from = G4ThreeVector(x, y, z);
+		G4ThreeVector to = G4ThreeVector(0, y, zBorder2);
+
+		hat_n = (to - from).unit(); // Normale nach innen
+		} 
+
+    // 4) Lokales Sampling auf der +z-Halbkugel (gleichverteilt):
+    //
+    //    Ziehe zwei Zufallszahlen u, v ∈ [0,1), berechne daraus
+    //      phi ∈ [0,2π), cosTh ∈ [0,1) ⇒ θ ∈ [0, π/2].
+    //
+    //    Dann entspricht
+    //      v_z = cosTh ≥ 0
+    //    und (v_x,v_y,v_z) ist ein Einheitsektor in der Halbkugel nach +z.
+    //
+    G4double u     = G4UniformRand();
+    G4double v_val = G4UniformRand();
+    G4double phi   = 2.0 * CLHEP::pi * u;  // Azimutwinkel
+    G4double cosTh = v_val;               // cos(theta) ∈ [0,1)
+    G4double sinTh = std::sqrt(1.0 - cosTh*cosTh);
+
+    G4ThreeVector localDir(
+        sinTh * std::cos(phi),
+        sinTh * std::sin(phi),
+        cosTh       // ≥ 0
+    );
+
+    // 5) Rotationsmatrix bauen: (0,0,1) → hat_n
+    G4ThreeVector zAxis(0, 0, 1);
+    G4ThreeVector rotAxis = zAxis.cross(hat_n);
+    G4double sinAngle = rotAxis.mag();
+    G4double cosAngle = zAxis.dot(hat_n);
+
+    G4RotationMatrix rotation;  // Identitätsmatrix
+    if (sinAngle > 1e-6) {
+        rotAxis = rotAxis.unit();
+        G4double angle = std::atan2(sinAngle, cosAngle);
+        rotation.rotate(angle, rotAxis);
+    }
+    else if (cosAngle < 0) {
+        // zAxis und hat_n antiparallel ⇒ 180°-Drehung um eine beliebige Achse senkrecht zu z
+        G4ThreeVector perp(1, 0, 0);
+        rotation.rotate(CLHEP::pi, perp);
+    }
+    // sonst: zAxis ≈ hat_n ⇒ keine Rotation nötig
+
+    // 6) Wende die Rotation auf den lokalen Vektor an, um globalDir zu erhalten
+    G4ThreeVector globalDir = rotation * localDir;
+
+    // 7) Setze das Ergebnis als Impulsrichtung
+    m_hParticleMomentumDirection.setX(globalDir.x());
+    m_hParticleMomentumDirection.setY(globalDir.y());
+    m_hParticleMomentumDirection.setZ(globalDir.z());
+
+	// m_hParticleMomentumDirection now holds unit momentum vector.
+	if(m_iVerbosityLevel >= 2)
+		G4cout << "Generating isotropic vector: " <<
+			m_hParticleMomentumDirection << G4endl;
+	/* G4cout << x << " " << y << " " << z << G4endl;
+	G4cout << hat_n << G4endl;
+	G4cout << globalDir << G4endl; */
 }
 
 void
@@ -485,14 +575,19 @@ XeSimParticleSource::GeneratePrimaryVertex(G4Event * evt)
         }
         
         // Angular stuff
+		//G4cout << "Generating angular distribution: " << m_hAngDistType << G4endl;
         if(m_hAngDistType == "iso")
             GenerateIsotropicFlux();
         else if(m_hAngDistType == "direction")
             SetParticleMomentumDirection(m_hParticleMomentumDirection);
 		else if(m_hAngDistType == "toPoint")
 			SetDirectionToPoint(m_hPoint);
+		else if(m_hAngDistType == "isoHalf")
+			GenerateIsotropicFluxHalf();
         else
             G4cout << "Error: AngDistType has unusual value" << G4endl;
+
+		
         // Energy stuff
         if(m_hEnergyDisType == "Mono")
             GenerateMonoEnergetic();

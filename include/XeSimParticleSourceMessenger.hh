@@ -51,6 +51,7 @@ private:
   G4UIcmdWith3VectorAndUnit  *m_pPositionCmd;
   G4UIcmdWith3Vector         *m_pDirectionCmd;
   G4UIcmdWith3Vector         *m_pPointForDirectionCmd;
+  G4UIcmdWith3Vector         *m_pIsoHalfCmd;
   G4UIcmdWithADoubleAndUnit  *m_pEnergyCmd;
   G4UIcmdWithoutParameter    *m_pListCmd;
   G4UIcmdWithAnInteger       *m_pNumberOfParticlesToBeGeneratedCmd;

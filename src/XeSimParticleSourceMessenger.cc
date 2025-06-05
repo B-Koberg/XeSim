@@ -162,10 +162,10 @@ XeSimParticleSourceMessenger::XeSimParticleSourceMessenger(XeSimParticleSource *
 	// angular distribution
 	m_pAngTypeCmd = new G4UIcmdWithAString("/Xe/gun/angtype", this);
 	m_pAngTypeCmd->SetGuidance("Sets angular source distribution type");
-	m_pAngTypeCmd->SetGuidance("Possible variables are: iso direction toPoint");
+	m_pAngTypeCmd->SetGuidance("Possible variables are: iso direction toPoint isoHalf");
 	m_pAngTypeCmd->SetParameterName("AngDis", true, true);
 	m_pAngTypeCmd->SetDefaultValue("iso");
-	m_pAngTypeCmd->SetCandidates("iso direction toPoint");
+	m_pAngTypeCmd->SetCandidates("iso direction toPoint isoHalf");
 
 	// energy distribution
 	m_pEnergyTypeCmd = new G4UIcmdWithAString("/Xe/gun/energytype", this);
