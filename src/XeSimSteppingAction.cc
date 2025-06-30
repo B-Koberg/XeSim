@@ -73,10 +73,16 @@ void XeSimSteppingAction::UserSteppingAction(const G4Step *aStep) {
 	G4String finProc;
 	G4String volume = aStep->GetTrack()->GetVolume()->GetName();
 	std::vector<std::string> volumesToTrack = {
-        "Absorber",
+        "Absorber", // For the main sim
 		"AbsorberAir",
 		"LXeContainer",
 		"LXe",
+		"RockPhysicalVolume", // For the smaller sim
+		"RockSpawnPhysicalVolume",
+		"ConcretePhysicalVolume",
+		"ConcreteSpawnPhysicalVolume",
+		"CountPhysicalVolume",
+		"ControlPhysicalVolume",
     };
 
 	if (aStep->GetTrack()->GetNextVolume()) {

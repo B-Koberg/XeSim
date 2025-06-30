@@ -15,6 +15,7 @@
 #include "muensterTPCDetectorConstruction.hh"
 #include "RnColumnDetectorConstruction.hh"
 #include "NeutronShieldingConstruction.hh"
+#include "EnergyDistributionRock.hh"
 
 #include "XeSimPhysicsList.hh"
 #include "XeSimPrimaryGeneratorAction.hh"
@@ -142,6 +143,10 @@ int main(int argc, char **argv) {
 		NeutronShieldingConstruction *pNeutronShieldingConstruction = new NeutronShieldingConstruction();
 		iNbPhotoDets = pNeutronShieldingConstruction->GetGeometryParameter("NbPhotoDets");
 		pRunManager->SetUserInitialization(pNeutronShieldingConstruction);
+	} else if (hExperiment == "EnergyDistributionRock") {
+		EnergyDistributionRock *pEnergyDistributionRock = new EnergyDistributionRock();
+		iNbPhotoDets = pEnergyDistributionRock->GetGeometryParameter("NbPhotoDets");
+		pRunManager->SetUserInitialization(pEnergyDistributionRock);
 	}
 	pRunManager->SetUserInitialization(new XeSimPhysicsList);
 

@@ -1,0 +1,21 @@
+#/tracking/verbose 1
+
+/Xe/gun/type Volume
+/Xe/gun/shape Box
+
+#/Xe/gun/position 0 0 50000 mm
+/Xe/gun/halfz 1000 mm
+/Xe/gun/halfx 1000 mm
+/Xe/gun/halfy 1000 mm
+
+/Xe/gun/confine RockSpawnPhysicalVolume
+
+
+
+/Xe/gun/particle geantino
+#/Xe/gun/point 0 0 3000 mm
+#/Xe/gun/direction 0 0 -1000 mm
+/Xe/gun/angtype iso
+
+# Remove generated secondaries from the event
+/xe/KillGeneratedParticles opticalphoton e-

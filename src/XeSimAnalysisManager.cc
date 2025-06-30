@@ -147,9 +147,9 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
     }
 
     // Create list of process subtypes as vectors
-    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+    /* G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleTable::G4PTblDicIterator* particleIterator = particleTable->GetIterator();
-    particleIterator->reset(); 
+    particleIterator->reset();  
 
     // Iteration over all particles in the table
      while ((*particleIterator)()) {
@@ -170,7 +170,7 @@ void XeSimAnalysisManager::BeginOfRun(const G4Run *pRun) {
           }
         }
       }
-    }
+    } */
 
     //// Print all subtypes for debugging
     //G4cout << "List of Process Subtypes:" << G4endl;

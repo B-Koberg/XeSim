@@ -2,7 +2,7 @@
 /Xe/gun/shape Box
 
 # full volume
-#/Xe/gun/position 0 0 10000 mm
+#/Xe/gun/position 0 0 50000 mm
 /Xe/gun/halfz 25000 mm
 /Xe/gun/halfx 20000 mm
 /Xe/gun/halfy 60000 mm
@@ -16,7 +16,8 @@
 /Xe/gun/energytype Spectrum
 /Xe/gun/energyspectrum ./notebooks/ConstantDistribution.txt
 #/Xe/gun/point 0 0 3000 mm
-/Xe/gun/angtype iso 
+#/Xe/gun/direction 0 0 -1000 mm
+/Xe/gun/angtype isoHalf
 
 # Remove generated secondaries from the event
 /xe/KillGeneratedParticles opticalphoton e-

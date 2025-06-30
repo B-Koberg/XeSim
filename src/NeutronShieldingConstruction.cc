@@ -344,7 +344,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
   G4Material *Rock = G4Material::GetMaterial("Rock");
   G4Material *Concrete = G4Material::GetMaterial("Concrete");
 
-  G4Material *AbsorberMat = G4Material::GetMaterial("G4_AIR");
+  G4Material *AbsorberMat = G4Material::GetMaterial("Polyethylen");
 
   /* G4Material *Paraffin = G4Material::GetMaterial("Paraffin");
   G4Material *Paraffin25 = G4Material::GetMaterial("Paraffin25");
@@ -650,33 +650,33 @@ void NeutronShieldingConstruction::ConstructDetector() {
   pSDManager->AddNewDetector(pLXeSD);
   m_pLXeLogicalVolume->SetSensitiveDetector(pLXeSD);  
 
+  /* 
+   //single LXe
+   // Container
+   G4Box *pLXeContainerBox = new G4Box("LXeContainerBox", dLXeHalfX+2*dLXeContainerHalfThick, dLXeHalfY_single+2*dLXeContainerHalfThick, dLXeHalfZ+2*dLXeContainerHalfThick);
+
+   m_pLXeContainerLogicalVolume = new G4LogicalVolume(pLXeContainerBox, StainlessSteel, "LXeContainerVolume", 0, 0, 0);
+   m_pLXeContainerPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0), m_pLXeContainerLogicalVolume,
+                                               "LXeContainer", m_pAbsorberAirLogicalVolume, false, 0);
   
-  //single LXe
-  // Container
-  /* G4Box *pLXeContainerBox = new G4Box("LXeContainerBox", dLXeHalfX+2*dLXeContainerHalfThick, dLXeHalfY_single+2*dLXeContainerHalfThick, dLXeHalfZ+2*dLXeContainerHalfThick);
-
-  m_pLXeContainerLogicalVolume = new G4LogicalVolume(pLXeContainerBox, StainlessSteel, "LXeContainerVolume", 0, 0, 0);
-  m_pLXeContainerPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0), m_pLXeContainerLogicalVolume,
-                                              "LXeContainer", m_pAbsorberAirLogicalVolume, false, 0);
+   m_pLXeContainerLogicalVolume->SetVisAttributes(pBuildVisAtt);
   
-  m_pLXeContainerLogicalVolume->SetVisAttributes(pBuildVisAtt);
-  
-  // LXe
-  G4Box *pLXeBox = new G4Box("LXeBox", dLXeHalfX, dLXeHalfY_single, dLXeHalfZ);
+   // LXe
+   G4Box *pLXeBox = new G4Box("LXeBox", dLXeHalfX, dLXeHalfY_single, dLXeHalfZ);
 
-  m_pLXeLogicalVolume = new G4LogicalVolume(pLXeBox, LXe, "LXeVolume", 0, 0, 0);
-  m_pLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0), m_pLXeLogicalVolume,
-                                              "LXe", m_pLXeContainerLogicalVolume, false, 0);
+   m_pLXeLogicalVolume = new G4LogicalVolume(pLXeBox, LXe, "LXeVolume", 0, 0, 0);
+   m_pLXePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., 0), m_pLXeLogicalVolume,
+                                               "LXe", m_pLXeContainerLogicalVolume, false, 0);
 
-  G4Colour hLXeColor(0.0,0.0,1.0,0.5);
-  G4VisAttributes *pLXeVisAtt = new G4VisAttributes(hLXeColor);
-  pLXeVisAtt->SetVisibility(true);
-  m_pLXeLogicalVolume->SetVisAttributes(pLXeVisAtt);
+   G4Colour hLXeColor(0.0,0.0,1.0,0.5);
+   G4VisAttributes *pLXeVisAtt = new G4VisAttributes(hLXeColor);
+   pLXeVisAtt->SetVisibility(true);
+   m_pLXeLogicalVolume->SetVisAttributes(pLXeVisAtt);
 
-  XeSimLXeSensitiveDetector *pLXeSD = new XeSimLXeSensitiveDetector("template/LXeSD");
-  pSDManager->AddNewDetector(pLXeSD);
-  m_pLXeLogicalVolume->SetSensitiveDetector(pLXeSD);
-   */
+   XeSimLXeSensitiveDetector *pLXeSD = new XeSimLXeSensitiveDetector("template/LXeSD");
+   pSDManager->AddNewDetector(pLXeSD);
+   m_pLXeLogicalVolume->SetSensitiveDetector(pLXeSD);
+    */
   
 
 
