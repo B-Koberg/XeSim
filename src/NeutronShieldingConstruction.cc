@@ -45,6 +45,7 @@ using std::max;
 #include "NeutronShieldingConstruction.hh"
 //#include "NeutronShieldingMessenger.hh"
 
+
 map<G4String, G4double> NeutronShieldingConstruction::m_hGeometryParameters;
 
 NeutronShieldingConstruction::NeutronShieldingConstruction() {
@@ -291,7 +292,7 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["dBuildHalfZ"] = 3.*m;
     m_hGeometryParameters["dBuildHalfThick"] = 0.5*cm;
 
-    m_hGeometryParameters["dAbsorberHalfThick"]= 15*cm;
+    m_hGeometryParameters["dAbsorberHalfThick"]= 7.5*cm;
 
     m_hGeometryParameters["dLXeHalfX"] = 0.23*m;
     m_hGeometryParameters["dLXeHalfY"] = 0.23*m;
@@ -607,7 +608,14 @@ void NeutronShieldingConstruction::ConstructDetector() {
                   }
               } 
 
-  
+  // Dann kannst du einfach das zugrunde liegende Solid abfragen und sein Volumen auslesen:
+  G4double volume1 = m_pRockPhysicalVolume->GetLogicalVolume()->GetSolid()->GetCubicVolume();  // in mm^3
+  G4cout << "Rock: " << volume1/m3 << " m^3" << G4endl;
+  G4double volume2 = m_pConcretePhysicalVolume->GetLogicalVolume()->GetSolid()->GetCubicVolume();  // in mm^3
+  G4cout << "Concrete: " << volume2/m3 << " m^3" << G4endl;
+  G4double volume3 = m_pSpawnPhysicalVolume->GetLogicalVolume()->GetSolid()->GetCubicVolume();  // in mm^3
+  G4cout << "Spawn: " << volume3/m3 << " m^3" << G4endl;
+
   // Air in the absorber
   G4Box *pAbsorberAir = new G4Box("AbsorberAir",dAbsorberHalfX-2*dAbsorberHalfThick, dAbsorberHalfY-2*dAbsorberHalfThick, dAbsorberHalfZ-2*dAbsorberHalfThick);
   m_pAbsorberAirLogicalVolume = new G4LogicalVolume(pAbsorberAir, Air, "AbsorberAirVolume", 0, 0, 0);
