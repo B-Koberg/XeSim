@@ -292,7 +292,7 @@ void NeutronShieldingConstruction::DefineGeometryParameters() {
     m_hGeometryParameters["dBuildHalfZ"] = 3.*m;
     m_hGeometryParameters["dBuildHalfThick"] = 0.5*cm;
 
-    m_hGeometryParameters["dAbsorberHalfThick"]= 7.5*cm;
+    m_hGeometryParameters["dAbsorberHalfThick"]= 22.5*cm;
 
     m_hGeometryParameters["dLXeHalfX"] = 0.23*m;
     m_hGeometryParameters["dLXeHalfY"] = 0.23*m;
@@ -560,7 +560,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
   m_pBuildPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0., 0., -dHallHalfZ + dBuildHalfZ + dSpawnHalfThick ), m_pBuildLogicalVolume,
                                               "Build", m_pAirLogicalVolume, false, 0);
   
-  G4Colour hBuildColor(0.0,1.,0.,0.5);
+  G4Colour hBuildColor(0.0,1.,0.,0.7);
 
   G4VisAttributes *pBuildVisAtt = new G4VisAttributes(hBuildColor);
   pBuildVisAtt->SetVisibility(true);
@@ -720,7 +720,7 @@ void NeutronShieldingConstruction::ConstructDetector() {
                                               "Water", m_pWaterContainerLogicalVolume, false, 0);
 
 
-  G4Colour hWaterColor(0.0,1.,1.0,0.5);
+  G4Colour hWaterColor(0.0,1.,1.0,0.4);
   G4VisAttributes *pWaterVisAtt = new G4VisAttributes(hWaterColor);
   pWaterVisAtt->SetVisibility(true);
   m_pWaterLogicalVolume->SetVisAttributes(pWaterVisAtt);
